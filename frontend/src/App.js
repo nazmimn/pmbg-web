@@ -605,17 +605,19 @@ function ExploreView({ listings, onSeed }) {
 }
 
 function AuctionsView({ listings, onBid }) {
-  const auctions = listings.filter(l => l.type === 'WTL');
+  // const auctions = listings.filter(l => l.type === 'WTL');
   return (
     <div className="space-y-6">
       <div className="bg-orange-900 text-orange-50 p-6 rounded-xl flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold flex items-center"><Gavel className="mr-2" /> Want to Lelong</h2>
-          <p className="text-orange-200 opacity-80">Live bidding wars.</p>
+          <h2 className="text-2xl font-bold flex items-center"><Gavel className="mr-2" /> Lelong (Coming Soon)</h2>
+          <p className="text-orange-200 opacity-80">Live bidding wars are currently unavailable.</p>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {auctions.map(game => <AuctionCard key={game.id} game={game} onBid={onBid} />)}
+      <div className="flex flex-col items-center justify-center py-20 bg-white rounded-xl border border-dashed border-orange-200">
+         <Gavel className="w-16 h-16 text-orange-200 mb-4" />
+         <h3 className="text-xl font-bold text-slate-700">Auction House Closed</h3>
+         <p className="text-slate-500">The Lelong feature is currently under construction. Check back later!</p>
       </div>
     </div>
   );
