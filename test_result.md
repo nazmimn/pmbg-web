@@ -290,11 +290,8 @@ frontend:
         comment: "✅ User authentication working correctly. Email login successful, dashboard navigation functional, Add Boardgame button accessible after authentication."
 
 test_plan:
-  current_focus:
-    - "Add Boardgame Modal - Method Selection"
-    - "Add Boardgame Modal - Complete WTS Flow"
-  stuck_tasks:
-    - "Add Boardgame Modal - Method Selection"
+  current_focus: []
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
