@@ -1,0 +1,103 @@
+  const renderEditForm = () => (
+    <form onSubmit={handleSingleSave} className="space-y-4">
+      {/* Type & Price Row */}
+      <div className="grid grid-cols-2 gap-4">
+         <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Type</label>
+            <select className="w-full p-2 border border-slate-300 rounded-lg bg-slate-50" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+               <option value="WTS">Sell (WTS)</option>
+               <option value="WTB">Buy (WTB)</option>
+               <option value="WTT">Trade (WTT)</option>
+            </select>
+         </div>
+         <div>
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{formData.type === 'WTB' ? 'Willing to Pay (RM)' : 'Price (RM)'} {formData.type !== 'WTB' && <span className="text-red-500">*</span>}</label>
+            <input 
+              type="text" 
+              inputMode="numeric" 
+              required={formData.type !== 'WTB'}
+              className="w-full p-2 border border-slate-300 rounded-lg" 
+              value={formData.price} 
+              onChange={e => {
+                  const val = e.target.value;
+                  if (val === '' || /^\d+$/.test(val)) {
+                      setFormData({...formData, price: val});
+                  }
+              }}
+              placeholder={formData.type === 'WTB' ? "Optional" : "0"} 
+            />
+         </div>
+      </div>
+
+      {formData.type === 'WTS' && (
+        <div className="flex items-center space-x-2 bg-teal-50 p-2 rounded border border-teal-100">
+           <input type="checkbox" id="openForTrade" checked={formData.openForTrade} onChange={e => setFormData({...formData, openForTrade: e.target.checked})} className="rounded text-teal-600 focus:ring-teal-500" />
+           <label htmlFor="openForTrade" className="text-sm font-medium text-teal-700">Open for Trade?</label>
+        </div>
+      )}
+
+      <div>
+         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Boardgame Title <span className="text-red-500">*</span></label>
+         <input type="text" required className="w-full p-2 border border-slate-300 rounded-lg" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
+      </div>
+
+      <div>
+         <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Photos {formData.type === 'WTB' ? "(Optional)" : ""}</label>
+         <div 
+            className="flex gap-2 overflow-x-auto pb-2 border-2 border-dashed border-transparent hover:border-blue-300 rounded-xl transition-all p-1"
+            onDrop={onDrop}
+            onDragOver={(e) => e.preventDefault()}
+         >
+            <button type="button" onClick={() => multiImgRef.current?.click()} className="w-20 h-20 flex-shrink-0 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center text-slate-400 hover:border-orange-500 hover:text-orange-500 transition-colors">
+               <Plus className="w-6 h-6" />
+               <span className="text-[10px] mt-1">Add / Drop</span>
+            </button>
+            <input type="file" multiple ref={multiImgRef} hidden accept="image/*" onChange={handleMultiImageUpload} />
+            
+            {formData.images?.map((img, idx) => (
+               <div key={idx} className="relative w-20 h-20 flex-shrink-0 group">
+                  <img src={img} className={`w-full h-full object-cover rounded-lg border-2 ${idx === 0 ? 'border-orange-500' : 'border-transparent'}`} />
+                  {idx === 0 && <span className="absolute bottom-0 left-0 right-0 bg-orange-500 text-white text-[8px] text-center font-bold">COVER</span>}
+                  <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
+                     {idx !== 0 && <button type="button" onClick={() => setCoverImage(idx)} className="text-white hover:text-orange-300" title="Make Cover"><CheckCircle className="w-4 h-4" /></button>}
+                     <button type="button" onClick={() => removeImage(idx)} className="text-white hover:text-red-300"><XCircle className="w-4 h-4" /></button>
+                  </div>
+               </div>
+            ))}
+         </div>
+         <button type="button" onClick={fetchCoverFromBGG} disabled={isAnalyzing} className="text-xs text-blue-600 hover:text-blue-800 flex items-center mt-1">
+            {isAnalyzing ? <Loader2 className="w-3 h-3 animate-spin mr-1"/> : <Globe className="w-3 h-3 mr-1"/>}
+            Search BGG for Cover Art
+         </button>
+      </div>
+
+      {formData.type !== 'WTB' && (
+      <div>
+         <div className="flex justify-between mb-1">
+           <label className="block text-xs font-bold text-slate-500 uppercase">Condition (1.0 - 10.0)</label>
+           <span className={`text-xs font-bold ${formData.condition >= 9 ? 'text-green-600' : formData.condition >= 7 ? 'text-blue-600' : 'text-orange-600'}`}>{Number(formData.condition).toFixed(1)}</span>
+         </div>
+         <input type="range" min="1" max="10" step="0.5" className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500" value={formData.condition} onChange={e => setFormData({...formData, condition: e.target.value})} />
+         <div className="text-[10px] text-slate-500 mt-1 font-medium text-center bg-slate-50 p-1 rounded">
+            {getConditionText(Number(formData.condition))}
+         </div>
+      </div>
+      )}
+
+      <div>
+         <div className="flex justify-between mb-1">
+            <label className="block text-xs font-bold text-slate-500 uppercase">Description</label>
+            <button type="button" onClick={handleGenerateDescription} disabled={isAnalyzing} className="text-[10px] text-purple-600 flex items-center hover:underline"><Wand2 className="w-3 h-3 mr-1"/> Auto-write</button>
+         </div>
+         <textarea className="w-full p-2 border border-slate-300 rounded-lg h-24 text-sm" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}></textarea>
+      </div>
+
+      <div className="pt-4 flex justify-between">
+         <button type="button" onClick={() => initialData ? onClose() : (detectedItems.length > 0 ? setStep('review') : setStep('select-method'))} className="text-slate-500">Cancel</button>
+         <button type="submit" disabled={isSubmitting} className="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-800 flex items-center">
+            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+            {initialData ? 'Update' : (detectedItems.length > 0 ? 'Save to List' : 'Review & Post')}
+         </button>
+      </div>
+    </form>
+  );
