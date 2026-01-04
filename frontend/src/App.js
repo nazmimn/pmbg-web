@@ -357,7 +357,7 @@ export default function App() {
               <img 
                 src="https://customer-assets.emergentagent.com/job_boardgame-bazaar-1/artifacts/bzq9jenz_pmbg-logo.png" 
                 alt="Pasar Malam Boardgame" 
-                className="h-10 w-auto object-contain mb-1"
+                className="h-8 w-auto object-contain mb-1"
               />
               <span className="font-bold text-slate-800 text-xs sm:text-sm tracking-tight uppercase">Pasar Malam Boardgame</span>
             </div>
