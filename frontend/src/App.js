@@ -35,7 +35,9 @@ import {
   XCircle,
   Upload,
   ArrowLeft,
-  ListPlus
+  ListPlus,
+  LayoutGrid,
+  List as ListIcon
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -419,7 +421,32 @@ export default function App() {
   );
 }
 
-// --- Sub-Views ---
+// --- Components ---
+
+function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, isProcessing }) {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                <div className="p-6 text-center">
+                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <AlertCircle className="w-8 h-8 text-red-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">{title}</h3>
+                    <p className="text-slate-500 mb-6">{message}</p>
+                    <div className="flex space-x-3">
+                        <button onClick={onCancel} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">
+                            Cancel
+                        </button>
+                        <button onClick={onConfirm} disabled={isProcessing} className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors flex justify-center items-center">
+                            {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Delete'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 function AuthView({ onLogin, onCancel }) {
   const [name, setName] = useState('');
@@ -580,20 +607,28 @@ function AuctionsView({ listings, onBid }) {
 
 function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMarkSold, onOpenTrade }) {
   const [filter, setFilter] = useState('ALL');
+  const [viewMode, setViewMode] = useState('list'); // list | grid
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Confirm Modal State
+  const [confirmState, setConfirmState] = useState({ open: false, type: 'single', item: null });
 
   const counts = {
     ALL: myListings.length,
     WTS: myListings.filter(l => l.type === 'WTS').length,
     WTB: myListings.filter(l => l.type === 'WTB').length,
-    WTT: myListings.filter(l => l.type === 'WTT').length,
+    WTT: myListings.filter(l => l.type === 'WTT' || (l.type === 'WTS' && l.openForTrade)).length, // Updated Logic
     WTL: myListings.filter(l => l.type === 'WTL').length,
   };
 
   const filteredListings = myListings.filter(item => {
-    const matchesFilter = filter === 'ALL' || item.type === filter;
+    let matchesFilter = false;
+    if (filter === 'ALL') matchesFilter = true;
+    else if (filter === 'WTT') matchesFilter = item.type === 'WTT' || (item.type === 'WTS' && item.openForTrade);
+    else matchesFilter = item.type === filter;
+
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
@@ -610,15 +645,32 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
     else setSelectedIds(new Set(filteredListings.map(i => i.id)));
   };
 
-  const handleBulkDelete = async () => {
-    if (!window.confirm(`Delete ${selectedIds.size} items?`)) return;
+  const initiateDelete = (item) => {
+      setConfirmState({ open: true, type: 'single', item });
+  };
+
+  const initiateBulkDelete = () => {
+      if (selectedIds.size === 0) return;
+      setConfirmState({ open: true, type: 'bulk', item: null });
+  };
+
+  const handleConfirmDelete = async () => {
     setIsProcessing(true);
-    for (const id of selectedIds) {
-      const item = myListings.find(i => i.id === id);
-      if (item) await onDelete(item);
+    try {
+        if (confirmState.type === 'single' && confirmState.item) {
+            await onDelete(confirmState.item);
+        } else if (confirmState.type === 'bulk') {
+            for (const id of selectedIds) {
+                const item = myListings.find(i => i.id === id);
+                if (item) await onDelete(item);
+            }
+            setSelectedIds(new Set());
+        }
+    } catch(e) { console.error(e); }
+    finally {
+        setIsProcessing(false);
+        setConfirmState({ open: false, type: 'single', item: null });
     }
-    setSelectedIds(new Set());
-    setIsProcessing(false);
   };
 
   const handleBulkMarkSold = async () => {
@@ -643,6 +695,15 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <ConfirmModal 
+        isOpen={confirmState.open}
+        title="Delete Listing?"
+        message={confirmState.type === 'single' ? `Are you sure you want to delete "${confirmState.item?.title}"? This cannot be undone.` : `Are you sure you want to delete ${selectedIds.size} listings? This cannot be undone.`}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setConfirmState({ open: false, type: 'single', item: null })}
+        isProcessing={isProcessing}
+      />
+
       {/* Sidebar */}
       <div className="lg:col-span-1 space-y-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 text-center">
@@ -678,23 +739,36 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
         </div>
 
         {/* Controls */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-between">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
            <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
-            {['ALL', 'WTS', 'WTB', 'WTT', 'WTL'].map(type => (
+            {['ALL', 'WTS', 'WTB', 'WTT'].map(type => (
               <button key={type} onClick={() => setFilter(type)} className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${filter === type ? 'bg-slate-800 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>
                 {type === 'ALL' ? 'All' : type} <span className="opacity-70 ml-1">({counts[type]})</span>
               </button>
             ))}
+            <button disabled className="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 opacity-50">
+                WTL (Disabled)
+            </button>
           </div>
-          <div className="relative w-full sm:w-64">
-             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-             <input 
-               type="text" 
-               placeholder="Search my boardgames..." 
-               className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-full text-sm focus:outline-none focus:border-orange-500"
-               value={searchTerm}
-               onChange={e => setSearchTerm(e.target.value)}
-             />
+          <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                 <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                 <input 
+                   type="text" 
+                   placeholder="Search my boardgames..." 
+                   className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-full text-sm focus:outline-none focus:border-orange-500"
+                   value={searchTerm}
+                   onChange={e => setSearchTerm(e.target.value)}
+                 />
+              </div>
+              <div className="flex bg-slate-100 p-1 rounded-lg">
+                  <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-white shadow text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>
+                      <ListIcon className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-white shadow text-slate-800' : 'text-slate-400 hover:text-slate-600'}`}>
+                      <LayoutGrid className="w-4 h-4" />
+                  </button>
+              </div>
           </div>
         </div>
 
@@ -708,78 +782,104 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
                 <button onClick={handleBulkMarkSold} disabled={isProcessing} className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded flex items-center">
                    <CheckCircle className="w-3 h-3 mr-1" /> Mark Sold
                 </button>
-                <button onClick={handleBulkDelete} disabled={isProcessing} className="text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded flex items-center">
+                <button onClick={initiateBulkDelete} disabled={isProcessing} className="text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded flex items-center">
                    <Trash2 className="w-3 h-3 mr-1" /> Delete
                 </button>
              </div>
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 min-h-[400px] overflow-hidden">
-          {filteredListings.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full py-20 text-slate-400">
+        {/* Content Area */}
+        {filteredListings.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-[400px] py-20 text-slate-400 bg-white rounded-xl border border-slate-100">
                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4"><Filter className="w-8 h-8 text-slate-300" /></div>
                <p className="text-lg font-medium">No items found</p>
             </div>
-          ) : (
-             <div className="divide-y divide-slate-100">
-                {/* Header */}
-                <div className="bg-slate-50 p-3 flex items-center text-xs font-bold text-slate-500 uppercase tracking-wider">
-                   <div className="w-8 flex justify-center">
-                      <button onClick={selectAll}>
-                        {selectedIds.size === filteredListings.length && filteredListings.length > 0 ? <CheckSquare className="w-4 h-4 text-orange-500" /> : <Square className="w-4 h-4" />}
-                      </button>
-                   </div>
-                   <div className="flex-1 ml-4">Boardgame Details</div>
-                   <div className="hidden sm:block w-32 text-right mr-4">Status</div>
-                   <div className="w-24 text-center">Actions</div>
-                </div>
-
-                {filteredListings.map(item => (
-                   <div key={item.id} className={`p-3 flex items-center hover:bg-slate-50 transition-colors group ${item.status === 'sold' ? 'bg-slate-50 opacity-75' : ''}`}>
-                      <div className="w-8 flex justify-center">
-                         <button onClick={() => toggleSelect(item.id)}>
-                            {selectedIds.has(item.id) ? <CheckSquare className="w-4 h-4 text-orange-500" /> : <Square className="w-4 h-4 text-slate-300" />}
-                         </button>
-                      </div>
-                      <div className="flex-1 ml-4 flex items-center space-x-4">
-                         <div className="w-12 h-12 bg-slate-200 rounded-md overflow-hidden flex-shrink-0 relative">
-                           {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 text-xs">No Img</div>}
-                         </div>
-                         <div>
-                            <div className="flex items-center space-x-2">
-                               <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${item.type === 'WTL' ? 'bg-purple-100 text-purple-700' : item.type === 'WTS' ? 'bg-orange-100 text-orange-700' : item.type === 'WTT' ? 'bg-teal-100 text-teal-700' : 'bg-blue-100 text-blue-700'}`}>
-                                 {item.type}
-                               </span>
-                               {item.openForTrade && item.type === 'WTS' && <span className="text-[10px] bg-teal-50 text-teal-600 px-1.5 py-0.5 rounded border border-teal-100">Trade Open</span>}
-                               <h4 className={`font-bold text-sm ${item.status === 'sold' ? 'text-slate-500 line-through' : 'text-slate-800'}`}>{item.title}</h4>
+        ) : (
+            <>
+                {viewMode === 'list' ? (
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                         <div className="divide-y divide-slate-100">
+                            {/* Header */}
+                            <div className="bg-slate-50 p-3 flex items-center text-xs font-bold text-slate-500 uppercase tracking-wider">
+                               <div className="w-8 flex justify-center">
+                                  <button onClick={selectAll}>
+                                    {selectedIds.size === filteredListings.length && filteredListings.length > 0 ? <CheckSquare className="w-4 h-4 text-orange-500" /> : <Square className="w-4 h-4" />}
+                                  </button>
+                               </div>
+                               <div className="flex-1 ml-4">Boardgame Details</div>
+                               <div className="hidden sm:block w-32 text-right mr-4">Status</div>
+                               <div className="w-24 text-center">Actions</div>
                             </div>
-                            <p className="text-xs text-slate-500 mt-0.5">
-                               {item.type === 'WTL' ? `Bid: RM ${item.currentBid}` : `RM ${item.price}`} • Cond: {item.condition}
-                            </p>
+
+                            {filteredListings.map(item => (
+                               <div key={item.id} className={`p-3 flex items-center hover:bg-slate-50 transition-colors group ${item.status === 'sold' ? 'bg-slate-50 opacity-75' : ''}`}>
+                                  <div className="w-8 flex justify-center">
+                                     <button onClick={() => toggleSelect(item.id)}>
+                                        {selectedIds.has(item.id) ? <CheckSquare className="w-4 h-4 text-orange-500" /> : <Square className="w-4 h-4 text-slate-300" />}
+                                     </button>
+                                  </div>
+                                  <div className="flex-1 ml-4 flex items-center space-x-4">
+                                     <div className="w-12 h-12 bg-slate-200 rounded-md overflow-hidden flex-shrink-0 relative">
+                                       {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 text-xs">No Img</div>}
+                                     </div>
+                                     <div>
+                                        <div className="flex items-center space-x-2">
+                                           <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${item.type === 'WTL' ? 'bg-purple-100 text-purple-700' : item.type === 'WTS' ? 'bg-orange-100 text-orange-700' : item.type === 'WTT' ? 'bg-teal-100 text-teal-700' : 'bg-blue-100 text-blue-700'}`}>
+                                             {item.type}
+                                           </span>
+                                           {item.openForTrade && item.type === 'WTS' && <span className="text-[10px] bg-teal-50 text-teal-600 px-1.5 py-0.5 rounded border border-teal-100">Trade Open</span>}
+                                           <h4 className={`font-bold text-sm ${item.status === 'sold' ? 'text-slate-500 line-through' : 'text-slate-800'}`}>{item.title}</h4>
+                                        </div>
+                                        <p className="text-xs text-slate-500 mt-0.5">
+                                           {item.type === 'WTL' ? `Bid: RM ${item.currentBid}` : `RM ${item.price}`} {item.type !== 'WTB' && `• Cond: ${item.condition}`}
+                                        </p>
+                                     </div>
+                                  </div>
+                                  <div className="hidden sm:block w-32 text-right mr-4">
+                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${item.status === 'sold' ? 'bg-slate-200 text-slate-600' : 'bg-green-100 text-green-700'}`}>
+                                       {item.status === 'sold' ? 'SOLD' : 'ACTIVE'}
+                                     </span>
+                                  </div>
+                                  <div className="w-24 flex justify-center space-x-1">
+                                     <button onClick={() => onMarkSold(item)} className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded" title="Toggle Sold">
+                                       {item.status === 'sold' ? <Repeat className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                                     </button>
+                                     <button onClick={() => onEdit(item)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="Edit">
+                                       <Pencil className="w-4 h-4" />
+                                     </button>
+                                     <button onClick={() => initiateDelete(item)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete">
+                                       <Trash2 className="w-4 h-4" />
+                                     </button>
+                                  </div>
+                               </div>
+                            ))}
                          </div>
-                      </div>
-                      <div className="hidden sm:block w-32 text-right mr-4">
-                         <span className={`text-xs font-bold px-2 py-1 rounded-full ${item.status === 'sold' ? 'bg-slate-200 text-slate-600' : 'bg-green-100 text-green-700'}`}>
-                           {item.status === 'sold' ? 'SOLD' : 'ACTIVE'}
-                         </span>
-                      </div>
-                      <div className="w-24 flex justify-center space-x-1">
-                         <button onClick={() => onMarkSold(item)} className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded" title="Toggle Sold">
-                           {item.status === 'sold' ? <Repeat className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
-                         </button>
-                         <button onClick={() => onEdit(item)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="Edit">
-                           <Pencil className="w-4 h-4" />
-                         </button>
-                         <button onClick={() => { if(window.confirm('Delete this listing?')) onDelete(item); }} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete">
-                           <Trash2 className="w-4 h-4" />
-                         </button>
-                      </div>
-                   </div>
-                ))}
-             </div>
-          )}
-        </div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredListings.map(item => (
+                            <div key={item.id} className="relative group">
+                                <ListingCard game={item} />
+                                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                     <button onClick={() => onEdit(item)} className="p-1.5 bg-white text-blue-600 rounded shadow-sm hover:bg-blue-50" title="Edit">
+                                       <Pencil className="w-4 h-4" />
+                                     </button>
+                                     <button onClick={() => initiateDelete(item)} className="p-1.5 bg-white text-red-600 rounded shadow-sm hover:bg-red-50" title="Delete">
+                                       <Trash2 className="w-4 h-4" />
+                                     </button>
+                                </div>
+                                <div className="absolute top-2 left-2">
+                                    <button onClick={() => toggleSelect(item.id)} className="bg-white rounded shadow-sm p-0.5">
+                                        {selectedIds.has(item.id) ? <CheckSquare className="w-5 h-5 text-orange-500" /> : <Square className="w-5 h-5 text-slate-300" />}
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </>
+        )}
       </div>
     </div>
   );
@@ -810,6 +910,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   const [searchResults, setSearchResults] = useState([]);
   const [bggQuery, setBggQuery] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [debounceTimer, setDebounceTimer] = useState(null);
   const multiImgRef = useRef(null);
 
   useEffect(() => {
@@ -992,12 +1093,17 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   // --- BGG Logic (Proxied to Backend) ---
 
   const handleBGGSearch = async (q) => {
+    if (debounceTimer) clearTimeout(debounceTimer);
     if (!q || q.length < 3) return;
-    setBggQuery(q); // Track query
-    try {
-      const res = await api.get(`/bgg/search?q=${encodeURIComponent(q)}`);
-      setSearchResults(res.data);
-    } catch (e) { console.error(e); }
+    
+    const timer = setTimeout(async () => {
+        setBggQuery(q);
+        try {
+          const res = await api.get(`/bgg/search?q=${encodeURIComponent(q)}`);
+          setSearchResults(res.data);
+        } catch (e) { console.error(e); }
+    }, 500);
+    setDebounceTimer(timer);
   };
 
   const selectBGGGame = (game) => {
@@ -1253,7 +1359,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   const renderReviewList = () => (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-2">
-        <h4 className="font-bold text-slate-700">Review Items ({detectedItems.length})</h4>
+        <h4 className="font-bold text-slate-700">Review Detected : Boardgame Details</h4>
         <div className="flex gap-2">
             <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="text-xs flex items-center bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-full">
                 {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin mr-1"/> : <Globe className="w-3 h-3 mr-1"/>}
@@ -1291,42 +1397,12 @@ function AddGameModal({ onClose, onAdd, initialData }) {
     </div>
   );
 
-  const renderSelectType = () => (
-    <div className="space-y-6 text-center">
-      <h4 className="text-lg font-medium text-slate-700">What is your goal?</h4>
-      <div className="grid grid-cols-3 gap-4">
-        {['WTS', 'WTB', 'WTL'].map(t => (
-          <button 
-            key={t}
-            onClick={() => { 
-                if (t === 'WTL') return; 
-                setFormData(prev => ({...prev, type: t})); 
-                setStep('select-method'); 
-            }}
-            disabled={t === 'WTL'}
-            className={`p-6 rounded-2xl border-2 transition-all shadow-sm ${
-                t === 'WTL' 
-                ? 'opacity-50 cursor-not-allowed border-slate-100 bg-slate-50'
-                : t==='WTS'?'border-orange-200 bg-orange-50 hover:border-orange-500 hover:shadow-md hover:-translate-y-1'
-                : 'border-blue-200 bg-blue-50 hover:border-blue-500 hover:shadow-md hover:-translate-y-1'
-            }`}
-          >
-            <div className={`text-2xl font-black mb-2 ${t==='WTS'?'text-orange-600':t==='WTB'?'text-blue-600':'text-slate-400'}`}>{t}</div>
-            <div className="text-xs text-slate-500 font-medium">
-              {t==='WTS'?'Sell Game':t==='WTB'?'Buy Game':'Auction (Soon)'}
-            </div>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b border-slate-100">
           <h3 className="text-xl font-bold text-slate-800">
-            {step === 'select-type' ? 'List Boardgames' : step === 'select-method' ? 'Choose Method' : step === 'review' ? 'Review Detected' : 'Game Details'}
+            {step === 'select-type' ? 'List Boardgames' : step === 'select-method' ? 'Choose Method' : step === 'review' ? 'Boardgame Details' : 'Boardgame Details'}
           </h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="w-6 h-6" /></button>
         </div>
@@ -1414,7 +1490,7 @@ function ListingCard({ game }) {
         <h3 className="font-bold text-slate-800 line-clamp-1">{game.title}</h3>
         <div className="flex items-baseline mb-2"><span className="text-slate-400 text-xs mr-1">RM</span><span className="text-xl font-bold">{game.price}</span></div>
         <div className="flex items-center text-xs text-slate-500 space-x-2 mb-4">
-           <span className="bg-slate-100 px-2 py-1 rounded">Cond: {game.condition}</span>
+           {isWTB ? null : <span className="bg-slate-100 px-2 py-1 rounded">Cond: {game.condition}</span>}
         </div>
         <button className="w-full py-2 border rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50">{isWTB ? 'Offer Game' : isWTT ? 'Propose Trade' : 'Contact'}</button>
       </div>
