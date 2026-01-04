@@ -742,11 +742,6 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h2 className="text-2xl font-bold text-slate-800">My Boardgames</h2>
           <div className="flex gap-2">
-             {myListings.length === 0 && (
-                <button onClick={onSeed} className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium flex items-center transition-all">
-                  <Database className="w-5 h-5" />
-                </button>
-             )}
             <button onClick={onAdd} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium flex items-center shadow-lg transition-all">
               <Plus className="w-5 h-5 mr-2" /> Add Boardgame
             </button>
