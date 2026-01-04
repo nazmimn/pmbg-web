@@ -612,6 +612,8 @@ class BackendTester:
             self.log_result("listings_enrichment", False, f"Exception during profile update and listings enrichment test: {str(e)}")
             print(f"❌ Profile update and listings enrichment test error: {e}")
             return False
+
+    def test_ai_parse(self):
         """Test AI Text Parsing functionality"""
         print("\n=== Testing AI Text Parsing ===")
         
