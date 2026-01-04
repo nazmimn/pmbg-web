@@ -1876,8 +1876,10 @@ function ListingCard({ game }) {
         }
     };
 
+    const isWTB = game.type === 'WTB';
+
     return (
-        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border border-slate-100 flex flex-col h-full">
+        <div className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border flex flex-col h-full ${isWTB ? 'border-blue-200 bg-blue-50/30' : 'border-slate-100'}`}>
             <div className="relative h-48 overflow-hidden bg-slate-200">
                 {game.image ? (
                     <img src={game.image} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -1910,11 +1912,17 @@ function ListingCard({ game }) {
                 <h3 className="font-bold text-slate-800 text-base leading-tight mb-1 line-clamp-2" title={game.title}>{game.title}</h3>
                 <p className="text-xs text-slate-500 mb-3 line-clamp-2 flex-1">{game.description}</p>
                 
-                <div className="mt-auto pt-3 border-t border-slate-50">
+                <div className={`mt-auto pt-3 border-t ${isWTB ? 'border-blue-100' : 'border-slate-50'}`}>
                     <div className="flex justify-between items-center mb-2">
                         <div className="font-extrabold text-slate-900 text-lg">
                             {game.price ? `RM ${game.price}` : <span className="text-xs text-slate-400 italic">Make Offer</span>}
                         </div>
+                        {/* Open for Trade Mark */}
+                        {game.openForTrade && game.type !== 'WTT' && (
+                            <span className="text-[10px] font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded border border-teal-100 flex items-center">
+                                <RefreshCw className="w-3 h-3 mr-1" /> Open Trade
+                            </span>
+                        )}
                     </div>
                     
                     <div className="flex items-center justify-between">
