@@ -826,7 +826,7 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
 
       <div className="lg:col-span-3 space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-2xl font-bold text-slate-800">My Boardgames</h2>
+          <h2 className="text-2xl font-bold text-slate-800">My Listings</h2>
           <div className="flex gap-2">
             <button onClick={onAdd} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium flex items-center shadow-lg transition-all">
               <Plus className="w-5 h-5 mr-2" /> Add Boardgame
@@ -851,7 +851,7 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                  <input 
                    type="text" 
-                   placeholder="Search my boardgames..." 
+                   placeholder="Search boardgames..." 
                    className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-full text-sm focus:outline-none focus:border-orange-500"
                    value={searchTerm}
                    onChange={e => setSearchTerm(e.target.value)}
