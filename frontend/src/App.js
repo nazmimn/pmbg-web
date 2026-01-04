@@ -777,6 +777,7 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      {showProfileModal && <EditProfileModal user={user} onClose={() => setShowProfileModal(false)} onUpdate={onProfileUpdate} />}
       <ConfirmModal 
         isOpen={confirmState.open}
         title="Delete Listing?"
