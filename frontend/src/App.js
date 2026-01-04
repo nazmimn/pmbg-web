@@ -1296,6 +1296,14 @@ function AddGameModal({ onClose, onAdd, initialData }) {
     }
   };
 
+  const updateItemPrice = (idx, val) => {
+      const newItems = [...detectedItems];
+      if (/^\d*$/.test(val)) {
+          newItems[idx] = { ...newItems[idx], price: val };
+          setDetectedItems(newItems);
+      }
+  };
+
   // --- Render Steps ---
 
   const renderEditForm = () => (
@@ -1439,130 +1447,173 @@ function AddGameModal({ onClose, onAdd, initialData }) {
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <button 
-            onClick={() => setSelectedMethod('bgg')} 
-            className={`p-4 border-2 rounded-xl text-left transition-all relative group ${selectedMethod === 'bgg' ? 'border-green-500 bg-green-50' : 'border-slate-100 hover:border-green-500'}`}
+            onClick={() => { setSelectedMethod('bgg'); setStep('input-bgg'); }} 
+            className="p-4 border-2 rounded-xl text-left transition-all relative group border-slate-100 hover:border-green-500"
         >
-          <Globe className={`w-8 h-8 mb-3 transition-transform ${selectedMethod === 'bgg' ? 'text-green-600 scale-110' : 'text-green-500 group-hover:scale-110'}`} />
+          <Globe className="w-8 h-8 mb-3 text-green-500 group-hover:scale-110 transition-transform" />
           <div className="font-bold text-slate-800">BGG Database</div>
           <div className="text-xs text-slate-500 mt-1">Search & Auto-fill</div>
         </button>
 
         <button 
-            onClick={() => setSelectedMethod('scan')} 
-            className={`p-4 border-2 rounded-xl text-left transition-all relative overflow-hidden group ${selectedMethod === 'scan' ? 'border-purple-500 bg-purple-50' : 'border-slate-100 hover:border-purple-500'}`}
+            onClick={() => { setSelectedMethod('scan'); setStep('input-scan'); }} 
+            className="p-4 border-2 rounded-xl text-left transition-all relative overflow-hidden group border-slate-100 hover:border-purple-500"
         >
           <div className="absolute top-2 right-2 bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">MULTI</div>
-          <Camera className={`w-8 h-8 mb-3 transition-transform ${selectedMethod === 'scan' ? 'text-purple-600 scale-110' : 'text-purple-500 group-hover:scale-110'}`} />
+          <Camera className="w-8 h-8 mb-3 text-purple-500 group-hover:scale-110 transition-transform" />
           <div className="font-bold text-slate-800">AI Photo Scan</div>
           <div className="text-xs text-slate-500 mt-1">Upload Game Stack</div>
         </button>
 
         <button 
-            onClick={() => setSelectedMethod('parser')} 
-            className={`p-4 border-2 rounded-xl text-left transition-all relative group ${selectedMethod === 'parser' ? 'border-blue-500 bg-blue-50' : 'border-slate-100 hover:border-blue-500'}`}
+            onClick={() => { setSelectedMethod('parser'); setStep('input-parser'); }} 
+            className="p-4 border-2 rounded-xl text-left transition-all relative group border-slate-100 hover:border-blue-500"
         >
              <div className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">MULTI</div>
-             {formData.type === 'WTB' ? <ListPlus className={`w-8 h-8 mb-3 transition-transform ${selectedMethod === 'parser' ? 'text-blue-600 scale-110' : 'text-blue-500 group-hover:scale-110'}`} /> : <Facebook className={`w-8 h-8 mb-3 transition-transform ${selectedMethod === 'parser' ? 'text-blue-600 scale-110' : 'text-blue-500 group-hover:scale-110'}`} />}
+             {formData.type === 'WTB' ? <ListPlus className="w-8 h-8 mb-3 text-blue-500 group-hover:scale-110 transition-transform" /> : <Facebook className="w-8 h-8 mb-3 text-blue-500 group-hover:scale-110 transition-transform" />}
              <div className="font-bold text-slate-800">{formData.type === 'WTB' ? 'Quick List' : 'Smart Parser'}</div>
              <div className="text-xs text-slate-500 mt-1">{formData.type === 'WTB' ? 'Type multiple titles' : 'Paste bulk sell list'}</div>
         </button>
       </div>
 
-      <div className="transition-all duration-300 ease-in-out">
-          {selectedMethod === 'bgg' && (
-            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 animate-in fade-in slide-in-from-top-4 mt-4">
-                  <div className="relative mb-4">
-                    <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-                    <input type="text" placeholder="Search BoardGameGeek..." className="w-full pl-10 p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-green-200 focus:border-green-500 outline-none transition-all" onChange={e => handleBGGSearch(e.target.value)} autoFocus />
-                  </div>
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {searchResults.map(g => (
-                      <div key={g.id} onClick={() => selectBGGGame(g)} className="flex items-center p-2 hover:bg-slate-100 cursor-pointer rounded border border-transparent hover:border-slate-200 bg-white shadow-sm">
-                        <div className="w-10 h-10 bg-slate-200 rounded mr-3 overflow-hidden flex-shrink-0">
-                           {g.image ? <img src={g.image} className="w-full h-full object-cover" /> : null}
-                        </div>
-                        <div><div className="font-bold text-sm text-slate-800">{g.title}</div><div className="text-xs text-slate-500">{g.year}</div></div>
-                      </div>
-                    ))}
-                    {bggQuery.length > 2 && searchResults.length === 0 && <div className="text-center text-slate-400 text-sm py-4">Searching...</div>}
-                  </div>
-            </div>
-          )}
-
-          {selectedMethod === 'scan' && (
-            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 animate-in fade-in slide-in-from-top-4 mt-4">
-                  <div 
-                    onDrop={handleScanDrop} 
-                    onDragOver={e => e.preventDefault()}
-                    className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-purple-500 hover:bg-purple-50 transition-colors bg-white cursor-pointer"
-                    onClick={() => document.getElementById('ai-scan-input').click()}
-                  >
-                    <input type="file" id="ai-scan-input" hidden accept="image/*" onChange={handleScanInput} />
-                    <Camera className="w-12 h-12 mx-auto text-purple-400 mb-2" />
-                    <div className="font-bold text-slate-700">Upload Shelfie</div>
-                    <div className="text-xs text-slate-400">Drag & drop or click</div>
-                  </div>
-                  {isAnalyzing && <div className="mt-4 text-center text-purple-600 animate-pulse text-sm">Scanning boardgames...</div>}
-                  {errorMsg && <div className="mt-2 text-center text-red-500 text-xs">{errorMsg}</div>}
-            </div>
-          )}
-
-          {selectedMethod === 'parser' && (
-            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 animate-in fade-in slide-in-from-top-4 mt-4">
-                  <textarea 
-                    className="w-full p-3 border border-slate-300 rounded-lg h-32 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none"
-                    placeholder={formData.type === 'WTB' ? "Catan\nTicket to Ride\nWingspan" : "Paste your Facebook/Whatsapp selling post here..."}
-                    value={inputText}
-                    onChange={e => setInputText(e.target.value)}
-                  ></textarea>
-                  <div className="mt-2 flex justify-end">
-                     <button onClick={formData.type === 'WTB' ? handleQuickList : handleTextAnalysis} disabled={isAnalyzing || !inputText} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center">
-                        {isAnalyzing && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                        {formData.type === 'WTB' ? 'Create List' : 'Analyze Text'}
-                     </button>
-                  </div>
-                  {errorMsg && <div className="mt-2 text-center text-red-500 text-xs">{errorMsg}</div>}
-            </div>
-          )}
+      <div className="text-center mt-6">
+          <button onClick={() => { setFormData({...formData, title: ''}); setStep('edit-single'); }} className="text-slate-400 hover:text-slate-600 text-sm border-b border-slate-300 pb-0.5">
+              Enter boardgame manually
+          </button>
       </div>
+    </div>
+  );
 
-      {step === 'review' && detectedItems.length > 0 && (
-         <div className="mt-6 border-t border-slate-200 pt-6">
-            <h4 className="font-bold text-slate-700 mb-4">Review Items ({detectedItems.length})</h4>
-            <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-               {detectedItems.map((item, idx) => (
-                  <div key={idx} className="flex items-start p-3 bg-white border border-slate-200 rounded-lg group">
-                     <div className="w-16 h-16 bg-slate-100 rounded mr-3 overflow-hidden flex-shrink-0 relative">
+  const renderInputBGG = () => (
+    <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 h-full">
+        <div className="flex items-center mb-4">
+            <button onClick={() => setStep('select-method')} className="text-slate-400 hover:text-slate-600 mr-4"><ArrowLeft className="w-5 h-5"/></button>
+            <h4 className="text-lg font-medium text-slate-700">Search BGG</h4>
+        </div>
+        <div className="relative mb-4">
+            <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+            <input type="text" placeholder="Search BoardGameGeek..." className="w-full pl-10 p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-green-200 focus:border-green-500 outline-none transition-all" onChange={e => handleBGGSearch(e.target.value)} autoFocus />
+        </div>
+        <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+            {searchResults.map(g => (
+                <div key={g.id} onClick={() => selectBGGGame(g)} className="flex items-center p-2 hover:bg-slate-100 cursor-pointer rounded border border-transparent hover:border-slate-200 bg-white shadow-sm">
+                <div className="w-10 h-10 bg-slate-200 rounded mr-3 overflow-hidden flex-shrink-0">
+                    {g.image ? <img src={g.image} className="w-full h-full object-cover" /> : null}
+                </div>
+                <div><div className="font-bold text-sm text-slate-800">{g.title}</div><div className="text-xs text-slate-500">{g.year}</div></div>
+                </div>
+            ))}
+            {bggQuery.length > 2 && searchResults.length === 0 && <div className="text-center text-slate-400 text-sm py-4">Searching...</div>}
+        </div>
+    </div>
+  );
+
+  const renderInputScan = () => (
+    <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 h-full flex flex-col">
+        <div className="flex items-center mb-4">
+            <button onClick={() => setStep('select-method')} className="text-slate-400 hover:text-slate-600 mr-4"><ArrowLeft className="w-5 h-5"/></button>
+            <h4 className="text-lg font-medium text-slate-700">Scan from Photo</h4>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center">
+            <div 
+                onDrop={handleScanDrop} 
+                onDragOver={e => e.preventDefault()}
+                className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-purple-500 hover:bg-purple-50 transition-colors bg-white cursor-pointer w-full max-w-sm"
+                onClick={() => document.getElementById('ai-scan-input').click()}
+            >
+                <input type="file" id="ai-scan-input" hidden accept="image/*" onChange={handleScanInput} />
+                <Camera className="w-12 h-12 mx-auto text-purple-400 mb-2" />
+                <div className="font-bold text-slate-700">Upload Shelfie</div>
+                <div className="text-xs text-slate-400">Drag & drop or click</div>
+            </div>
+            {isAnalyzing && <div className="mt-4 text-center text-purple-600 animate-pulse text-sm">Scanning boardgames...</div>}
+            {errorMsg && <div className="mt-2 text-center text-red-500 text-xs">{errorMsg}</div>}
+        </div>
+    </div>
+  );
+
+  const renderInputParser = () => (
+    <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 h-full flex flex-col">
+        <div className="flex items-center mb-4">
+            <button onClick={() => setStep('select-method')} className="text-slate-400 hover:text-slate-600 mr-4"><ArrowLeft className="w-5 h-5"/></button>
+            <h4 className="text-lg font-medium text-slate-700">{formData.type === 'WTB' ? 'Quick List' : 'Smart Parser'}</h4>
+        </div>
+        <div className="flex-1 flex flex-col">
+            <textarea 
+                className="w-full p-3 border border-slate-300 rounded-lg flex-1 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none resize-none"
+                placeholder={formData.type === 'WTB' ? "Catan\nTicket to Ride\nWingspan" : "Paste your Facebook/Whatsapp selling post here..."}
+                value={inputText}
+                onChange={e => setInputText(e.target.value)}
+            ></textarea>
+            <div className="mt-4 flex justify-end">
+                <button onClick={formData.type === 'WTB' ? handleQuickList : handleTextAnalysis} disabled={isAnalyzing || !inputText} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center">
+                    {isAnalyzing && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                    {formData.type === 'WTB' ? 'Create List' : 'Analyze Text'}
+                </button>
+            </div>
+            {errorMsg && <div className="mt-2 text-center text-red-500 text-xs">{errorMsg}</div>}
+        </div>
+    </div>
+  );
+
+  const renderReview = () => (
+    <div className="h-full flex flex-col">
+        <div className="flex justify-between items-center mb-4">
+            <button onClick={() => setStep('select-method')} className="text-sm text-blue-600 hover:underline flex items-center"><ArrowLeft className="w-4 h-4 mr-1"/> Add More</button>
+            <span className="text-xs font-bold text-slate-400 uppercase">{detectedItems.length} Items Ready</span>
+        </div>
+        <div className="space-y-3 overflow-y-auto flex-1 pr-2">
+            {detectedItems.map((item, idx) => (
+                <div key={idx} className="flex items-start p-3 bg-white border border-slate-200 rounded-lg group hover:border-orange-300 transition-colors">
+                    <div className="w-16 h-16 bg-slate-100 rounded mr-3 overflow-hidden flex-shrink-0 relative cursor-pointer" onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }}>
                         {item.images && item.images.length > 0 ? <img src={item.images[0]} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-6 h-6 text-slate-300"/></div>}
-                        <button onClick={() => {
-                            const newItems = detectedItems.filter((_, i) => i !== idx);
-                            setDetectedItems(newItems);
-                            if (newItems.length === 0) setStep('select-method');
-                        }} className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3 h-3"/></button>
-                     </div>
-                     <div className="flex-1 min-w-0" onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }}>
-                        <div className="font-bold text-sm truncate">{item.title || "Untitled"}</div>
-                        <div className="text-xs text-slate-500">RM {item.price || "?"} • Cond: {item.condition}</div>
-                        <div className="text-[10px] text-slate-400 truncate">{item.description}</div>
-                     </div>
-                     <button onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }} className="text-slate-400 hover:text-blue-500"><Pencil className="w-4 h-4"/></button>
-                  </div>
-               ))}
-            </div>
-            
-            <div className="mt-4 flex gap-2">
-               <button onClick={handleProcessItems} disabled={isSubmitting} className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold flex justify-center items-center shadow-lg">
-                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2"/> Save All Items</>}
-               </button>
-               {detectedItems.some(i => !i.title || !i.image) && (
-                   <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl font-bold text-xs flex flex-col items-center justify-center">
-                      <Sparkles className="w-4 h-4 mb-1"/>
-                      Auto-Fill
-                   </button>
-               )}
-            </div>
-         </div>
-      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start">
+                            <div className="font-bold text-sm truncate text-slate-800 cursor-pointer hover:text-blue-600" onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }}>
+                                {item.title || "Untitled"}
+                            </div>
+                            <button onClick={() => {
+                                const newItems = detectedItems.filter((_, i) => i !== idx);
+                                setDetectedItems(newItems);
+                                if (newItems.length === 0) setStep('select-method');
+                            }} className="text-slate-300 hover:text-red-500"><X className="w-4 h-4"/></button>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 mt-1">
+                            {formData.type === 'WTS' ? (
+                                <div className="relative w-24">
+                                    <span className="absolute left-2 top-1.5 text-xs text-slate-400">RM</span>
+                                    <input 
+                                        type="text" 
+                                        className="w-full pl-8 py-1 text-xs border border-slate-200 rounded focus:border-orange-500 outline-none font-bold text-slate-700"
+                                        placeholder="Price"
+                                        value={item.price || ''}
+                                        onChange={(e) => updateItemPrice(idx, e.target.value)}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="text-xs text-slate-500">RM {item.price || "?"}</div>
+                            )}
+                            <span className="text-xs text-slate-400">• {getConditionText(item.condition).split(',')[0]}</span>
+                        </div>
+                        
+                        <div className="text-[10px] text-slate-400 truncate mt-1 cursor-pointer hover:text-slate-600" onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }}>
+                            {item.description || "No description"}
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+        <div className="flex gap-3 pt-4 border-t border-slate-100 mt-2">
+            <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl font-bold text-xs flex flex-col items-center justify-center transition-colors border border-blue-100">
+                <Sparkles className="w-4 h-4 mb-1"/>
+                Auto-fill Covers
+            </button>
+            <button onClick={handleProcessItems} disabled={isSubmitting} className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold flex justify-center items-center shadow-lg transition-transform hover:scale-[1.02]">
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2"/> Publish All ({detectedItems.length})</>}
+            </button>
+        </div>
     </div>
   );
 
@@ -1575,6 +1626,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
              {step === 'select-method' && <><Plus className="w-5 h-5 mr-2 text-orange-500"/> Add {formData.type} Item</>}
              {step === 'edit-single' && <><Pencil className="w-5 h-5 mr-2 text-blue-500"/> Edit Details</>}
              {step === 'review' && <><ListIcon className="w-5 h-5 mr-2 text-green-500"/> Review Bulk Items</>}
+             {(step.startsWith('input-')) && <><Plus className="w-5 h-5 mr-2 text-orange-500"/> Add {formData.type} Item</>}
            </h3>
            <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X className="w-5 h-5 text-slate-500"/></button>
         </div>
@@ -1583,49 +1635,10 @@ function AddGameModal({ onClose, onAdd, initialData }) {
            {step === 'select-type' && renderSelectType()}
            {step === 'select-method' && renderSelectMethod()}
            {step === 'edit-single' && renderEditForm()}
-           {step === 'review' && renderSelectMethod()} {/* Hack to show list below, actually we keep review in renderSelectMethod logic or separate? Wait, renderSelectMethod has the list logic at bottom? No. */}
-           {/* My logic for 'review' was mixed in renderSelectMethod at the bottom... let's fix that. */}
-           {step === 'review' && (
-              <div className="space-y-4">
-                 <div className="flex justify-between items-center">
-                    <button onClick={() => setStep('select-method')} className="text-sm text-blue-600 hover:underline flex items-center"><ArrowLeft className="w-4 h-4 mr-1"/> Add More</button>
-                    <span className="text-xs font-bold text-slate-400 uppercase">{detectedItems.length} Items Ready</span>
-                 </div>
-                 <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-                    {detectedItems.map((item, idx) => (
-                        <div key={idx} className="flex items-start p-3 bg-white border border-slate-200 rounded-lg group hover:border-orange-300 transition-colors">
-                            <div className="w-16 h-16 bg-slate-100 rounded mr-3 overflow-hidden flex-shrink-0 relative">
-                                {item.images && item.images.length > 0 ? <img src={item.images[0]} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-6 h-6 text-slate-300"/></div>}
-                            </div>
-                            <div className="flex-1 min-w-0 cursor-pointer" onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }}>
-                                <div className="font-bold text-sm truncate text-slate-800">{item.title || "Untitled"}</div>
-                                <div className="text-xs text-slate-500">RM {item.price || "?"} • {getConditionText(item.condition).split(',')[0]}</div>
-                                <div className="text-[10px] text-slate-400 truncate">{item.description || "No desc"}</div>
-                            </div>
-                            <div className="flex flex-col gap-1 ml-2">
-                                <button onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }} className="p-1 text-slate-400 hover:text-blue-500 bg-slate-50 rounded"><Pencil className="w-4 h-4"/></button>
-                                <button onClick={() => {
-                                    const newItems = detectedItems.filter((_, i) => i !== idx);
-                                    setDetectedItems(newItems);
-                                    if (newItems.length === 0) setStep('select-method');
-                                }} className="p-1 text-slate-400 hover:text-red-500 bg-slate-50 rounded"><X className="w-4 h-4"/></button>
-                            </div>
-                        </div>
-                    ))}
-                 </div>
-                 <div className="flex gap-3 pt-4 border-t border-slate-100">
-                    {detectedItems.some(i => !i.title || !i.image) && (
-                        <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl font-bold text-xs flex flex-col items-center justify-center transition-colors">
-                            <Sparkles className="w-4 h-4 mb-1"/>
-                            Auto-Fill
-                        </button>
-                    )}
-                    <button onClick={handleProcessItems} disabled={isSubmitting} className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold flex justify-center items-center shadow-lg transition-transform hover:scale-[1.02]">
-                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2"/> Publish All ({detectedItems.length})</>}
-                    </button>
-                 </div>
-              </div>
-           )}
+           {step === 'input-bgg' && renderInputBGG()}
+           {step === 'input-scan' && renderInputScan()}
+           {step === 'input-parser' && renderInputParser()}
+           {step === 'review' && renderReview()}
         </div>
       </div>
     </div>
