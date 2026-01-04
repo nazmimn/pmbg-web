@@ -354,7 +354,7 @@ async def logout(response: Response, request: Request):
     return {"status": "success"}
 
 # Auth
-@api_router.post("/auth/login", response_model=AuthResponse)
+@api_router.post("/auth/login-legacy", response_model=AuthResponse)
 async def login(req: AuthRequest):
     user = await db.users.find_one({"displayName": req.displayName})
     if not user:
