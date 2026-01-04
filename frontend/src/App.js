@@ -1818,14 +1818,6 @@ function EditProfileModal({ user, onClose, onUpdate }) {
         </div>
     );
 }
-        
-        <div className="p-6 overflow-y-auto flex-1">
-           {renderContent()}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function ListingCard({ game }) {
     const handleContact = (type, value) => {
