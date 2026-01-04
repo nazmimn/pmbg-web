@@ -184,6 +184,25 @@ export default function App() {
   };
 
 
+  // --- Logout Logic with Confirm ---
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+
+  const handleLogoutClick = () => {
+      setLogoutConfirmOpen(true);
+  };
+
+  const confirmLogout = async () => {
+    try {
+        await api.post('/auth/logout');
+    } catch(e) { console.error(e); }
+    
+    localStorage.removeItem('pm_user');
+    setUser(null);
+    setView('home');
+    setLogoutConfirmOpen(false);
+    showNotification("Logged out successfully");
+  };
+
   // Seed data function removed
 
   const handleSaveListing = async (dataOrArray) => {
