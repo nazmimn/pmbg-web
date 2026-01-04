@@ -243,7 +243,7 @@ async def scan_image(req: ScanImageRequest):
             system_message="You are a board game expert."
         ).with_model("gemini", "gemini-2.5-flash") # Use flash for speed/vision
 
-        prompt = """Look at this image of board games. Identify ALL board games visible. 
+        prompt = """Look at this image of boardgames. Identify ALL boardgames visible. 
         Return a JSON ARRAY of objects. Each object must have: 
         - 'title' (string)
         - 'price' (number, guess 0 if not visible)
