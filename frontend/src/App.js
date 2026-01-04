@@ -686,12 +686,13 @@ function AuctionsView({ listings, onBid }) {
   );
 }
 
-function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, onOpenTrade }) {
+function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, onOpenTrade, onProfileUpdate }) {
   const [filter, setFilter] = useState('ALL');
   const [viewMode, setViewMode] = useState('list'); // list | grid
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   
   // Confirm Modal State
   const [confirmState, setConfirmState] = useState({ open: false, type: 'single', item: null });
