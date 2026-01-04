@@ -1381,12 +1381,17 @@ function AddGameModal({ onClose, onAdd, initialData }) {
           <div className="text-xs text-slate-500 mt-1">Search & Auto-fill</div>
         </button>
 
-        <button onClick={() => document.getElementById('ai-scan-input').click()} className="p-4 border-2 border-slate-100 hover:border-purple-500 rounded-xl text-left transition-all relative overflow-hidden group">
+        <button 
+            onClick={() => document.getElementById('ai-scan-input').click()} 
+            onDrop={handleScanDrop}
+            onDragOver={(e) => e.preventDefault()}
+            className="p-4 border-2 border-slate-100 hover:border-purple-500 rounded-xl text-left transition-all relative overflow-hidden group"
+        >
           <div className="absolute top-2 right-2 bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">MULTI</div>
           <Camera className="w-8 h-8 text-purple-500 mb-3 group-hover:scale-110 transition-transform" />
           <div className="font-bold text-slate-800">AI Photo Scan</div>
-          <div className="text-xs text-slate-500 mt-1">Upload Game Stack</div>
-          <input id="ai-scan-input" type="file" className="hidden" onChange={handleAIPhotoScan} accept="image/*" />
+          <div className="text-xs text-slate-500 mt-1">Upload or Drop Stack</div>
+          <input id="ai-scan-input" type="file" className="hidden" onChange={handleScanInput} accept="image/*" />
         </button>
 
         {formData.type === 'WTB' ? (
