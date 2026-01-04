@@ -2008,3 +2008,25 @@ function AuctionCard({ game, onBid }) {
         </div>
     );
 }
+
+function MobileBottomNav({ view, setView, user }) {
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 px-6 py-3 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      <div className="flex justify-between items-center max-w-sm mx-auto">
+        <NavIcon icon={<Home className="w-6 h-6"/>} label="Home" active={view === 'home'} onClick={() => setView('home')} />
+        <NavIcon icon={<ShoppingBag className="w-6 h-6"/>} label="Market" active={view === 'explore'} onClick={() => setView('explore')} />
+        <NavIcon icon={<Gavel className="w-6 h-6"/>} label="Lelong" active={view === 'auctions'} onClick={() => setView('auctions')} />
+        <NavIcon icon={<User className="w-6 h-6"/>} label={user ? "Profile" : "Login"} active={view === 'dashboard' || view === 'auth'} onClick={() => setView(user ? 'dashboard' : 'auth')} />
+      </div>
+    </div>
+  )
+}
+
+function NavIcon({ icon, label, active, onClick }) {
+  return (
+    <button onClick={onClick} className={`flex flex-col items-center justify-center w-14 space-y-1 transition-colors ${active ? 'text-orange-600' : 'text-slate-400 hover:text-slate-600'}`}>
+      {icon}
+      <span className="text-[10px] font-bold tracking-tight">{label}</span>
+    </button>
+  )
+}
