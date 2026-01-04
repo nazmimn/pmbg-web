@@ -1659,10 +1659,65 @@ function AddGameModal({ onClose, onAdd, initialData }) {
                         </div>
                         
                         <div className="flex items-center gap-2 mt-1">
-                            {formData.type === 'WTS' ? (
+                            {item.type === 'WTS' ? (
                                 <div className="relative w-24">
                                     <span className="absolute left-2 top-1.5 text-xs text-slate-400">RM</span>
                                     <input 
+                                        type="text" 
+                                        className="w-full pl-8 py-1 text-xs border border-slate-200 rounded focus:border-orange-500 outline-none font-bold text-slate-700"
+                                        placeholder="Price"
+                                        value={item.price || ''}
+                                        onChange={(e) => updateItemPrice(idx, e.target.value)}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="text-xs text-slate-500">RM {item.price || "?"}</div>
+                            )}
+                            <span className="text-xs text-slate-400">• {getConditionText(item.condition).split(',')[0]}</span>
+                        </div>
+                        
+                        <div className="text-[10px] text-slate-400 truncate mt-1 cursor-pointer hover:text-slate-600" onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }}>
+                            {item.description || "No description"}
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+        <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+            <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="text-sm text-blue-600 hover:underline flex items-center">
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1"/> : <Wand2 className="w-4 h-4 mr-1"/>}
+                Auto-fill from BGG
+            </button>
+            <div className="flex gap-2">
+                <button onClick={() => setStep('select-type')} className="px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50">Back</button>
+                <button onClick={handleProcessItems} disabled={isSubmitting} className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 flex items-center">
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mr-2"/> : <Save className="w-5 h-5 mr-2"/>}
+                    Save All ({detectedItems.length})
+                </button>
+            </div>
+        </div>
+    </div>
+  );
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-slate-50">
+          <h2 className="text-xl font-bold text-slate-800">
+            {step === 'edit-single' && initialData ? 'Edit Listing' : 'Add Boardgames'}
+          </h2>
+          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+          {renderContent()}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function EditProfileModal({ user, onClose, onUpdate }) {
     const [formData, setFormData] = useState({
         displayName: user.displayName || '',
