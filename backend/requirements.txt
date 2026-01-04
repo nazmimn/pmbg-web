@@ -27,3 +27,4 @@ typer>=0.9.0
 emergentintegrations
 xmltodict
 beautifulsoup4
+httpx
