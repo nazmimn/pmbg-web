@@ -102,7 +102,7 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
-user_problem_statement: "Verify current functionality (Buy, Sell, Trade, AI) while keeping Auction disabled."
+user_problem_statement: "Verify the new Profile Update API and Listings Enrichment. 1. Update user profile via PUT /api/auth/profile with new phone and facebookLink. 2. Verify user data is updated via GET /api/auth/me. 3. Get listings via GET /api/listings and verify 'sellerPhone' and 'sellerFb' are present in the response for listings owned by this user."
 
 backend:
   - task: "Authentication"
@@ -134,6 +134,36 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ NEW Email Authentication fully functional. Successfully tested complete flow: 1) POST /api/auth/register-email (test@example.com, password123) - user registered with session_token cookie set. 2) POST /api/auth/login-email - login successful with session_token cookie. 3) GET /api/auth/me - returns correct user data using session token. 4) POST /api/auth/logout - session properly invalidated, subsequent /auth/me returns 401. All endpoints working correctly with proper session management."
+
+  - task: "Profile Update API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Profile update API implemented with PUT /api/auth/profile"
+      - working: true
+        agent: "testing"
+        comment: "✅ Profile Update API fully functional. Successfully tested: 1) PUT /api/auth/profile with phone (+60123456789) and facebookLink (https://facebook.com/testuser123) - profile updated correctly. 2) GET /api/auth/me verified updated data persisted. Profile update working perfectly with proper authentication and data validation."
+
+  - task: "Listings Enrichment"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Listings enrichment with seller contact info implemented"
+      - working: true
+        agent: "testing"
+        comment: "✅ Listings Enrichment fully functional. Successfully tested: 1) Created listing for user with updated profile. 2) GET /api/listings returned listings with 'sellerPhone' and 'sellerFb' fields correctly populated from user profile data. 3) Also verified 'sellerName' enrichment working. All seller contact information properly enriched in listings response."
 
   - task: "Listings CRUD (WTS/WTB)"
     implemented: true
