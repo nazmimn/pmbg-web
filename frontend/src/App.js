@@ -326,7 +326,6 @@ export default function App() {
                   user={user}
                   myListings={myListings} 
                   onAdd={() => { setEditingItem(null); setShowAddModal(true); }} 
-                  onSeed={handleSeedData} 
                   onDelete={handleDeleteListing}
                   onEdit={handleEditClick}
                   onMarkSold={handleMarkSold}
