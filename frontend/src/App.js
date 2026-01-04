@@ -521,7 +521,7 @@ function HomeView({ listings, setView }) {
   );
 }
 
-function ExploreView({ listings, onSeed }) {
+function ExploreView({ listings }) {
   const [filter, setFilter] = useState('ALL'); 
   const filtered = listings.filter(l => filter === 'ALL' ? l.type !== 'WTL' : l.type === filter);
 
