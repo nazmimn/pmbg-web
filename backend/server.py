@@ -505,6 +505,21 @@ async def get_listings(type: Optional[str] = None, sellerId: Optional[str] = Non
     cursor = db.listings.find(query, {"_id": 0}).sort("createdAt", -1).limit(100)
     listings = await cursor.to_list(length=100)
     
+    # Enrich listings with seller contact info
+    seller_ids = list(set(l['sellerId'] for l in listings if l.get('sellerId')))
+    if seller_ids:
+        users_cursor = db.users.find({"id": {"$in": seller_ids}}, {"_id": 0, "password_hash": 0})
+        users_list = await users_cursor.to_list(length=None)
+        users_map = {u['id']: u for u in users_list}
+        
+        for l in listings:
+            seller = users_map.get(l.get('sellerId'))
+            if seller:
+                l['sellerName'] = seller.get('displayName')
+                l['sellerPhone'] = seller.get('phone')
+                l['sellerFb'] = seller.get('facebookLink')
+                l['sellerAvatar'] = seller.get('picture') or seller.get('image')
+
     for l in listings:
         if isinstance(l.get('createdAt'), str):
             try:
