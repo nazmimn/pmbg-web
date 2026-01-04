@@ -1629,7 +1629,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
             {errorMsg && <div className="mt-2 text-center text-red-500 text-xs">{errorMsg}</div>}
         </div>
     </div>
-  )
+  );
 
   const renderReview = () => (
     <div className="h-full flex flex-col">
