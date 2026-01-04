@@ -1371,6 +1371,17 @@ function AddGameModal({ onClose, onAdd, initialData }) {
 
   // --- Render Steps ---
 
+  const renderContent = () => {
+    if (step === 'select-type') return renderSelectType();
+    if (step === 'select-method') return renderSelectMethod();
+    if (step === 'edit-single') return renderEditForm();
+    if (step === 'input-bgg') return renderInputBGG();
+    if (step === 'input-scan') return renderInputScan();
+    if (step === 'input-parser') return renderInputParser();
+    if (step === 'review') return renderReview();
+    return null;
+  };
+
   const renderEditForm = () => (
     <form onSubmit={handleSingleSave} className="space-y-4">
       {/* Type & Price Row */}
