@@ -1512,6 +1512,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
          </button>
       </div>
 
+      {formData.type !== 'WTB' && (
       <div>
          <div className="flex justify-between mb-1">
            <label className="block text-xs font-bold text-slate-500 uppercase">Condition (1.0 - 10.0)</label>
@@ -1522,6 +1523,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
             {getConditionText(Number(formData.condition))}
          </div>
       </div>
+      )}
 
       <div>
          <div className="flex justify-between mb-1">
