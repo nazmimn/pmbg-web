@@ -1511,7 +1511,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
         ))}
       </div>
     </div>
-  );
+  )
 
   const renderSelectMethod = () => (
     <div className="space-y-6">
