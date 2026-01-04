@@ -1604,7 +1604,21 @@ function AddGameModal({ onClose, onAdd, initialData }) {
     <div className="h-full flex flex-col">
         <div className="flex justify-between items-center mb-4">
             <span className="text-xs font-bold text-slate-400 uppercase">{detectedItems.length} Items Ready</span>
-            <button onClick={() => setStep('select-method')} className="text-sm text-blue-600 hover:underline flex items-center"><Plus className="w-4 h-4 mr-1"/> Add More</button> 
+            <button onClick={() => {
+                setFormData({
+                    type: formData.type || 'WTS',
+                    title: '',
+                    price: '',
+                    condition: 8.0,
+                    images: [],
+                    image: '',
+                    description: '',
+                    openForTrade: false,
+                    bggId: null
+                });
+                setCurrentItemIndex(null); 
+                setStep('edit-single');
+            }} className="text-sm text-blue-600 hover:underline flex items-center"><Plus className="w-4 h-4 mr-1"/> Add More</button> 
         </div>
         <div className="space-y-3 overflow-y-auto flex-1 pr-2">
             {detectedItems.map((item, idx) => (
