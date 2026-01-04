@@ -184,6 +184,24 @@ export default function App() {
   };
 
   const handleLogout = async () => {
+  // --- Logout Logic with Confirm ---
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+
+  const handleLogoutClick = () => {
+      setLogoutConfirmOpen(true);
+  };
+
+  const confirmLogout = async () => {
+    try {
+        await api.post('/auth/logout');
+    } catch(e) { console.error(e); }
+    
+    localStorage.removeItem('pm_user');
+    setUser(null);
+    setView('home');
+    setLogoutConfirmOpen(false);
+    showNotification("Logged out successfully");
+  };
     try {
         await api.post('/auth/logout');
     } catch(e) { console.error(e); }
