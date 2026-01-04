@@ -1545,8 +1545,8 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   const renderSelectType = () => (
     <div className="space-y-6 text-center">
       <h4 className="text-lg font-medium text-slate-700">What is your goal?</h4>
-      <div className="grid grid-cols-3 gap-4">
-        {['WTS', 'WTB', 'WTL'].map(t => (
+      <div className="grid grid-cols-2 gap-4">
+        {['WTS', 'WTB'].map(t => (
           <button 
             key={t}
             onClick={() => { 
