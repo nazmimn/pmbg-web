@@ -445,6 +445,8 @@ export default function App() {
         message="Are you sure you want to sign out?"
         onConfirm={confirmLogout}
         onCancel={() => setLogoutConfirmOpen(false)}
+        confirmText="Yes"
+        cancelText="I'll Stay"
       />
     </div>
   )
