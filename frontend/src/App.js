@@ -790,11 +790,16 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
       {/* Sidebar */}
       <div className="lg:col-span-1 space-y-6">
         <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 text-center">
-           <div className="w-20 h-20 bg-slate-200 rounded-full mx-auto mb-4 overflow-hidden">
-             <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.displayName}`} alt="Avatar" className="w-full h-full" />
+           <div className="w-20 h-20 bg-slate-200 rounded-full mx-auto mb-4 overflow-hidden relative">
+             {user.picture || user.image ? (
+                 <img src={user.picture || user.image} alt="Avatar" className="w-full h-full object-cover" />
+             ) : (
+                 <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.displayName}`} alt="Avatar" className="w-full h-full" />
+             )}
            </div>
            <h3 className="font-bold text-lg">{user.displayName}</h3>
-           <p className="text-sm text-slate-500">Member</p>
+           <p className="text-sm text-slate-500 mb-4">{user.email}</p>
+           <button onClick={() => setShowProfileModal(true)} className="text-xs border border-slate-300 px-3 py-1 rounded hover:bg-slate-50">Edit Profile</button>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="p-4 bg-slate-50 border-b border-slate-100 font-semibold text-slate-700">Quick Stats</div>
