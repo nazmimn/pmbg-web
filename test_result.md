@@ -225,51 +225,63 @@ test_plan:
 frontend:
   - task: "Add Boardgame Modal - Goal Selection"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "Testing Add Boardgame flow - goal selection step with WTS, WTB, and disabled WTL options"
+      - working: true
+        agent: "testing"
+        comment: "✅ Goal selection modal working correctly. Modal opens with 'What is your goal?' title. WTS, WTB, and WTL options are present. WTL option is correctly disabled. WTT option is correctly NOT present in the goal selection modal (only found in dashboard filter buttons). All requirements met."
 
   - task: "Add Boardgame Modal - Method Selection"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "Testing Add Boardgame flow - method selection step (BGG/Scan/Manual)"
+      - working: false
+        agent: "testing"
+        comment: "❌ WTS flow does not proceed to method selection step. Clicking WTS button does not navigate to 'How to add?' step. This breaks the core Add Boardgame flow. Issue likely in onClick handler or step navigation logic."
 
   - task: "Add Boardgame Modal - Complete WTS Flow"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/src/App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "Testing complete WTS flow - manual entry, title/price input, and save functionality"
+      - working: false
+        agent: "testing"
+        comment: "❌ Cannot test complete WTS flow because method selection step is not reachable. WTS button click does not proceed to next step, preventing access to manual entry form."
 
   - task: "User Authentication Flow"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "testing"
         comment: "Testing user registration/login flow for Add Boardgame access"
+      - working: true
+        agent: "testing"
+        comment: "✅ User authentication working correctly. Email login successful, dashboard navigation functional, Add Boardgame button accessible after authentication."
 
 test_plan:
   current_focus:
