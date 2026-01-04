@@ -183,24 +183,6 @@ export default function App() {
       showNotification(`Welcome, ${userData.displayName}!`);
   };
 
-        await api.post('/auth/logout');
-    } catch(e) { console.error(e); }
-    
-    localStorage.removeItem('pm_user');
-    setUser(null);
-    setView('home');
-    setLogoutConfirmOpen(false);
-    showNotification("Logged out successfully");
-  };
-    try {
-        await api.post('/auth/logout');
-    } catch(e) { console.error(e); }
-    
-    localStorage.removeItem('pm_user');
-    setUser(null);
-    setView('home');
-    showNotification("Logged out successfully");
-  };
 
   // Seed data function removed
 
