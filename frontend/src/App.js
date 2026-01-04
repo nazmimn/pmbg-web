@@ -348,11 +348,11 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
-      <nav className="sticky top-0 z-40 bg-white border-b border-orange-100 shadow-sm">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-24 md:pb-0">
+      <nav className="sticky top-0 z-40 bg-white border-b border-orange-100 shadow-sm transition-all duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Left: Navigation */}
+          <div className="flex items-center justify-between h-16 md:h-20">
+            {/* Left: Navigation (Desktop) */}
             <div className="flex-1 flex justify-start">
                 <div className="hidden md:flex items-center space-x-6">
                   <NavItem active={view === 'home'} onClick={() => setView('home')}>Home</NavItem>
@@ -368,13 +368,14 @@ export default function App() {
               <img 
                 src="https://customer-assets.emergentagent.com/job_boardgame-bazaar-1/artifacts/bzq9jenz_pmbg-logo.png" 
                 alt="Pasar Malam Boardgame" 
-                className="h-8 w-auto object-contain mb-1"
+                className="h-6 sm:h-8 w-auto object-contain mb-1 transition-all"
               />
-              <span className="font-extrabold text-orange-600 text-sm sm:text-base tracking-widest uppercase mt-1">Pasar Malam Boardgame</span>
+              <span className="font-extrabold text-orange-600 text-[10px] sm:text-base tracking-widest uppercase mt-0 sm:mt-1 leading-none sm:leading-normal">Pasar Malam Boardgame</span>
             </div>
 
             {/* Right: User Actions */}
             <div className="flex-1 flex justify-end items-center space-x-4">
+              {/* Desktop User Info */}
               {user ? (
                 <>
                   <button 
@@ -388,7 +389,7 @@ export default function App() {
                   </button>
                   <button 
                     onClick={handleLogoutClick}
-                    className="p-2 text-slate-400 hover:text-red-500 transition-colors"
+                    className="hidden md:block p-2 text-slate-400 hover:text-red-500 transition-colors"
                     title="Logout"
                   >
                     <LogOut className="w-5 h-5" />
@@ -397,21 +398,24 @@ export default function App() {
               ) : (
                 <button 
                   onClick={() => setView('auth')}
-                  className="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg shadow-orange-200 transition-all text-sm"
+                  className="hidden md:block px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-lg shadow-orange-200 transition-all text-sm"
                 >
                   Join / Login
                 </button>
               )}
               
-              <button className="md:hidden p-2 text-slate-500" onClick={() => setView('dashboard')}>
-                <Menu className="w-6 h-6" />
-              </button>
+              {/* Mobile Profile Icon (Top Right) - Optional or simplified */}
+              {user && (
+                  <div className="md:hidden w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-orange-600 font-bold text-xs cursor-pointer" onClick={() => setView('dashboard')}>
+                      {user.picture ? <img src={user.picture} className="w-full h-full rounded-full object-cover" /> : user.displayName.charAt(0)}
+                  </div>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {authProcessing ? (
            <div className="flex flex-col items-center justify-center h-64">
              <Loader2 className="w-12 h-12 text-orange-500 animate-spin mb-4" />
@@ -427,7 +431,7 @@ export default function App() {
       </main>
 
       {notification && (
-        <div className={`fixed bottom-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all duration-500 ${notification.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`}>
+        <div className={`fixed top-20 md:top-auto md:bottom-4 left-4 right-4 md:left-auto md:right-4 z-[60] px-6 py-3 rounded-lg shadow-lg text-white text-center md:text-left transform transition-all duration-500 ${notification.type === 'error' ? 'bg-red-500' : 'bg-green-500'}`}>
           {notification.msg}
         </div>
       )}
@@ -449,6 +453,8 @@ export default function App() {
         confirmText="Yes"
         cancelText="I'll Stay"
       />
+      
+      <MobileBottomNav view={view} setView={setView} user={user} />
     </div>
   )
 }
