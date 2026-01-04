@@ -21,6 +21,7 @@ class BackendTester:
         self.created_listing_id = None
         self.test_results = {
             "auth": {"status": "pending", "details": []},
+            "auth_email": {"status": "pending", "details": []},
             "listings_crud": {"status": "pending", "details": []},
             "bgg_search": {"status": "pending", "details": []},
             "ai_parse": {"status": "pending", "details": []}
