@@ -1037,8 +1037,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
 
   // --- AI Logic (Proxied to Backend) ---
 
-  const handleAIPhotoScan = (e) => {
-    const file = e.target.files[0];
+  const processScanFile = (file) => {
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = async () => {
@@ -1068,6 +1067,18 @@ function AddGameModal({ onClose, onAdd, initialData }) {
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleScanInput = (e) => {
+      processScanFile(e.target.files[0]);
+  };
+
+  const handleScanDrop = (e) => {
+      e.preventDefault();
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          processScanFile(e.dataTransfer.files[0]);
+          e.dataTransfer.clearData();
+      }
   };
 
   const handleTextAnalysis = async () => {
