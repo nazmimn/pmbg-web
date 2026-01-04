@@ -264,6 +264,18 @@ export default function App() {
     }
   };
 
+  const handleOpenTrade = async (item) => {
+    if (!user) return;
+    try {
+      await api.put(`/listings/${item.id}`, { openForTrade: true });
+      showNotification("Marked as Open for Trade");
+      setMyListings(prev => prev.map(i => i.id === item.id ? { ...i, openForTrade: true } : i));
+    } catch (err) {
+      console.error(err);
+      showNotification("Failed to update", "error");
+    }
+  };
+
   const handleEditClick = (item) => {
     setEditingItem(item);
     setShowAddModal(true);
@@ -313,6 +325,7 @@ export default function App() {
                   onDelete={handleDeleteListing}
                   onEdit={handleEditClick}
                   onMarkSold={handleMarkSold}
+                  onOpenTrade={handleOpenTrade}
                 />;
       case 'auth': return <AuthView onLogin={handleLogin} onCancel={() => setView('home')} />;
       default: return <HomeView listings={listings} setView={setView} onSeed={handleSeedData} />;
@@ -565,7 +578,7 @@ function AuctionsView({ listings, onBid }) {
   );
 }
 
-function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMarkSold }) {
+function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMarkSold, onOpenTrade }) {
   const [filter, setFilter] = useState('ALL');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -618,6 +631,16 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
     setIsProcessing(false);
   };
 
+  const handleBulkOpenTrade = async () => {
+    setIsProcessing(true);
+    for (const id of selectedIds) {
+      const item = myListings.find(i => i.id === id);
+      if (item && item.type === 'WTS') await onOpenTrade(item);
+    }
+    setSelectedIds(new Set());
+    setIsProcessing(false);
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
       {/* Sidebar */}
@@ -641,7 +664,7 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
 
       <div className="lg:col-span-3 space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-2xl font-bold text-slate-800">My Listings</h2>
+          <h2 className="text-2xl font-bold text-slate-800">My Boardgames</h2>
           <div className="flex gap-2">
              {myListings.length === 0 && (
                 <button onClick={onSeed} className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium flex items-center transition-all">
@@ -649,7 +672,7 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
                 </button>
              )}
             <button onClick={onAdd} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium flex items-center shadow-lg transition-all">
-              <Plus className="w-5 h-5 mr-2" /> Add Game
+              <Plus className="w-5 h-5 mr-2" /> Add Boardgame
             </button>
           </div>
         </div>
@@ -679,6 +702,9 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
           <div className="bg-slate-900 text-white p-3 rounded-lg flex items-center justify-between animate-in fade-in slide-in-from-top-2">
              <span className="text-sm font-bold ml-2">{selectedIds.size} selected</span>
              <div className="flex space-x-2">
+                <button onClick={handleBulkOpenTrade} disabled={isProcessing} className="text-xs bg-teal-600 hover:bg-teal-700 px-3 py-1.5 rounded flex items-center">
+                   <RefreshCw className="w-3 h-3 mr-1" /> Open Trade
+                </button>
                 <button onClick={handleBulkMarkSold} disabled={isProcessing} className="text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1.5 rounded flex items-center">
                    <CheckCircle className="w-3 h-3 mr-1" /> Mark Sold
                 </button>
@@ -704,7 +730,7 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
                         {selectedIds.size === filteredListings.length && filteredListings.length > 0 ? <CheckSquare className="w-4 h-4 text-orange-500" /> : <Square className="w-4 h-4" />}
                       </button>
                    </div>
-                   <div className="flex-1 ml-4">Game Details</div>
+                   <div className="flex-1 ml-4">Boardgame Details</div>
                    <div className="hidden sm:block w-32 text-right mr-4">Status</div>
                    <div className="w-24 text-center">Actions</div>
                 </div>
@@ -745,7 +771,7 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
                          <button onClick={() => onEdit(item)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="Edit">
                            <Pencil className="w-4 h-4" />
                          </button>
-                         <button onClick={() => onDelete(item)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete">
+                         <button onClick={() => { if(window.confirm('Delete this listing?')) onDelete(item); }} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete">
                            <Trash2 className="w-4 h-4" />
                          </button>
                       </div>
@@ -820,7 +846,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   const handleSingleSave = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.title.trim()) {
-        setErrorMsg("Game Title is compulsory.");
+        setErrorMsg("Boardgame Title is compulsory.");
         return;
     }
     
@@ -853,17 +879,27 @@ function AddGameModal({ onClose, onAdd, initialData }) {
     }
   };
 
-  const handleMultiImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-
-    files.forEach(async (file) => {
+  const handleFileProcess = (files) => {
+    Array.from(files).forEach(async (file) => {
         const compressed = await resizeImage(file);
         setFormData(prev => {
           const newImages = [...(prev.images || []), compressed];
           return { ...prev, images: newImages, image: newImages[0] };
         });
     });
+  };
+
+  const handleMultiImageUpload = (e) => {
+    const files = e.target.files;
+    if (files.length > 0) handleFileProcess(files);
+  };
+
+  const onDrop = (e) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFileProcess(e.dataTransfer.files);
+        e.dataTransfer.clearData();
+    }
   };
 
   const removeImage = (idx) => {
@@ -1029,6 +1065,42 @@ function AddGameModal({ onClose, onAdd, initialData }) {
     finally { setIsAnalyzing(false); }
   }
 
+  const handleBulkAutoFill = async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true); // Re-using isSubmitting
+    try {
+        const updatedItems = await Promise.all(detectedItems.map(async (item) => {
+            if (item.image && item.description) return item; // Skip if already complete
+            try {
+                const res = await api.get(`/bgg/search?q=${encodeURIComponent(item.title)}`);
+                const results = res.data;
+                if (!results || results.length === 0) return item;
+
+                // Find exact match or take first
+                const exactMatch = results.find(r => r.title.toLowerCase() === item.title.toLowerCase());
+                const match = exactMatch || results[0];
+
+                if (match) {
+                     let newItem = { ...item };
+                     if (!newItem.image && match.image) {
+                         newItem.image = match.image;
+                         newItem.images = [match.image];
+                         newItem.bggId = match.id;
+                     }
+                     if (!newItem.description && match.description) {
+                         newItem.description = match.description.replace(/<[^>]*>/g, ' ').slice(0, 1000) + "...";
+                     }
+                     return newItem;
+                }
+            } catch (e) { console.error(e); }
+            return item;
+        }));
+        setDetectedItems(updatedItems);
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
   // --- Render Steps ---
 
   const renderEditForm = () => (
@@ -1070,16 +1142,20 @@ function AddGameModal({ onClose, onAdd, initialData }) {
       )}
 
       <div>
-         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Game Title <span className="text-red-500">*</span></label>
+         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Boardgame Title <span className="text-red-500">*</span></label>
          <input type="text" required className="w-full p-2 border border-slate-300 rounded-lg" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
       </div>
 
       <div>
          <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Photos {formData.type === 'WTB' ? "(Optional)" : ""}</label>
-         <div className="flex gap-2 overflow-x-auto pb-2">
+         <div 
+            className="flex gap-2 overflow-x-auto pb-2 border-2 border-dashed border-transparent hover:border-blue-300 rounded-xl transition-all p-1"
+            onDrop={onDrop}
+            onDragOver={(e) => e.preventDefault()}
+         >
             <button type="button" onClick={() => multiImgRef.current?.click()} className="w-20 h-20 flex-shrink-0 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center text-slate-400 hover:border-orange-500 hover:text-orange-500 transition-colors">
                <Plus className="w-6 h-6" />
-               <span className="text-[10px] mt-1">Add</span>
+               <span className="text-[10px] mt-1">Add / Drop</span>
             </button>
             <input type="file" multiple ref={multiImgRef} hidden accept="image/*" onChange={handleMultiImageUpload} />
             
@@ -1178,7 +1254,13 @@ function AddGameModal({ onClose, onAdd, initialData }) {
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-2">
         <h4 className="font-bold text-slate-700">Review Items ({detectedItems.length})</h4>
-        <button onClick={() => { setFormData({type: formData.type || 'WTS', condition:8.0, images:[]}); setCurrentItemIndex(-1); setStep('edit-single'); }} className="text-xs flex items-center bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-full"><Plus className="w-3 h-3 mr-1"/> Add Another</button>
+        <div className="flex gap-2">
+            <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="text-xs flex items-center bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-full">
+                {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin mr-1"/> : <Globe className="w-3 h-3 mr-1"/>}
+                Auto-fill Covers
+            </button>
+            <button onClick={() => { setFormData({type: formData.type || 'WTS', condition:8.0, images:[]}); setCurrentItemIndex(-1); setStep('edit-single'); }} className="text-xs flex items-center bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-full"><Plus className="w-3 h-3 mr-1"/> Add Another</button>
+        </div>
       </div>
       <div className="max-h-[50vh] overflow-y-auto space-y-3 pr-2">
         {detectedItems.map((item, idx) => (
