@@ -670,11 +670,11 @@ function HomeView({ listings, setView }) {
 function ExploreView({ listings }) {
   const [filter, setFilter] = useState('ALL'); 
   const [searchTerm, setSearchTerm] = useState('');
-  const [hideSold, setHideSold] = useState(false);
+  const [showSold, setShowSold] = useState(false); // Default hidden
 
   const filtered = listings.filter(l => {
-      // Hide Sold logic
-      if (hideSold && l.status === 'sold') return false;
+      // Show Sold logic (inverse of previous hide)
+      if (!showSold && l.status === 'sold') return false;
 
       // WTT logic: Show items that are explicitly WTT OR (WTS and openForTrade)
       if (filter === 'WTT') {
@@ -696,11 +696,11 @@ function ExploreView({ listings }) {
         <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex items-center space-x-2">
                 <button 
-                    onClick={() => setHideSold(!hideSold)} 
-                    className={`flex items-center px-3 py-2 rounded-lg text-xs font-bold transition-all ${hideSold ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
+                    onClick={() => setShowSold(!showSold)} 
+                    className={`flex items-center px-3 py-2 rounded-lg text-xs font-bold transition-all ${showSold ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
                 >
-                    {hideSold ? <CheckCircle className="w-3 h-3 mr-1"/> : <XCircle className="w-3 h-3 mr-1"/>}
-                    Hide Sold
+                    {showSold ? <CheckCircle className="w-3 h-3 mr-1"/> : <XCircle className="w-3 h-3 mr-1"/>}
+                    Show Sold
                 </button>
             </div>
             <div className="relative">
