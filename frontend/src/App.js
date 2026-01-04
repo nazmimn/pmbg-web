@@ -1343,6 +1343,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
     </div>
   );
 
+  const renderSelectMethod = () => (
     <div className="space-y-6">
       <div className="flex items-center mb-4">
          <button onClick={() => setStep('select-type')} className="text-slate-400 hover:text-slate-600 mr-4"><ArrowLeft className="w-5 h-5"/></button>
