@@ -340,8 +340,10 @@ async def bgg_search(q: str):
         # Detail fetch for images (simple logic)
         if results:
             ids = ",".join([r['id'] for r in results])
-            detail_url = f"https://boardgamegeek.com/xmlapi2/thing?id={ids}"
-            d_res = requests.get(detail_url, timeout=10)
+            target_d_url = f"https://boardgamegeek.com/xmlapi2/thing?id={ids}"
+            detail_url = f"https://api.allorigins.win/raw?url={requests.utils.quote(target_d_url)}"
+            
+            d_res = requests.get(detail_url, headers=headers, timeout=10)
             d_data = xmltodict.parse(d_res.content)
             d_items = d_data.get('items', {}).get('item', [])
             if isinstance(d_items, dict): d_items = [d_items]
