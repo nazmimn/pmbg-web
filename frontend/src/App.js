@@ -274,6 +274,18 @@ export default function App() {
     setShowAddModal(true);
   };
 
+  const handleProfileUpdate = async (profileData) => {
+    try {
+      const res = await api.put('/auth/profile', profileData);
+      setUser(res.data);
+      localStorage.setItem('pm_user', JSON.stringify(res.data));
+      showNotification("Profile updated successfully!");
+    } catch (err) {
+      console.error("Profile update error", err);
+      showNotification("Failed to update profile", "error");
+    }
+  };
+
   const placeBid = async (listingId, currentBid, increment = 5) => {
     if (!user) {
         showNotification("Please login to bid", "error");
