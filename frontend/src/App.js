@@ -1557,7 +1557,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
           </button>
       </div>
     </div>
-  );
+  )
 
   const renderInputBGG = () => (
     <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 h-full">
