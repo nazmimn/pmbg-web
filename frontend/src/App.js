@@ -1395,7 +1395,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   const renderReviewList = () => (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-2">
-        <h4 className="font-bold text-slate-700">Review Detected : Boardgame Details</h4>
+        <h4 className="font-bold text-slate-700">Review Detected</h4>
         <div className="flex gap-2">
             <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="text-xs flex items-center bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-full">
                 {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin mr-1"/> : <Globe className="w-3 h-3 mr-1"/>}
