@@ -1391,6 +1391,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
             <select className="w-full p-2 border border-slate-300 rounded-lg bg-slate-50" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
                <option value="WTS">Sell (WTS)</option>
                <option value="WTB">Buy (WTB)</option>
+               <option value="WTT">Trade (WTT)</option>
             </select>
          </div>
          <div>
