@@ -213,7 +213,7 @@ backend:
 metadata:
   created_by: "main_agent"
   version: "1.0"
-  test_sequence: 3
+  test_sequence: 4
   run_ui: false
 
 test_plan:
@@ -229,3 +229,5 @@ agent_communication:
     message: "✅ BACKEND TESTING COMPLETE - All 4 backend tasks are fully functional. Authentication, Listings CRUD (WTS/WTB), BGG Search, and AI Text Parsing all working correctly. Created comprehensive test suite in /app/backend_test.py. No critical issues found. Backend APIs ready for production use."
   - agent: "testing"
     message: "✅ NEW EMAIL AUTH ENDPOINTS VERIFIED - Successfully tested all 4 new email authentication endpoints: register-email, login-email, /auth/me, and logout. Complete session management flow working correctly with proper cookie handling and session invalidation. Updated backend_test.py with comprehensive email auth tests. All backend functionality confirmed working."
+  - agent: "testing"
+    message: "✅ PROFILE UPDATE & LISTINGS ENRICHMENT VERIFIED - Successfully tested new Profile Update API (PUT /api/auth/profile) with phone and facebookLink updates. Verified data persistence via GET /api/auth/me. Confirmed Listings Enrichment working correctly - GET /api/listings returns 'sellerPhone' and 'sellerFb' fields for user's listings. All new functionality working perfectly. Minor: Legacy auth endpoint has validation error but doesn't affect main functionality."
