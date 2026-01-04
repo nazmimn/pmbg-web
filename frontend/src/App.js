@@ -830,7 +830,7 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
               </button>
             ))}
             <button disabled className="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 opacity-50">
-                WTL
+                WTL (Disabled)
             </button>
           </div>
           <div className="flex items-center space-x-2 w-full sm:w-auto">
