@@ -37,7 +37,8 @@ import {
   ArrowLeft,
   ListPlus,
   LayoutGrid,
-  List as ListIcon
+  List as ListIcon,
+  MessageCircle
 } from 'lucide-react';
 import axios from 'axios';
 
