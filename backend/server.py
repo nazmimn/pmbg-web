@@ -179,6 +179,11 @@ async def create_listings(items: List[Listing]):
     if docs:
         await db.listings.insert_many(docs)
         
+    # Remove _id from response
+    for d in created_items:
+        if '_id' in d:
+            del d['_id']
+            
     return created_items
 
 @api_router.put("/listings/{id}")
