@@ -348,7 +348,7 @@ export default function App() {
                   <NavItem active={view === 'home'} onClick={() => setView('home')}>Home</NavItem>
                   <NavItem active={view === 'explore'} onClick={() => setView('explore')}>Buy, Sell & Trade</NavItem>
                   <NavItem active={view === 'auctions'} onClick={() => setView('auctions')}>
-                    <span className="flex items-center text-orange-600 font-bold"><Gavel className="w-4 h-4 mr-1"/> Lelong</span>
+                    <span className="flex items-center text-orange-600 font-bold"><Gavel className="w-4 h-4 mr-1"/> Lelong (Soon)</span>
                   </NavItem>
                 </div>
             </div>
