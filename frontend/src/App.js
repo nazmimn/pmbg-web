@@ -340,15 +340,13 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       <nav className="sticky top-0 z-40 bg-white border-b border-orange-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center cursor-pointer" onClick={() => setView('home')}>
-              <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-3 shadow-orange-200 shadow-lg transform -rotate-3">
-                <ShoppingBag className="text-white h-6 w-6" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-800 tracking-tight">Pasar Malam</h1>
-                <p className="text-xs text-orange-500 font-medium uppercase tracking-wider">Boardgame</p>
-              </div>
+          <div className="flex justify-between h-20">
+            <div className="flex items-center cursor-pointer gap-2" onClick={() => setView('home')}>
+              <img 
+                src="https://customer-assets.emergentagent.com/job_boardgame-bazaar-1/artifacts/bzq9jenz_pmbg-logo.png" 
+                alt="Pasar Malam Boardgame" 
+                className="h-16 w-auto object-contain py-2"
+              />
             </div>
             
             <div className="hidden md:flex items-center space-x-8">
