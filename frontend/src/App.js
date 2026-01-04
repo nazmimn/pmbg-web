@@ -216,6 +216,8 @@ export default function App() {
           ...item,
           image: (item.images && item.images.length > 0) ? item.images[0] : (item.image || ''),
           sellerId: user.id,
+          price: (item.price === '' || item.price === null || item.price === undefined) ? null : Number(item.price),
+          condition: Number(item.condition),
       }));
 
       if (editingItem && itemsToSave.length === 1) {
