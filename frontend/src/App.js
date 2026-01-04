@@ -539,9 +539,6 @@ function HomeView({ listings, setView, onSeed }) {
          <div className="text-center py-12 bg-white rounded-xl border border-dashed border-orange-200">
             <h3 className="text-xl font-bold text-slate-800 mb-2">The Market is Quiet</h3>
             <p className="text-slate-500 mb-6">Be the first to set up a stall!</p>
-            <button onClick={onSeed} className="px-6 py-3 bg-orange-100 text-orange-700 font-bold rounded-full hover:bg-orange-200 transition-colors flex items-center justify-center mx-auto">
-              <Database className="w-4 h-4 mr-2" /> Seed Demo Database
-            </button>
          </div>
       )}
 
