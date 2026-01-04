@@ -360,7 +360,7 @@ export default function App() {
                 alt="Pasar Malam Boardgame" 
                 className="h-8 w-auto object-contain mb-1"
               />
-              <span className="font-bold text-slate-800 text-xs sm:text-sm tracking-tight uppercase">Pasar Malam Boardgame</span>
+              <span className="font-extrabold text-orange-600 text-sm sm:text-base tracking-widest uppercase mt-1">Pasar Malam Boardgame</span>
             </div>
 
             {/* Right: User Actions */}
