@@ -1,5 +1,4 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Body
-import html
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -14,6 +13,8 @@ import requests
 import xmltodict
 import json
 import asyncio
+import html
+from bs4 import BeautifulSoup
 
 # Emergent Integration
 from emergentintegrations.llm.chat import LlmChat, UserMessage, ImageContent
@@ -24,7 +25,6 @@ load_dotenv(ROOT_DIR / '.env')
 # MongoDB connection
 mongo_url = os.environ.get('MONGO_URL')
 if not mongo_url:
-    # Fallback/Default for safety if env not set correctly, though environment setup guarantees it.
     mongo_url = "mongodb://localhost:27017" 
 
 client = AsyncIOMotorClient(mongo_url)
@@ -90,16 +90,86 @@ class BidRequest(BaseModel):
 
 # --- Helpers ---
 
-def serialize_doc(doc):
-    if not doc:
-        return None
-    doc['id'] = doc.get('id') or str(doc.get('_id'))
-    if '_id' in doc:
-        del doc['_id']
-    for k, v in doc.items():
-        if isinstance(v, datetime):
-            doc[k] = v.isoformat()
-    return doc
+def get_bgg_session():
+    s = requests.Session()
+    s.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://boardgamegeek.com/",
+        "Connection": "keep-alive"
+    })
+    return s
+
+def scrape_bgg_search(q: str):
+    try:
+        url = f"https://boardgamegeek.com/geeksearch.php?action=search&objecttype=boardgame&q={q}"
+        s = get_bgg_session()
+        res = s.get(url, timeout=10)
+        if res.status_code != 200:
+            return []
+        
+        soup = BeautifulSoup(res.text, 'html.parser')
+        rows = soup.select('#collectionitems tr')
+        results = []
+        for row in rows[1:6]: # Skip header, limit 5
+            try:
+                # Title & ID
+                title_link = row.select_one('.collection_objectname a.primary')
+                if not title_link: continue
+                
+                title = title_link.text.strip()
+                href = title_link['href'] # /boardgame/13/catan
+                bgg_id = href.split('/')[2]
+                
+                # Year
+                year_span = row.select_one('.collection_objectname .smallerfont')
+                year = year_span.text.strip('()') if year_span else ""
+                
+                # Thumbnail
+                img_tag = row.select_one('.collection_thumbnail img')
+                thumbnail = img_tag['src'] if img_tag else ""
+                
+                results.append({
+                    "id": bgg_id,
+                    "title": title,
+                    "year": year,
+                    "thumbnail": thumbnail,
+                    "image": thumbnail # Fallback
+                })
+            except: continue
+        return results
+    except Exception as e:
+        logging.error(f"Scrape Search Error: {e}")
+        return []
+
+def scrape_bgg_details(bgg_id: str):
+    try:
+        url = f"https://boardgamegeek.com/boardgame/{bgg_id}"
+        s = get_bgg_session()
+        res = s.get(url, timeout=10)
+        if res.status_code != 200:
+            return {}
+            
+        soup = BeautifulSoup(res.text, 'html.parser')
+        
+        # Image - Try meta tags first
+        image = ""
+        og_image = soup.select_one('meta[property="og:image"]')
+        if og_image:
+            image = og_image['content']
+            
+        # Description
+        desc = ""
+        desc_meta = soup.select_one('meta[name="description"]') # Often short
+        # Or find the angular description block if possible, but meta is safer for now
+        if desc_meta:
+            desc = desc_meta['content']
+            
+        return {"image": image, "description": desc}
+    except Exception as e:
+        logging.error(f"Scrape Details Error: {e}")
+        return {}
 
 # --- Routes ---
 
@@ -110,17 +180,6 @@ async def root():
 # Auth
 @api_router.post("/auth/login", response_model=AuthResponse)
 async def login(req: AuthRequest):
-    # Check if user exists by name (simple logic) or create new
-    # In a real app we'd need passwords/social auth. 
-    # For this MVP "Join/Login", we check if name exists, else create.
-    # Actually, simpler: just create a new user or find existing one? 
-    # Let's trust the client ID if provided, otherwise create new.
-    # The frontend logic was "signInAnonymously" then "updateProfile".
-    # We'll just create a user if they don't have an ID, or return success.
-    
-    # For simplicity, we just create a new user session or return a mock token
-    # If the user wants persistent identity they rely on localStorage ID.
-    
     user = await db.users.find_one({"displayName": req.displayName})
     if not user:
         user_obj = User(displayName=req.displayName)
@@ -142,12 +201,9 @@ async def get_listings(type: Optional[str] = None, sellerId: Optional[str] = Non
     if sellerId:
         query['sellerId'] = sellerId
     
-    # Limit content for list view (exclude huge images array if needed, but keep main image)
-    # For MVP we just return everything, but maybe limit 100
     cursor = db.listings.find(query, {"_id": 0}).sort("createdAt", -1).limit(100)
     listings = await cursor.to_list(length=100)
     
-    # Deserialize dates
     for l in listings:
         if isinstance(l.get('createdAt'), str):
             try:
@@ -164,7 +220,6 @@ async def create_listings(items: List[Listing]):
     docs = []
     created_items = []
     for item in items:
-        # Validate seller exists (optional)
         user = await db.users.find_one({"id": item.sellerId})
         if user:
             item.sellerName = user['displayName']
@@ -180,7 +235,6 @@ async def create_listings(items: List[Listing]):
     if docs:
         await db.listings.insert_many(docs)
         
-    # Remove _id from response
     for d in created_items:
         if '_id' in d:
             del d['_id']
@@ -189,7 +243,6 @@ async def create_listings(items: List[Listing]):
 
 @api_router.put("/listings/{id}")
 async def update_listing(id: str, update_data: dict = Body(...)):
-    # Remove immutable fields if present
     update_data.pop('id', None)
     update_data.pop('createdAt', None)
     update_data['updatedAt'] = datetime.now(timezone.utc).isoformat()
@@ -230,7 +283,6 @@ async def place_bid(id: str, bid: BidRequest):
 # Seed
 @api_router.post("/seed")
 async def seed_data(req: Request):
-    # Dummy seed logic if needed, but frontend has seed logic
     return {"status": "ok"}
 
 # Integrations
@@ -242,7 +294,7 @@ async def scan_image(req: ScanImageRequest):
             api_key=os.environ.get("EMERGENT_LLM_KEY"),
             session_id=f"scan-{uuid.uuid4()}",
             system_message="You are a board game expert."
-        ).with_model("gemini", "gemini-2.5-flash") # Use flash for speed/vision
+        ).with_model("gemini", "gemini-2.5-flash")
 
         prompt = """Look at this image of boardgames. Identify ALL boardgames visible. 
         Return a JSON ARRAY of objects. Each object must have: 
@@ -252,9 +304,6 @@ async def scan_image(req: ScanImageRequest):
         - 'description' (short text)
         Strictly JSON array only. Do not wrap in markdown."""
         
-        # Handle base64
-        # ImageContent expects raw base64 without data prefix usually, but let's check lib
-        # The frontend sends "data:image/jpeg;base64,..."
         b64_data = req.image
         if "base64," in b64_data:
             b64_data = b64_data.split("base64,")[1]
@@ -264,13 +313,12 @@ async def scan_image(req: ScanImageRequest):
         user_msg = UserMessage(text=prompt, file_contents=[image_content])
         response = await chat.send_message(user_msg)
         
-        # Clean response
         text = response.replace("```json", "").replace("```", "").strip()
         try:
             data = json.loads(text)
             return data
         except:
-            return [] # Fallback
+            return []
             
     except Exception as e:
         logging.error(f"AI Scan Error: {e}")
@@ -304,77 +352,69 @@ async def parse_text(req: ParseTextRequest):
         logging.error(f"AI Parse Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-import html
-
-# ...
-
 @api_router.get("/bgg/search")
 async def bgg_search(q: str):
     if not q or len(q) < 3:
         return []
     
+    results = []
+    
+    # 1. Try XML API
     try:
-        # Use allorigins proxy to bypass potential blocks/CORS (though CORS isn't issue for backend, IP block might be)
-        target_url = f"https://boardgamegeek.com/xmlapi2/search?query={q}&type=boardgame"
-        url = f"https://api.allorigins.win/raw?url={requests.utils.quote(target_url)}"
+        url = f"https://boardgamegeek.com/xmlapi2/search?query={q}&type=boardgame"
+        s = get_bgg_session()
+        res = s.get(url, timeout=5)
         
-        headers = {'User-Agent': 'PasarMalamApp/1.0'}
-        res = requests.get(url, headers=headers, timeout=10)
-        
-        # BGG often returns 202 if processing, need to handle or just retry/fail
-        if res.status_code == 202:
-             return []
-             
-        data = xmltodict.parse(res.content)
-        
-        items = data.get('items', {}).get('item', [])
-        if isinstance(items, dict): items = [items] # Handle single result
-        
-        results = []
-        for item in items[:5]: # Limit 5
-            name_val = item.get('name', {}).get('@value')
-            if not name_val and isinstance(item.get('name'), list):
-                 name_val = item.get('name')[0].get('@value')
-                 
-            results.append({
-                "id": item.get('@id'),
-                "title": name_val,
-                "year": item.get('yearpublished', {}).get('@value')
-            })
+        if res.status_code == 200 and res.content:
+            data = xmltodict.parse(res.content)
+            items = data.get('items', {}).get('item', [])
+            if isinstance(items, dict): items = [items]
             
-        # Detail fetch for images (simple logic)
-        if results:
-            ids = ",".join([r['id'] for r in results])
-            target_d_url = f"https://boardgamegeek.com/xmlapi2/thing?id={ids}"
-            detail_url = f"https://api.allorigins.win/raw?url={requests.utils.quote(target_d_url)}"
-            
-            d_res = requests.get(detail_url, headers=headers, timeout=10)
-            d_data = xmltodict.parse(d_res.content)
-            d_items = d_data.get('items', {}).get('item', [])
-            if isinstance(d_items, dict): d_items = [d_items]
-            
-            for r in results:
-                match = next((i for i in d_items if i.get('@id') == r['id']), None)
-                if match:
-                    r['image'] = match.get('image', '')
-                    r['thumbnail'] = match.get('thumbnail', '')
-                    # Clean description
-                    raw_desc = match.get('description', '')
-                    if raw_desc:
-                        # Decode HTML entities twice just in case (BGG sometimes double encodes or mix)
-                        clean_desc = html.unescape(raw_desc) 
-                        # Remove basic HTML tags if needed, or keep them if frontend renders HTML
-                        # For safety/simplicity, let's strip tags or just leave as is? 
-                        # The user prompt implied just "get description". 
-                        # Let's simple unescape.
-                        r['description'] = clean_desc
-                    else:
-                        r['description'] = ''
-                    
-        return results
+            for item in items[:5]:
+                name_val = item.get('name', {}).get('@value')
+                if not name_val and isinstance(item.get('name'), list):
+                     name_val = item.get('name')[0].get('@value')
+                     
+                results.append({
+                    "id": item.get('@id'),
+                    "title": name_val,
+                    "year": item.get('yearpublished', {}).get('@value')
+                })
     except Exception as e:
-        logging.error(f"BGG Error: {e}")
-        return []
+        logging.warning(f"BGG XML Search failed, trying scrape: {e}")
+
+    # 2. Fallback to Scrape if no results (likely blocked)
+    if not results:
+        results = scrape_bgg_search(q)
+        
+    # 3. Enhance with images/descriptions
+    # For XML API results, we still need details. 
+    # For Scrape results, we have thumbnails but no description/full-image.
+    
+    # We will try to fetch details for the top results.
+    for r in results[:5]:
+        # Try XML details first
+        try:
+             url = f"https://boardgamegeek.com/xmlapi2/thing?id={r['id']}"
+             s = get_bgg_session()
+             res = s.get(url, timeout=5)
+             if res.status_code == 200:
+                d_data = xmltodict.parse(res.content)
+                item = d_data.get('items', {}).get('item', {})
+                if item:
+                    r['image'] = item.get('image', r.get('image', ''))
+                    r['thumbnail'] = item.get('thumbnail', r.get('thumbnail', ''))
+                    raw_desc = item.get('description', '')
+                    r['description'] = html.unescape(raw_desc) if raw_desc else ""
+             else:
+                 raise Exception("XML Details blocked")
+        except:
+            # Fallback Scrape Details
+            details = scrape_bgg_details(r['id'])
+            if details.get('image'): r['image'] = details['image']
+            if details.get('description'): r['description'] = details['description']
+            
+    return results
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -387,7 +427,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
