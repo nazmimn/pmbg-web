@@ -656,6 +656,7 @@ class BackendTester:
         # Run tests in sequence
         auth_success = self.test_authentication()
         auth_email_success = self.test_email_authentication()
+        profile_success = self.test_profile_update_and_listings_enrichment()
         listings_success = self.test_listings_crud()
         bgg_success = self.test_bgg_search()
         ai_success = self.test_ai_parse()
