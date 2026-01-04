@@ -1827,6 +1827,18 @@ function EditProfileModal({ user, onClose, onUpdate }) {
 }
 
 function ListingCard({ game }) {
+    const handleContact = (type, value) => {
+        if (!value) return;
+        if (type === 'whatsapp') {
+            const cleanNumber = value.replace(/\D/g, '');
+            const finalNumber = cleanNumber.startsWith('01') ? `6${cleanNumber}` : cleanNumber;
+            window.open(`https://wa.me/${finalNumber}`, '_blank');
+        } else if (type === 'facebook') {
+            const url = value.startsWith('http') ? value : `https://${value}`;
+            window.open(url, '_blank');
+        }
+    };
+
     return (
         <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border border-slate-100 flex flex-col h-full">
             <div className="relative h-48 overflow-hidden bg-slate-200">
@@ -1861,16 +1873,36 @@ function ListingCard({ game }) {
                 <h3 className="font-bold text-slate-800 text-base leading-tight mb-1 line-clamp-2" title={game.title}>{game.title}</h3>
                 <p className="text-xs text-slate-500 mb-3 line-clamp-2 flex-1">{game.description}</p>
                 
-                <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between">
-                    <div className="font-extrabold text-slate-900 text-lg">
-                        {game.price ? `RM ${game.price}` : <span className="text-xs text-slate-400 italic">Make Offer</span>}
-                    </div>
-                    {game.sellerName && (
-                        <div className="flex items-center text-xs text-slate-500" title={`Seller: ${game.sellerName}`}>
-                            <User className="w-3 h-3 mr-1" />
-                            <span className="max-w-[80px] truncate">{game.sellerName}</span>
+                <div className="mt-auto pt-3 border-t border-slate-50">
+                    <div className="flex justify-between items-center mb-2">
+                        <div className="font-extrabold text-slate-900 text-lg">
+                            {game.price ? `RM ${game.price}` : <span className="text-xs text-slate-400 italic">Make Offer</span>}
                         </div>
-                    )}
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                        {game.sellerName && (
+                            <div className="flex items-center text-xs text-slate-500" title={`Seller: ${game.sellerName}`}>
+                                <div className="w-5 h-5 rounded-full bg-slate-200 overflow-hidden mr-1.5 flex-shrink-0">
+                                    {game.sellerAvatar ? <img src={game.sellerAvatar} className="w-full h-full object-cover"/> : <User className="w-3 h-3 m-auto mt-1"/>}
+                                </div>
+                                <span className="max-w-[80px] truncate">{game.sellerName}</span>
+                            </div>
+                        )}
+                        
+                        <div className="flex gap-1">
+                            {game.sellerPhone && (
+                                <button onClick={(e) => { e.stopPropagation(); handleContact('whatsapp', game.sellerPhone); }} className="p-1.5 bg-green-50 text-green-600 rounded-full hover:bg-green-100 transition-colors" title="Chat on Whatsapp">
+                                    <MessageCircle className="w-4 h-4" />
+                                </button>
+                            )}
+                            {game.sellerFb && (
+                                <button onClick={(e) => { e.stopPropagation(); handleContact('facebook', game.sellerFb); }} className="p-1.5 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors" title="View Facebook Profile">
+                                    <Facebook className="w-4 h-4" />
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
