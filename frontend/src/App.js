@@ -437,6 +437,14 @@ export default function App() {
           initialData={editingItem}
         />
       )}
+
+      <ConfirmModal 
+        isOpen={logoutConfirmOpen}
+        title="Confirm Logout"
+        message="Are you sure you want to sign out?"
+        onConfirm={confirmLogout}
+        onCancel={() => setLogoutConfirmOpen(false)}
+      />
     </div>
   )
 }
