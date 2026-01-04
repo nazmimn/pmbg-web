@@ -909,7 +909,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
         setStep('review');
       } catch (err) {
         console.error(err);
-        setErrorMsg("Failed to identify games. Try again.");
+        setErrorMsg("Failed to identify boardgames. Try again.");
       } finally {
         setIsAnalyzing(false);
       }
