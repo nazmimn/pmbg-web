@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
+  Home,
   ShoppingBag, 
   Search, 
   Camera, 
