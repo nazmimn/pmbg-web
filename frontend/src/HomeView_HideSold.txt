@@ -1,8 +1,0 @@
-function HomeView({ listings, setView }) {
-  const auctions = listings.filter(l => l.type === 'WTL');
-  // Default hide sold on home page too
-  const forSale = listings.filter(l => l.type === 'WTS' && l.status !== 'sold');
-  const latestWTS = forSale.length > 0 ? forSale[0] : null;
-
-  return (
-    <div className="space-y-12">
