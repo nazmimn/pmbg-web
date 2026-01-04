@@ -1481,7 +1481,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
          </button>
       </div>
     </form>
-  );
+  )
 
   const renderSelectType = () => (
     <div className="space-y-6 text-center">
