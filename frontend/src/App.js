@@ -694,15 +694,6 @@ function ExploreView({ listings }) {
           <p className="text-slate-500">Find your next favorite game or convert your shelf of shame to cash.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex items-center space-x-2">
-                <button 
-                    onClick={() => setShowSold(!showSold)} 
-                    className={`flex items-center px-3 py-2 rounded-lg text-xs font-bold transition-all ${showSold ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
-                >
-                    {showSold ? <CheckCircle className="w-3 h-3 mr-1"/> : <XCircle className="w-3 h-3 mr-1"/>}
-                    Show Sold
-                </button>
-            </div>
             <div className="relative">
                 <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                 <input 
@@ -719,6 +710,15 @@ function ExploreView({ listings }) {
                     {f === 'ALL' ? 'All' : f}
                 </button>
             ))}
+            </div>
+            <div className="flex items-center space-x-2">
+                <button 
+                    onClick={() => setShowSold(!showSold)} 
+                    className={`flex items-center px-3 py-2 rounded-lg text-xs font-bold transition-all ${showSold ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}
+                >
+                    {showSold ? <CheckCircle className="w-3 h-3 mr-1"/> : <XCircle className="w-3 h-3 mr-1"/>}
+                    Show Sold
+                </button>
             </div>
         </div>
       </div>
