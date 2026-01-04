@@ -1212,7 +1212,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
                   <div className="bg-blue-50 p-3 rounded-lg text-xs text-blue-700 mb-2">
                     {formData.type === 'WTB' ? "Tip: Enter one game title per line." : "Tip: Paste your full selling post from Facebook or WhatsApp."}
                   </div>
-                  <textarea className="w-full p-3 border border-slate-300 rounded-lg h-40 text-sm" placeholder={formData.type === 'WTB' ? "Catan\nWingspan\nRoot" : "Selling these games..."} value={inputText} onChange={e => setInputText(e.target.value)}></textarea>
+                  <textarea className="w-full p-3 border border-slate-300 rounded-lg h-40 text-sm" placeholder={formData.type === 'WTB' ? "Catan\nWingspan\nRoot" : "Selling these boardgames..."} value={inputText} onChange={e => setInputText(e.target.value)}></textarea>
                   <div className="flex justify-end gap-2">
                     <button onClick={() => setStep('select-method')} className="px-4 py-2 text-slate-500">Back</button>
                     {formData.type === 'WTB' ? (
