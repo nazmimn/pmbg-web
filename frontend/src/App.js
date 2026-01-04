@@ -1315,7 +1315,6 @@ function AddGameModal({ onClose, onAdd, initialData }) {
             <select className="w-full p-2 border border-slate-300 rounded-lg bg-slate-50" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
                <option value="WTS">Sell (WTS)</option>
                <option value="WTB">Buy (WTB)</option>
-               <option value="WTT">Trade (WTT)</option>
             </select>
          </div>
          <div>
@@ -1478,7 +1477,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
 
       <div className="text-center mt-6">
           <button onClick={() => { setFormData({...formData, title: ''}); setStep('edit-single'); }} className="text-slate-400 hover:text-slate-600 text-sm border-b border-slate-300 pb-0.5">
-              Enter boardgame manually
+              Or enter manually
           </button>
       </div>
     </div>
@@ -1559,8 +1558,8 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   const renderReview = () => (
     <div className="h-full flex flex-col">
         <div className="flex justify-between items-center mb-4">
-            <button onClick={() => setStep('select-method')} className="text-sm text-blue-600 hover:underline flex items-center"><ArrowLeft className="w-4 h-4 mr-1"/> Add More</button>
             <span className="text-xs font-bold text-slate-400 uppercase">{detectedItems.length} Items Ready</span>
+            <button onClick={() => setStep('select-method')} className="text-sm text-blue-600 hover:underline flex items-center"><Plus className="w-4 h-4 mr-1"/> Add More</button> 
         </div>
         <div className="space-y-3 overflow-y-auto flex-1 pr-2">
             {detectedItems.map((item, idx) => (
