@@ -667,7 +667,7 @@ function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMa
              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
              <input 
                type="text" 
-               placeholder="Search my games..." 
+               placeholder="Search my boardgames..." 
                className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-full text-sm focus:outline-none focus:border-orange-500"
                value={searchTerm}
                onChange={e => setSearchTerm(e.target.value)}
