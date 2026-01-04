@@ -1452,7 +1452,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
             </select>
          </div>
          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Price (RM) {formData.type !== 'WTB' && <span className="text-red-500">*</span>}</label>
+            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{formData.type === 'WTB' ? 'Willing to Pay (RM)' : 'Price (RM)'} {formData.type !== 'WTB' && <span className="text-red-500">*</span>}</label>
             <input 
               type="text" 
               inputMode="numeric" 
