@@ -1375,42 +1375,96 @@ function AddGameModal({ onClose, onAdd, initialData }) {
          <button onClick={() => setStep('select-type')} className="text-slate-400 hover:text-slate-600 mr-4"><ArrowLeft className="w-5 h-5"/></button>
          <h4 className="text-lg font-medium text-slate-700">How to add?</h4>
       </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <button onClick={() => { setStep('bgg-search'); }} className="p-4 border-2 border-slate-100 hover:border-green-500 rounded-xl text-left transition-all relative group">
-          <Globe className="w-8 h-8 text-green-500 mb-3 group-hover:scale-110 transition-transform" />
+        <button 
+            onClick={() => setSelectedMethod('bgg')} 
+            className={`p-4 border-2 rounded-xl text-left transition-all relative group ${selectedMethod === 'bgg' ? 'border-green-500 bg-green-50' : 'border-slate-100 hover:border-green-500'}`}
+        >
+          <Globe className={`w-8 h-8 mb-3 transition-transform ${selectedMethod === 'bgg' ? 'text-green-600 scale-110' : 'text-green-500 group-hover:scale-110'}`} />
           <div className="font-bold text-slate-800">BGG Database</div>
           <div className="text-xs text-slate-500 mt-1">Search & Auto-fill</div>
         </button>
 
         <button 
-            onClick={() => document.getElementById('ai-scan-input').click()} 
-            onDrop={handleScanDrop}
-            onDragOver={(e) => e.preventDefault()}
-            className="p-4 border-2 border-slate-100 hover:border-purple-500 rounded-xl text-left transition-all relative overflow-hidden group"
+            onClick={() => setSelectedMethod('scan')} 
+            className={`p-4 border-2 rounded-xl text-left transition-all relative overflow-hidden group ${selectedMethod === 'scan' ? 'border-purple-500 bg-purple-50' : 'border-slate-100 hover:border-purple-500'}`}
         >
           <div className="absolute top-2 right-2 bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">MULTI</div>
-          <Camera className="w-8 h-8 text-purple-500 mb-3 group-hover:scale-110 transition-transform" />
+          <Camera className={`w-8 h-8 mb-3 transition-transform ${selectedMethod === 'scan' ? 'text-purple-600 scale-110' : 'text-purple-500 group-hover:scale-110'}`} />
           <div className="font-bold text-slate-800">AI Photo Scan</div>
-          <div className="text-xs text-slate-500 mt-1">Upload or Drop Stack</div>
-          <input id="ai-scan-input" type="file" className="hidden" onChange={handleScanInput} accept="image/*" />
+          <div className="text-xs text-slate-500 mt-1">Upload Game Stack</div>
         </button>
 
-        {formData.type === 'WTB' ? (
-           <button onClick={() => { setStep('text-parser'); }} className="p-4 border-2 border-slate-100 hover:border-blue-500 rounded-xl text-left transition-all relative group">
+        <button 
+            onClick={() => setSelectedMethod('parser')} 
+            className={`p-4 border-2 rounded-xl text-left transition-all relative group ${selectedMethod === 'parser' ? 'border-blue-500 bg-blue-50' : 'border-slate-100 hover:border-blue-500'}`}
+        >
              <div className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">MULTI</div>
-             <ListPlus className="w-8 h-8 text-blue-500 mb-3 group-hover:scale-110 transition-transform" />
-             <div className="font-bold text-slate-800">Quick List</div>
-             <div className="text-xs text-slate-500 mt-1">Type multiple titles</div>
-           </button>
-        ) : (
-           <button onClick={() => { setStep('text-parser'); }} className="p-4 border-2 border-slate-100 hover:border-blue-500 rounded-xl text-left transition-all relative group">
-             <div className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">MULTI</div>
-             <Facebook className="w-8 h-8 text-blue-500 mb-3 group-hover:scale-110 transition-transform" />
-             <div className="font-bold text-slate-800">Smart Parser</div>
-             <div className="text-xs text-slate-500 mt-1">Paste bulk sell list</div>
-           </button>
-        )}
+             {formData.type === 'WTB' ? <ListPlus className={`w-8 h-8 mb-3 transition-transform ${selectedMethod === 'parser' ? 'text-blue-600 scale-110' : 'text-blue-500 group-hover:scale-110'}`} /> : <Facebook className={`w-8 h-8 mb-3 transition-transform ${selectedMethod === 'parser' ? 'text-blue-600 scale-110' : 'text-blue-500 group-hover:scale-110'}`} />}
+             <div className="font-bold text-slate-800">{formData.type === 'WTB' ? 'Quick List' : 'Smart Parser'}</div>
+             <div className="text-xs text-slate-500 mt-1">{formData.type === 'WTB' ? 'Type multiple titles' : 'Paste bulk sell list'}</div>
+        </button>
       </div>
+
+      <div className="transition-all duration-300 ease-in-out">
+          {selectedMethod === 'bgg' && (
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 animate-in fade-in slide-in-from-top-4 mt-4">
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+                    <input type="text" placeholder="Search BoardGameGeek..." className="w-full pl-10 p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-green-200 focus:border-green-500 outline-none transition-all" onChange={e => handleBGGSearch(e.target.value)} autoFocus />
+                  </div>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {searchResults.map(g => (
+                      <div key={g.id} onClick={() => selectBGGGame(g)} className="flex items-center p-2 hover:bg-slate-100 cursor-pointer rounded border border-transparent hover:border-slate-200 bg-white shadow-sm">
+                        <div className="w-10 h-10 bg-slate-200 rounded mr-3 overflow-hidden flex-shrink-0">
+                           {g.image ? <img src={g.image} className="w-full h-full object-cover" /> : null}
+                        </div>
+                        <div><div className="font-bold text-sm text-slate-800">{g.title}</div><div className="text-xs text-slate-500">{g.year}</div></div>
+                      </div>
+                    ))}
+                    {bggQuery.length > 2 && searchResults.length === 0 && <div className="text-center text-slate-400 text-sm py-4">Searching...</div>}
+                  </div>
+            </div>
+          )}
+
+          {selectedMethod === 'scan' && (
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 animate-in fade-in slide-in-from-top-4 mt-4">
+                  <div 
+                    onDrop={handleScanDrop} 
+                    onDragOver={e => e.preventDefault()}
+                    className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-purple-500 hover:bg-purple-50 transition-colors bg-white cursor-pointer"
+                    onClick={() => document.getElementById('ai-scan-input-inline').click()}
+                  >
+                      <Camera className="w-12 h-12 text-slate-300 mx-auto mb-4"/>
+                      <p className="text-slate-600 font-bold mb-1">Click to Upload</p>
+                      <p className="text-slate-400 text-sm">or Drag & Drop Photos</p>
+                      <input id="ai-scan-input-inline" type="file" hidden onChange={handleScanInput} accept="image/*" />
+                  </div>
+            </div>
+          )}
+
+          {selectedMethod === 'parser' && (
+            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 animate-in fade-in slide-in-from-top-4 mt-4">
+                  <div className="bg-blue-50 p-3 rounded-lg text-xs text-blue-700 mb-2 border border-blue-100">
+                    {formData.type === 'WTB' ? "Tip: Enter one game title per line." : "Tip: Paste your full selling post from Facebook or WhatsApp."}
+                  </div>
+                  <textarea className="w-full p-3 border border-slate-300 rounded-lg h-40 text-sm bg-white mb-4 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition-all" placeholder={formData.type === 'WTB' ? "Catan\nWingspan\nRoot" : "Selling these boardgames..."} value={inputText} onChange={e => setInputText(e.target.value)}></textarea>
+                  <div className="flex justify-end">
+                    {formData.type === 'WTB' ? (
+                       <button onClick={handleQuickList} disabled={!inputText} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold flex items-center hover:bg-blue-700 transition-colors">
+                         Create List
+                       </button>
+                    ) : (
+                       <button onClick={handleTextAnalysis} disabled={!inputText} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold flex items-center hover:bg-blue-700 transition-colors">
+                         <Sparkles className="w-4 h-4 mr-2" /> Parse Text
+                       </button>
+                    )}
+                  </div>
+            </div>
+          )}
+      </div>
+
       <div className="text-center pt-2">
         <button onClick={() => { setStep('edit-single'); }} className="text-sm font-bold text-slate-500 hover:text-orange-600 flex items-center justify-center mx-auto">
            Or enter manually <Pencil className="w-3 h-3 ml-1" />
