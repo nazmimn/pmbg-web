@@ -936,7 +936,7 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
                    <CheckCircle className="w-3 h-3 mr-1" /> Mark Sold
                 </button>
                 <button onClick={initiateBulkDelete} disabled={isProcessing} className="text-xs bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded flex items-center">
-                   <Trash2 className="w-3 h-3 mr-1" /> Delete
+                   <Trash2 className="w-3 h-3 mr-1" /> Remove
                 </button>
              </div>
           </div>
