@@ -45,7 +45,8 @@ import axios from 'axios';
 // --- Configuration ---
 const API_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8001";
 const api = axios.create({
-    baseURL: API_URL.endsWith('/api') ? API_URL : `${API_URL}/api`
+    baseURL: API_URL.endsWith('/api') ? API_URL : `${API_URL}/api`,
+    withCredentials: true // Important for cookies
 });
 
 // --- Image Resizing Helper ---
@@ -93,14 +94,51 @@ export default function App() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [notification, setNotification] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
+  const [authProcessing, setAuthProcessing] = useState(false);
 
   // Auth Initialization
   useEffect(() => {
-    const savedUser = localStorage.getItem('pm_user');
-    if (savedUser) {
-        setUser(JSON.parse(savedUser));
-    }
-    setLoading(false);
+    const initAuth = async () => {
+        // 1. Check for Emergent Callback
+        if (window.location.hash && window.location.hash.includes('session_id=')) {
+            setAuthProcessing(true);
+            const sessionId = window.location.hash.split('session_id=')[1].split('&')[0];
+            // Clear hash
+            window.history.replaceState(null, '', window.location.pathname);
+            
+            try {
+                const res = await api.post('/auth/exchange-session', { session_id: sessionId });
+                const userData = res.data.user;
+                setUser(userData);
+                localStorage.setItem('pm_user', JSON.stringify(userData)); // Optional sync
+                setView('dashboard');
+                showNotification("Signed in successfully!");
+            } catch (e) {
+                console.error("Session exchange failed", e);
+                showNotification("Failed to complete login", "error");
+                setView('auth');
+            } finally {
+                setAuthProcessing(false);
+                setLoading(false);
+            }
+            return;
+        }
+
+        // 2. Check Session Cookie (Server-side verification)
+        try {
+            const res = await api.get('/auth/me');
+            setUser(res.data);
+            localStorage.setItem('pm_user', JSON.stringify(res.data));
+        } catch (e) {
+            // Not authenticated, that's fine
+            setUser(null);
+            localStorage.removeItem('pm_user');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    initAuth();
   }, []);
 
   // Fetch Public Listings (Polling for simple "real-time")
@@ -138,21 +176,18 @@ export default function App() {
   }, [user, view, showAddModal]); 
 
 
-  const handleLogin = async (displayName) => {
-      try {
-          const res = await api.post('/auth/login', { displayName });
-          const userData = res.data.user;
-          setUser(userData);
-          localStorage.setItem('pm_user', JSON.stringify(userData));
-          setView('dashboard');
-          showNotification(`Welcome, ${userData.displayName}!`);
-      } catch (e) {
-          console.error(e);
-          showNotification("Login failed", "error");
-      }
+  const handleLoginSuccess = (userData) => {
+      setUser(userData);
+      localStorage.setItem('pm_user', JSON.stringify(userData));
+      setView('dashboard');
+      showNotification(`Welcome, ${userData.displayName}!`);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+        await api.post('/auth/logout');
+    } catch(e) { console.error(e); }
+    
     localStorage.removeItem('pm_user');
     setUser(null);
     setView('home');
@@ -273,7 +308,7 @@ export default function App() {
       case 'auctions': return <AuctionsView listings={listings} onBid={placeBid} />;
       case 'dashboard': 
         if (!user) {
-          return <AuthView onLogin={handleLogin} onCancel={() => setView('home')} />;
+          return <AuthView onLogin={handleLoginSuccess} onCancel={() => setView('home')} />;
         }
         return <DashboardView 
                   user={user}
@@ -284,7 +319,7 @@ export default function App() {
                   onMarkSold={handleMarkSold}
                   onOpenTrade={handleOpenTrade}
                 />;
-      case 'auth': return <AuthView onLogin={handleLogin} onCancel={() => setView('home')} />;
+      case 'auth': return <AuthView onLogin={handleLoginSuccess} onCancel={() => setView('home')} />;
       default: return <HomeView listings={listings} setView={setView} />;
     }
   };
@@ -354,7 +389,12 @@ export default function App() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {loading ? (
+        {authProcessing ? (
+           <div className="flex flex-col items-center justify-center h-64">
+             <Loader2 className="w-12 h-12 text-orange-500 animate-spin mb-4" />
+             <p className="text-slate-500 animate-pulse">Completing secure sign-in...</p>
+           </div>
+        ) : loading ? (
           <div className="flex items-center justify-center h-64">
             <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
           </div>
@@ -382,6 +422,21 @@ export default function App() {
 
 // --- Components ---
 
+function NavItem({ active, onClick, children }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+        active 
+          ? 'bg-orange-50 text-orange-700' 
+          : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
 function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, isProcessing }) {
     if (!isOpen) return null;
     return (
@@ -408,36 +463,91 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, isProcessin
 }
 
 function AuthView({ onLogin, onCancel }) {
-  const [name, setName] = useState('');
+  const [isRegister, setIsRegister] = useState(false);
+  const [formData, setFormData] = useState({ email: '', password: '', displayName: '' });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleGoogleLogin = () => {
+    const redirectUrl = window.location.origin; 
+    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+    window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
-    await onLogin(name);
-    setLoading(false);
+    
+    try {
+        let user;
+        if (isRegister) {
+            const res = await api.post('/auth/register-email', formData);
+            user = res.data.user;
+        } else {
+            const res = await api.post('/auth/login-email', { email: formData.email, password: formData.password });
+            user = res.data.user;
+        }
+        onLogin(user); 
+    } catch (err) {
+        console.error(err);
+        setError(err.response?.data?.detail || "Authentication failed");
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-orange-100">
-        <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-8 text-white text-center">
-          <h2 className="text-3xl font-extrabold mb-2">Join the Party</h2>
-          <p className="text-orange-100 opacity-90">Set a display name to start trading.</p>
+    <div className="flex items-center justify-center min-h-[60vh] px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+        <div className="p-8 text-center bg-slate-900 text-white">
+             <h2 className="text-2xl font-bold mb-1">{isRegister ? "Join the Community" : "Welcome Back"}</h2>
+             <p className="text-slate-400 text-sm">{isRegister ? "Create an account to start trading" : "Sign in to manage your collection"}</p>
         </div>
-        <div className="p-8">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-bold text-slate-700 mb-1">Display Name</label>
-              <input type="text" required className="w-full p-3 border border-slate-300 rounded-lg" placeholder="e.g. MeepleKing" value={name} onChange={e => setName(e.target.value)} />
-            </div>
-            <button type="submit" disabled={loading} className="w-full py-3 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 transition-all flex justify-center items-center">
-              {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Start Trading'}
-            </button>
-          </form>
-          <div className="mt-6 text-center space-y-4">
-            <button onClick={onCancel} className="text-xs text-slate-400 hover:text-slate-600">Cancel</button>
-          </div>
+        
+        <div className="p-8 space-y-6">
+           <button onClick={handleGoogleLogin} className="w-full flex items-center justify-center py-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium text-slate-700 bg-white">
+             <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5 mr-3" alt="G" />
+             Sign in with Google
+           </button>
+           
+           <div className="relative">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
+              <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-slate-500">Or continue with email</span></div>
+           </div>
+           
+           <form onSubmit={handleSubmit} className="space-y-4">
+              {isRegister && (
+                 <div>
+                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Display Name</label>
+                   <input type="text" required className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" placeholder="MeepleKing" value={formData.displayName} onChange={e => setFormData({...formData, displayName: e.target.value})} />
+                 </div>
+              )}
+              <div>
+                 <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Email</label>
+                 <input type="email" required className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" placeholder="you@example.com" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+              </div>
+              <div>
+                 <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Password</label>
+                 <input type="password" required className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" placeholder="••••••••" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+              </div>
+              
+              {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
+              
+              <button type="submit" disabled={loading} className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-lg shadow-lg shadow-orange-200 transition-all flex justify-center items-center">
+                 {loading ? <Loader2 className="animate-spin w-5 h-5" /> : (isRegister ? "Create Account" : "Sign In")}
+              </button>
+           </form>
+           
+           <div className="text-center text-sm">
+              <button onClick={() => setIsRegister(!isRegister)} className="text-slate-500 hover:text-orange-600 font-medium">
+                 {isRegister ? "Already have an account? Sign In" : "Don't have an account? Join Now"}
+              </button>
+           </div>
+           
+           <div className="text-center text-xs text-slate-400 mt-4">
+             <button onClick={onCancel}>Cancel and browse as guest</button>
+           </div>
         </div>
       </div>
     </div>
@@ -1381,186 +1491,229 @@ function AddGameModal({ onClose, onAdd, initialData }) {
                     onDrop={handleScanDrop} 
                     onDragOver={e => e.preventDefault()}
                     className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-purple-500 hover:bg-purple-50 transition-colors bg-white cursor-pointer"
-                    onClick={() => document.getElementById('ai-scan-input-inline').click()}
+                    onClick={() => document.getElementById('ai-scan-input').click()}
                   >
-                      <Camera className="w-12 h-12 text-slate-300 mx-auto mb-4"/>
-                      <p className="text-slate-600 font-bold mb-1">Click to Upload</p>
-                      <p className="text-slate-400 text-sm">or Drag & Drop Photos</p>
-                      <input id="ai-scan-input-inline" type="file" hidden onChange={handleScanInput} accept="image/*" />
+                    <input type="file" id="ai-scan-input" hidden accept="image/*" onChange={handleScanInput} />
+                    <Camera className="w-12 h-12 mx-auto text-purple-400 mb-2" />
+                    <div className="font-bold text-slate-700">Upload Shelfie</div>
+                    <div className="text-xs text-slate-400">Drag & drop or click</div>
                   </div>
+                  {isAnalyzing && <div className="mt-4 text-center text-purple-600 animate-pulse text-sm">Scanning boardgames...</div>}
+                  {errorMsg && <div className="mt-2 text-center text-red-500 text-xs">{errorMsg}</div>}
             </div>
           )}
 
           {selectedMethod === 'parser' && (
             <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 animate-in fade-in slide-in-from-top-4 mt-4">
-                  <div className="bg-blue-50 p-3 rounded-lg text-xs text-blue-700 mb-2 border border-blue-100">
-                    {formData.type === 'WTB' ? "Tip: Enter one game title per line." : "Tip: Paste your full selling post from Facebook or WhatsApp."}
+                  <textarea 
+                    className="w-full p-3 border border-slate-300 rounded-lg h-32 text-sm focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none"
+                    placeholder={formData.type === 'WTB' ? "Catan\nTicket to Ride\nWingspan" : "Paste your Facebook/Whatsapp selling post here..."}
+                    value={inputText}
+                    onChange={e => setInputText(e.target.value)}
+                  ></textarea>
+                  <div className="mt-2 flex justify-end">
+                     <button onClick={formData.type === 'WTB' ? handleQuickList : handleTextAnalysis} disabled={isAnalyzing || !inputText} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center">
+                        {isAnalyzing && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                        {formData.type === 'WTB' ? 'Create List' : 'Analyze Text'}
+                     </button>
                   </div>
-                  <textarea className="w-full p-3 border border-slate-300 rounded-lg h-40 text-sm bg-white mb-4 focus:ring-2 focus:ring-blue-200 focus:border-blue-500 outline-none transition-all" placeholder={formData.type === 'WTB' ? "Catan\nWingspan\nRoot" : "Selling these boardgames..."} value={inputText} onChange={e => setInputText(e.target.value)}></textarea>
-                  <div className="flex justify-end">
-                    {formData.type === 'WTB' ? (
-                       <button onClick={handleQuickList} disabled={!inputText} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold flex items-center hover:bg-blue-700 transition-colors">
-                         Create List
-                       </button>
-                    ) : (
-                       <button onClick={handleTextAnalysis} disabled={!inputText} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold flex items-center hover:bg-blue-700 transition-colors">
-                         <Sparkles className="w-4 h-4 mr-2" /> Parse Text
-                       </button>
-                    )}
-                  </div>
+                  {errorMsg && <div className="mt-2 text-center text-red-500 text-xs">{errorMsg}</div>}
             </div>
           )}
       </div>
 
-      <div className="text-center pt-2">
-        <button onClick={() => { setStep('edit-single'); }} className="text-sm font-bold text-slate-500 hover:text-orange-600 flex items-center justify-center mx-auto">
-           Or enter manually <Pencil className="w-3 h-3 ml-1" />
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderReviewList = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-2">
-        <h4 className="font-bold text-slate-700">Review Detected</h4>
-        <div className="flex gap-2">
-            <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="text-xs flex items-center bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-full">
-                {isSubmitting ? <Loader2 className="w-3 h-3 animate-spin mr-1"/> : <Globe className="w-3 h-3 mr-1"/>}
-                Auto-fill Covers
-            </button>
-            <button onClick={() => { setFormData({type: formData.type || 'WTS', condition:8.0, images:[]}); setCurrentItemIndex(-1); setStep('edit-single'); }} className="text-xs flex items-center bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-full"><Plus className="w-3 h-3 mr-1"/> Add Another</button>
-        </div>
-      </div>
-      <div className="max-h-[50vh] overflow-y-auto space-y-3 pr-2">
-        {detectedItems.map((item, idx) => (
-          <div key={idx} className="flex gap-3 p-3 border border-slate-200 rounded-lg hover:border-orange-300 transition-colors bg-white">
-            <div className="w-16 h-16 bg-slate-100 rounded-md flex-shrink-0 overflow-hidden">
-              {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">No Img</div>}
+      {step === 'review' && detectedItems.length > 0 && (
+         <div className="mt-6 border-t border-slate-200 pt-6">
+            <h4 className="font-bold text-slate-700 mb-4">Review Items ({detectedItems.length})</h4>
+            <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
+               {detectedItems.map((item, idx) => (
+                  <div key={idx} className="flex items-start p-3 bg-white border border-slate-200 rounded-lg group">
+                     <div className="w-16 h-16 bg-slate-100 rounded mr-3 overflow-hidden flex-shrink-0 relative">
+                        {item.images && item.images.length > 0 ? <img src={item.images[0]} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-6 h-6 text-slate-300"/></div>}
+                        <button onClick={() => {
+                            const newItems = detectedItems.filter((_, i) => i !== idx);
+                            setDetectedItems(newItems);
+                            if (newItems.length === 0) setStep('select-method');
+                        }} className="absolute top-0 right-0 bg-red-500 text-white p-0.5 rounded-bl opacity-0 group-hover:opacity-100 transition-opacity"><X className="w-3 h-3"/></button>
+                     </div>
+                     <div className="flex-1 min-w-0" onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }}>
+                        <div className="font-bold text-sm truncate">{item.title || "Untitled"}</div>
+                        <div className="text-xs text-slate-500">RM {item.price || "?"} • Cond: {item.condition}</div>
+                        <div className="text-[10px] text-slate-400 truncate">{item.description}</div>
+                     </div>
+                     <button onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }} className="text-slate-400 hover:text-blue-500"><Pencil className="w-4 h-4"/></button>
+                  </div>
+               ))}
             </div>
-            <div className="flex-1 min-w-0">
-              <h5 className="font-bold text-slate-800 truncate">{item.title || "Unknown Title"}</h5>
-              <div className="flex items-center text-xs text-slate-500 mt-1 space-x-2">
-                <span className="bg-slate-100 px-1.5 py-0.5 rounded">RM {item.price || 0}</span>
-                <span className={`px-1.5 py-0.5 rounded ${item.condition >= 8 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>Cond: {item.condition}</span>
-              </div>
+            
+            <div className="mt-4 flex gap-2">
+               <button onClick={handleProcessItems} disabled={isSubmitting} className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold flex justify-center items-center shadow-lg">
+                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2"/> Save All Items</>}
+               </button>
+               {detectedItems.some(i => !i.title || !i.image) && (
+                   <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl font-bold text-xs flex flex-col items-center justify-center">
+                      <Sparkles className="w-4 h-4 mb-1"/>
+                      Auto-Fill
+                   </button>
+               )}
             </div>
-            <div className="flex flex-col gap-1 justify-center">
-              <button onClick={() => { setFormData(item); setCurrentItemIndex(idx); setStep('edit-single'); }} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded"><Pencil className="w-4 h-4" /></button>
-              <button onClick={() => setDetectedItems(detectedItems.filter((_, i) => i !== idx))} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"><Trash2 className="w-4 h-4" /></button>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="pt-4 flex justify-between border-t border-slate-100">
-        <button onClick={() => setStep('select-method')} className="text-slate-500 hover:text-slate-800">Back</button>
-        <button onClick={handleProcessItems} disabled={detectedItems.length === 0 || isSubmitting} className="bg-orange-500 text-white px-6 py-2 rounded-lg font-bold hover:bg-orange-600 flex items-center">
-          {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : `Confirm ${detectedItems.length} Listings`}
-        </button>
-      </div>
+         </div>
+      )}
     </div>
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b border-slate-100">
-          <h3 className="text-xl font-bold text-slate-800">
-            {step === 'select-type' ? 'List Boardgames' : step === 'select-method' ? 'Choose Method' : step === 'review' ? 'Review Detected' : 'Boardgame Details'}
-          </h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="w-6 h-6" /></button>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black bg-opacity-50 backdrop-blur-sm">
+      <div className="bg-white w-full sm:max-w-2xl h-[90vh] sm:h-auto sm:max-h-[90vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
+        <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+           <h3 className="font-bold text-lg text-slate-800 flex items-center">
+             {step === 'select-type' && <><Plus className="w-5 h-5 mr-2 text-orange-500"/> New Listing</>}
+             {step === 'select-method' && <><Plus className="w-5 h-5 mr-2 text-orange-500"/> Add {formData.type} Item</>}
+             {step === 'edit-single' && <><Pencil className="w-5 h-5 mr-2 text-blue-500"/> Edit Details</>}
+             {step === 'review' && <><ListIcon className="w-5 h-5 mr-2 text-green-500"/> Review Bulk Items</>}
+           </h3>
+           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X className="w-5 h-5 text-slate-500"/></button>
         </div>
-        <div className="p-6">
-          {isAnalyzing && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <Sparkles className="w-12 h-12 text-purple-500 animate-spin mb-4" />
-              <p className="text-purple-700 font-bold">Analyzing...</p>
-            </div>
-          )}
-          {!isAnalyzing && (
-            <>
-              {step === 'select-type' && renderSelectType()}
-              {step === 'select-method' && renderSelectMethod()}
-              {step === 'review' && renderReviewList()}
-              {step === 'edit-single' && renderEditForm()}
-              
- {null}
-            </>
-          )}
-          {errorMsg && <div className="mt-4 p-3 bg-red-50 text-red-600 rounded text-sm">{errorMsg}</div>}
+        
+        <div className="p-6 overflow-y-auto flex-1">
+           {step === 'select-type' && renderSelectType()}
+           {step === 'select-method' && renderSelectMethod()}
+           {step === 'edit-single' && renderEditForm()}
+           {step === 'review' && renderSelectMethod()} {/* Hack to show list below, actually we keep review in renderSelectMethod logic or separate? Wait, renderSelectMethod has the list logic at bottom? No. */}
+           {/* My logic for 'review' was mixed in renderSelectMethod at the bottom... let's fix that. */}
+           {step === 'review' && (
+              <div className="space-y-4">
+                 <div className="flex justify-between items-center">
+                    <button onClick={() => setStep('select-method')} className="text-sm text-blue-600 hover:underline flex items-center"><ArrowLeft className="w-4 h-4 mr-1"/> Add More</button>
+                    <span className="text-xs font-bold text-slate-400 uppercase">{detectedItems.length} Items Ready</span>
+                 </div>
+                 <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                    {detectedItems.map((item, idx) => (
+                        <div key={idx} className="flex items-start p-3 bg-white border border-slate-200 rounded-lg group hover:border-orange-300 transition-colors">
+                            <div className="w-16 h-16 bg-slate-100 rounded mr-3 overflow-hidden flex-shrink-0 relative">
+                                {item.images && item.images.length > 0 ? <img src={item.images[0]} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-6 h-6 text-slate-300"/></div>}
+                            </div>
+                            <div className="flex-1 min-w-0 cursor-pointer" onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }}>
+                                <div className="font-bold text-sm truncate text-slate-800">{item.title || "Untitled"}</div>
+                                <div className="text-xs text-slate-500">RM {item.price || "?"} • {getConditionText(item.condition).split(',')[0]}</div>
+                                <div className="text-[10px] text-slate-400 truncate">{item.description || "No desc"}</div>
+                            </div>
+                            <div className="flex flex-col gap-1 ml-2">
+                                <button onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }} className="p-1 text-slate-400 hover:text-blue-500 bg-slate-50 rounded"><Pencil className="w-4 h-4"/></button>
+                                <button onClick={() => {
+                                    const newItems = detectedItems.filter((_, i) => i !== idx);
+                                    setDetectedItems(newItems);
+                                    if (newItems.length === 0) setStep('select-method');
+                                }} className="p-1 text-slate-400 hover:text-red-500 bg-slate-50 rounded"><X className="w-4 h-4"/></button>
+                            </div>
+                        </div>
+                    ))}
+                 </div>
+                 <div className="flex gap-3 pt-4 border-t border-slate-100">
+                    {detectedItems.some(i => !i.title || !i.image) && (
+                        <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl font-bold text-xs flex flex-col items-center justify-center transition-colors">
+                            <Sparkles className="w-4 h-4 mb-1"/>
+                            Auto-Fill
+                        </button>
+                    )}
+                    <button onClick={handleProcessItems} disabled={isSubmitting} className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold flex justify-center items-center shadow-lg transition-transform hover:scale-[1.02]">
+                        {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2"/> Publish All ({detectedItems.length})</>}
+                    </button>
+                 </div>
+              </div>
+           )}
         </div>
       </div>
     </div>
   );
 }
 
-// --- Cards ---
-
 function ListingCard({ game }) {
-  const isWTS = game.type === 'WTS';
-  const isWTB = game.type === 'WTB';
-  const isWTT = game.type === 'WTT';
-
-  return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-slate-100 group relative flex flex-col h-full">
-      <div className="relative h-48 bg-slate-200 overflow-hidden flex-shrink-0">
-        {game.image ? <img src={game.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-slate-400"><ImageIcon className="w-8 h-8" /></div>}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
-           <span className={`px-2 py-1 text-xs font-bold rounded-md shadow-sm uppercase ${isWTS ? 'bg-orange-500 text-white' : isWTT ? 'bg-teal-500 text-white' : 'bg-blue-500 text-white'}`}>{game.type}</span>
-           {game.openForTrade && isWTS && <span className="px-2 py-1 text-[10px] font-bold rounded-md shadow-sm bg-teal-500 text-white flex items-center"><RefreshCw className="w-3 h-3 mr-1" /> Trade</span>}
+    return (
+        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border border-slate-100 flex flex-col h-full">
+            <div className="relative h-48 overflow-hidden bg-slate-200">
+                {game.image ? (
+                    <img src={game.image} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-400">
+                        <ImageIcon className="w-12 h-12 opacity-50" />
+                    </div>
+                )}
+                <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+                    <span className={`text-[10px] font-bold px-2 py-1 rounded shadow-sm uppercase ${
+                        game.type === 'WTS' ? 'bg-orange-500 text-white' : 
+                        game.type === 'WTB' ? 'bg-blue-500 text-white' : 
+                        game.type === 'WTL' ? 'bg-purple-600 text-white' : 'bg-teal-500 text-white'
+                    }`}>
+                        {game.type}
+                    </span>
+                    {game.condition && game.type === 'WTS' && (
+                        <span className={`text-[10px] font-bold px-2 py-1 rounded shadow-sm bg-white text-slate-700 border border-slate-100`}>
+                            {game.condition.toFixed(1)}
+                        </span>
+                    )}
+                </div>
+                {game.status === 'sold' && (
+                    <div className="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center backdrop-blur-[1px]">
+                        <span className="bg-slate-800 text-white px-4 py-2 rounded-full font-bold shadow-xl transform -rotate-12 border-2 border-white">SOLD</span>
+                    </div>
+                )}
+            </div>
+            <div className="p-4 flex-1 flex flex-col">
+                <h3 className="font-bold text-slate-800 text-base leading-tight mb-1 line-clamp-2" title={game.title}>{game.title}</h3>
+                <p className="text-xs text-slate-500 mb-3 line-clamp-2 flex-1">{game.description}</p>
+                
+                <div className="mt-auto pt-3 border-t border-slate-50 flex items-center justify-between">
+                    <div className="font-extrabold text-slate-900 text-lg">
+                        {game.price ? `RM ${game.price}` : <span className="text-xs text-slate-400 italic">Make Offer</span>}
+                    </div>
+                    {game.sellerName && (
+                        <div className="flex items-center text-xs text-slate-500" title={`Seller: ${game.sellerName}`}>
+                            <User className="w-3 h-3 mr-1" />
+                            <span className="max-w-[80px] truncate">{game.sellerName}</span>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
-      </div>
-      <div className="p-4 flex flex-col flex-1">
-        <h3 className="font-bold text-slate-800 line-clamp-1 text-base">{game.title}</h3>
-        <div className="flex items-baseline mb-1"><span className="text-slate-400 text-xs mr-1">RM</span><span className="text-xl font-bold text-slate-900">{game.price || 0}</span></div>
-        
-        {/* Seller Info */}
-        <div className="flex items-center text-xs text-slate-500 mb-3">
-            <User className="w-3 h-3 mr-1" />
-            <span className="truncate max-w-[150px]">{game.sellerName || "Unknown Seller"}</span>
-        </div>
-
-        <div className="flex items-center text-xs text-slate-500 space-x-2 mb-4">
-           {isWTB ? null : <span className="bg-slate-100 px-2 py-1 rounded font-medium text-slate-600">Cond: {game.condition}</span>}
-        </div>
-        
-        <div className="mt-auto grid grid-cols-2 gap-2">
-            <button className="py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center justify-center transition-colors">
-                <Facebook className="w-3 h-3 mr-1" /> Messenger
-            </button>
-            <button className="py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-bold flex items-center justify-center transition-colors">
-                <MessageCircle className="w-3 h-3 mr-1" /> WhatsApp
-            </button>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 function AuctionCard({ game, onBid }) {
-  const [isBidding, setIsBidding] = useState(false);
-  const handleBid = async () => { setIsBidding(true); await onBid(game.id, game.currentBid || game.price); setIsBidding(false); };
-  return (
-    <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-orange-100">
-      <div className="relative h-56 bg-slate-800">
-        <img src={game.image} className="w-full h-full object-cover opacity-80" />
-        <div className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-3 py-1 m-2 rounded animate-pulse">LIVE</div>
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
-           <div className="flex items-center text-orange-300 text-sm font-mono mb-1"><Clock className="w-4 h-4 mr-1" /> 23:59:59</div>
-           <h3 className="text-white font-bold text-xl drop-shadow-md">{game.title}</h3>
+    return (
+        <div className="bg-white rounded-xl shadow-sm border border-purple-100 overflow-hidden relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-pink-500"></div>
+            <div className="p-4">
+                <div className="flex gap-4">
+                    <div className="w-24 h-24 bg-slate-200 rounded-lg overflow-hidden flex-shrink-0">
+                        {game.image ? <img src={game.image} className="w-full h-full object-cover" /> : null}
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="font-bold text-slate-800 line-clamp-1">{game.title}</h3>
+                        <p className="text-xs text-slate-500 mb-2">{game.description}</p>
+                        <div className="flex justify-between items-end">
+                            <div>
+                                <div className="text-[10px] uppercase font-bold text-slate-400">Current Bid</div>
+                                <div className="text-xl font-black text-purple-700">RM {game.currentBid}</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="text-[10px] uppercase font-bold text-slate-400">Bids</div>
+                                <div className="text-sm font-bold text-slate-700">{game.bidCount || 0}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-50 flex justify-between items-center">
+                    <div className="flex items-center text-red-500 text-xs font-bold animate-pulse">
+                        <Clock className="w-3 h-3 mr-1" /> Ending Soon
+                    </div>
+                    {onBid && (
+                        <button disabled className="bg-slate-100 text-slate-400 px-4 py-2 rounded-lg font-bold text-xs cursor-not-allowed">
+                            Bid (Closed)
+                        </button>
+                    )}
+                </div>
+            </div>
         </div>
-      </div>
-      <div className="p-5">
-        <div className="flex justify-between items-end mb-4">
-          <div><p className="text-xs text-slate-500 font-bold">Current Bid</p><div className="flex items-baseline text-slate-800"><span className="text-sm mr-1">RM</span><span className="text-3xl font-extrabold">{game.currentBid || game.price}</span></div></div>
-          <div className="text-right text-xs text-slate-500">{game.bidCount || 0} bids</div>
-        </div>
-        <button onClick={handleBid} disabled={isBidding} className="w-full py-3 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 disabled:opacity-50 flex justify-center">{isBidding ? <Loader2 className="animate-spin" /> : `Bid RM ${(game.currentBid||0)+5}`}</button>
-      </div>
-    </div>
-  );
-}
-
-function NavItem({ active, children, onClick }) {
-  return <div onClick={onClick} className={`cursor-pointer px-1 py-1 border-b-2 text-sm font-medium transition-colors ${active ? 'border-orange-500 text-slate-900' : 'border-transparent text-slate-500 hover:text-orange-500'}`}>{children}</div>;
+    );
 }
