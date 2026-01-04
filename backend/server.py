@@ -286,10 +286,7 @@ async def place_bid(id: str, bid: BidRequest):
     await db.listings.update_one({"id": id}, {"$set": update_data})
     return {"status": "success", "newBid": bid.bidAmount}
 
-# Seed
-@api_router.post("/seed")
-async def seed_data(req: Request):
-    return {"status": "ok"}
+# Seed endpoint removed
 
 # Integrations
 
