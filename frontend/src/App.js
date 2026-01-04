@@ -1581,7 +1581,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
             {bggQuery.length > 2 && searchResults.length === 0 && <div className="text-center text-slate-400 text-sm py-4">Searching...</div>}
         </div>
     </div>
-  );
+  )
 
   const renderInputScan = () => (
     <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 h-full flex flex-col">
