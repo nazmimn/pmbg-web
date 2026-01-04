@@ -1564,7 +1564,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
           >
             <div className={`text-2xl font-black mb-2 ${t==='WTS'?'text-orange-600':t==='WTB'?'text-blue-600':'text-slate-400'}`}>{t}</div>
             <div className="text-xs text-slate-500 font-medium">
-              {t==='WTS'?'Sell Game':t==='WTB'?'Buy Game':'Auction (Soon)'}
+              {t==='WTS'?'Sell Game':t==='WTB'?'Buy Game':''}
             </div>
           </button>
         ))}
