@@ -1806,47 +1806,6 @@ function EditProfileModal({ user, onClose, onUpdate }) {
         </div>
     );
 }
-                                        type="text" 
-                                        className="w-full pl-8 py-1 text-xs border border-slate-200 rounded focus:border-orange-500 outline-none font-bold text-slate-700"
-                                        placeholder="Price"
-                                        value={item.price || ''}
-                                        onChange={(e) => updateItemPrice(idx, e.target.value)}
-                                    />
-                                </div>
-                            ) : (
-                                <div className="text-xs text-slate-500">RM {item.price || "?"}</div>
-                            )}
-                            <span className="text-xs text-slate-400">• {getConditionText(item.condition).split(',')[0]}</span>
-                        </div>
-                        
-                        <div className="text-[10px] text-slate-400 truncate mt-1 cursor-pointer hover:text-slate-600" onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }}>
-                            {item.description || "No description"}
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
-        <div className="flex gap-3 pt-4 border-t border-slate-100 mt-2">
-            <button onClick={handleProcessItems} disabled={isSubmitting} className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold flex justify-center items-center shadow-lg transition-transform hover:scale-[1.02]">
-                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2"/> Publish All ({detectedItems.length})</>}
-            </button>
-        </div>
-    </div>
-  );
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white w-full sm:max-w-2xl h-[90vh] sm:h-auto sm:max-h-[90vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300">
-        <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-           <h3 className="font-bold text-lg text-slate-800 flex items-center">
-             {step === 'select-type' && <><Plus className="w-5 h-5 mr-2 text-orange-500"/> New Listing</>}
-             {step === 'select-method' && <><Plus className="w-5 h-5 mr-2 text-orange-500"/> Add {formData.type} Item</>}
-             {step === 'edit-single' && <><Pencil className="w-5 h-5 mr-2 text-blue-500"/> Edit Details</>}
-             {step === 'review' && <><ListIcon className="w-5 h-5 mr-2 text-green-500"/> Review Bulk Items</>}
-             {(step.startsWith('input-')) && <><Plus className="w-5 h-5 mr-2 text-orange-500"/> Add {formData.type} Item</>}
-           </h3>
-           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X className="w-5 h-5 text-slate-500"/></button>
-        </div>
         
         <div className="p-6 overflow-y-auto flex-1">
            {step === 'select-type' && renderSelectType()}
