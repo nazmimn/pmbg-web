@@ -1,0 +1,46 @@
+class UserUpdate(BaseModel):
+    displayName: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    facebookLink: Optional[str] = None
+    password: Optional[str] = None
+    image: Optional[str] = None # Base64 for avatar
+
+@api_router.put("/auth/profile")
+async def update_profile(update: UserUpdate, request: Request):
+    token = request.cookies.get("session_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+        
+    session = await db.user_sessions.find_one({"session_token": token})
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid session")
+        
+    user_id = session['user_id']
+    
+    update_data = {}
+    if update.displayName: update_data['displayName'] = update.displayName
+    if update.email: 
+        # Check if email taken by someone else
+        existing = await db.users.find_one({"email": update.email, "id": {"$ne": user_id}})
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already in use")
+        update_data['email'] = update.email
+        
+    if update.phone: update_data['phone'] = update.phone
+    if update.facebookLink: update_data['facebookLink'] = update.facebookLink
+    
+    if update.password:
+        update_data['password_hash'] = get_password_hash(update.password)
+        
+    if update.image:
+        update_data['picture'] = update.image # Update avatar
+        
+    if not update_data:
+        return {"status": "no changes"}
+        
+    await db.users.update_one({"id": user_id}, {"$set": update_data})
+    
+    # Return updated user
+    updated_user = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0})
+    return updated_user
