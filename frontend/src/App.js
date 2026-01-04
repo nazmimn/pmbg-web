@@ -1537,47 +1537,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
               {step === 'review' && renderReviewList()}
               {step === 'edit-single' && renderEditForm()}
               
-              {step === 'text-parser' && (
-                <div className="space-y-4">
-                  <div className="bg-blue-50 p-3 rounded-lg text-xs text-blue-700 mb-2">
-                    {formData.type === 'WTB' ? "Tip: Enter one game title per line." : "Tip: Paste your full selling post from Facebook or WhatsApp."}
-                  </div>
-                  <textarea className="w-full p-3 border border-slate-300 rounded-lg h-40 text-sm" placeholder={formData.type === 'WTB' ? "Catan\nWingspan\nRoot" : "Selling these boardgames..."} value={inputText} onChange={e => setInputText(e.target.value)}></textarea>
-                  <div className="flex justify-end gap-2">
-                    <button onClick={() => setStep('select-method')} className="px-4 py-2 text-slate-500">Back</button>
-                    {formData.type === 'WTB' ? (
-                       <button onClick={handleQuickList} disabled={!inputText} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold flex items-center">
-                         Create List
-                       </button>
-                    ) : (
-                       <button onClick={handleTextAnalysis} disabled={!inputText} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold flex items-center">
-                         <Sparkles className="w-4 h-4 mr-2" /> Parse Text
-                       </button>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {step === 'bgg-search' && (
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-                    <input type="text" placeholder="Search BoardGameGeek..." className="w-full pl-10 p-3 border border-slate-300 rounded-lg" onChange={e => handleBGGSearch(e.target.value)} autoFocus />
-                  </div>
-                  <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {searchResults.map(g => (
-                      <div key={g.id} onClick={() => selectBGGGame(g)} className="flex items-center p-2 hover:bg-slate-50 cursor-pointer rounded border border-transparent hover:border-slate-200">
-                        <div className="w-10 h-10 bg-slate-200 rounded mr-3 overflow-hidden flex-shrink-0">
-                           {g.image ? <img src={g.image} className="w-full h-full object-cover" /> : null}
-                        </div>
-                        <div><div className="font-bold text-sm text-slate-800">{g.title}</div><div className="text-xs text-slate-500">{g.year}</div></div>
-                      </div>
-                    ))}
-                    {bggQuery.length > 2 && searchResults.length === 0 && <div className="text-center text-slate-400 text-sm py-4">Searching...</div>}
-                  </div>
-                  <div className="text-center pt-2"><button onClick={() => setStep('select-method')} className="text-sm text-slate-400 hover:text-slate-600">Back</button></div>
-                </div>
-              )}
+ {null}
             </>
           )}
           {errorMsg && <div className="mt-4 p-3 bg-red-50 text-red-600 rounded text-sm">{errorMsg}</div>}
