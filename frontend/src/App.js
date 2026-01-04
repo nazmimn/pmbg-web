@@ -1664,10 +1664,6 @@ function AddGameModal({ onClose, onAdd, initialData }) {
             ))}
         </div>
         <div className="flex gap-3 pt-4 border-t border-slate-100 mt-2">
-            <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl font-bold text-xs flex flex-col items-center justify-center transition-colors border border-blue-100">
-                <Sparkles className="w-4 h-4 mb-1"/>
-                Auto-fill Covers
-            </button>
             <button onClick={handleProcessItems} disabled={isSubmitting} className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-xl font-bold flex justify-center items-center shadow-lg transition-transform hover:scale-[1.02]">
                 {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2"/> Publish All ({detectedItems.length})</>}
             </button>
