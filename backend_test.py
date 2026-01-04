@@ -22,6 +22,8 @@ class BackendTester:
         self.test_results = {
             "auth": {"status": "pending", "details": []},
             "auth_email": {"status": "pending", "details": []},
+            "profile_update": {"status": "pending", "details": []},
+            "listings_enrichment": {"status": "pending", "details": []},
             "listings_crud": {"status": "pending", "details": []},
             "bgg_search": {"status": "pending", "details": []},
             "ai_parse": {"status": "pending", "details": []}
