@@ -240,9 +240,9 @@ frontend:
 
   - task: "Add Boardgame Modal - Method Selection"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/src/App.js"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
@@ -252,12 +252,15 @@ frontend:
       - working: false
         agent: "testing"
         comment: "❌ WTS flow does not proceed to method selection step. Clicking WTS button does not navigate to 'How to add?' step. This breaks the core Add Boardgame flow. Issue likely in onClick handler or step navigation logic."
+      - working: true
+        agent: "testing"
+        comment: "✅ FIXED: WTS button click now successfully navigates to 'How to add?' step. All method selection options are visible and functional: BGG Database, AI Photo Scan, Smart Parser, and Manual entry. The navigation flow is working correctly."
 
   - task: "Add Boardgame Modal - Complete WTS Flow"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/src/App.js"
-    stuck_count: 1
+    stuck_count: 0
     priority: "high"
     needs_retesting: false
     status_history:
@@ -267,6 +270,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "❌ Cannot test complete WTS flow because method selection step is not reachable. WTS button click does not proceed to next step, preventing access to manual entry form."
+      - working: true
+        agent: "testing"
+        comment: "✅ FIXED: Complete WTS flow is now working. Successfully tested: 1) Goal selection with WTS/WTB enabled and WTL disabled, 2) WTS navigation to method selection, 3) Manual entry form loads correctly with all required fields (Type, Price, Title, Photos, Condition, Description), 4) Form validation and save functionality ready."
 
   - task: "User Authentication Flow"
     implemented: true
