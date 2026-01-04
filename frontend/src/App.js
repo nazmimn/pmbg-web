@@ -183,16 +183,6 @@ export default function App() {
       showNotification(`Welcome, ${userData.displayName}!`);
   };
 
-  const handleLogout = async () => {
-  // --- Logout Logic with Confirm ---
-  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
-
-  const handleLogoutClick = () => {
-      setLogoutConfirmOpen(true);
-  };
-
-  const confirmLogout = async () => {
-    try {
         await api.post('/auth/logout');
     } catch(e) { console.error(e); }
     
