@@ -1438,7 +1438,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-6 border-b border-slate-100">
           <h3 className="text-xl font-bold text-slate-800">
-            {step === 'select-type' ? 'List Boardgames' : step === 'select-method' ? 'Choose Method' : step === 'review' ? 'Boardgame Details' : 'Boardgame Details'}
+            {step === 'select-type' ? 'List Boardgames' : step === 'select-method' ? 'Choose Method' : step === 'review' ? 'Review Detected' : 'Boardgame Details'}
           </h3>
           <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X className="w-6 h-6" /></button>
         </div>
