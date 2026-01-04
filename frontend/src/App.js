@@ -1201,34 +1201,35 @@ function AddGameModal({ onClose, onAdd, initialData }) {
 
   const handleBulkAutoFill = async () => {
     if (isSubmitting) return;
-    setIsSubmitting(true); // Re-using isSubmitting
+    setIsSubmitting(true);
     try {
-        const updatedItems = await Promise.all(detectedItems.map(async (item) => {
-            if (item.image && item.description) return item; // Skip if already complete
+        const updatedItems = [...detectedItems];
+        for (let i = 0; i < updatedItems.length; i++) {
+            const item = updatedItems[i];
+            if ((item.image && item.description) || !item.title) continue;
+
             try {
+                if (i > 0) await new Promise(r => setTimeout(r, 500));
                 const res = await api.get(`/bgg/search?q=${encodeURIComponent(item.title)}`);
                 const results = res.data;
-                if (!results || results.length === 0) return item;
+                if (!results || results.length === 0) continue;
 
-                // Find exact match or take first
                 const exactMatch = results.find(r => r.title.toLowerCase() === item.title.toLowerCase());
                 const match = exactMatch || results[0];
 
                 if (match) {
-                     let newItem = { ...item };
-                     if (!newItem.image && match.image) {
-                         newItem.image = match.image;
-                         newItem.images = [match.image];
-                         newItem.bggId = match.id;
+                     updatedItems[i] = { ...item };
+                     if (!updatedItems[i].image && match.image) {
+                         updatedItems[i].image = match.image;
+                         updatedItems[i].images = [match.image];
+                         updatedItems[i].bggId = match.id;
                      }
-                     if (!newItem.description && match.description) {
-                         newItem.description = match.description.replace(/<[^>]*>/g, ' ').slice(0, 1000) + "...";
+                     if (!updatedItems[i].description && match.description) {
+                         updatedItems[i].description = match.description.replace(/<[^>]*>/g, ' ').slice(0, 1000) + "...";
                      }
-                     return newItem;
                 }
             } catch (e) { console.error(e); }
-            return item;
-        }));
+        }
         setDetectedItems(updatedItems);
     } finally {
         setIsSubmitting(false);
