@@ -43,6 +43,145 @@ class BackendTester:
         elif success and self.test_results[category]["status"] == "pending":
             self.test_results[category]["status"] = "passed"
 
+    def test_email_authentication(self):
+        """Test NEW email-based authentication endpoints"""
+        print("\n=== Testing Email Authentication ===")
+        
+        try:
+            # Test data as specified in the review request
+            test_email = "test@example.com"
+            test_password = "password123"
+            test_display_name = "Test User"
+            
+            # 1. Register a new user via POST /api/auth/register-email
+            print("\n--- Testing User Registration ---")
+            register_data = {
+                "email": test_email,
+                "password": test_password,
+                "displayName": test_display_name
+            }
+            
+            response = self.session.post(f"{BACKEND_URL}/auth/register-email", json=register_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "user" in data and "status" in data and data["status"] == "success":
+                    self.log_result("auth_email", True, f"Successfully registered user: {test_email}")
+                    print(f"✅ Registration successful - User: {test_email}")
+                    
+                    # Check if session_token cookie is set
+                    if 'session_token' in response.cookies:
+                        self.log_result("auth_email", True, "Session token cookie set during registration")
+                        print(f"✅ Session token cookie set during registration")
+                    else:
+                        self.log_result("auth_email", False, "Session token cookie not set during registration")
+                        print(f"❌ Session token cookie not set during registration")
+                        return False
+                else:
+                    self.log_result("auth_email", False, "Invalid response format for registration", data)
+                    print(f"❌ Invalid registration response format: {data}")
+                    return False
+            elif response.status_code == 400 and "already registered" in response.text:
+                # User already exists, continue with login test
+                self.log_result("auth_email", True, f"User {test_email} already exists, proceeding to login test")
+                print(f"ℹ️ User {test_email} already exists, proceeding to login test")
+            else:
+                self.log_result("auth_email", False, f"Registration failed: HTTP {response.status_code}: {response.text}")
+                print(f"❌ Registration failed: {response.status_code} - {response.text}")
+                return False
+            
+            # 2. Login via POST /api/auth/login-email and check session_token cookie
+            print("\n--- Testing User Login ---")
+            login_data = {
+                "email": test_email,
+                "password": test_password
+            }
+            
+            # Clear any existing cookies to test fresh login
+            self.session.cookies.clear()
+            
+            response = self.session.post(f"{BACKEND_URL}/auth/login-email", json=login_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "user" in data and "status" in data and data["status"] == "success":
+                    self.log_result("auth_email", True, f"Successfully logged in user: {test_email}")
+                    print(f"✅ Login successful - User: {test_email}")
+                    
+                    # Check if session_token cookie is set in response headers
+                    if 'session_token' in response.cookies:
+                        session_token = response.cookies['session_token']
+                        self.log_result("auth_email", True, "Session token cookie set during login")
+                        print(f"✅ Session token cookie set during login: {session_token[:8]}...")
+                    else:
+                        self.log_result("auth_email", False, "Session token cookie not set during login")
+                        print(f"❌ Session token cookie not set during login")
+                        return False
+                else:
+                    self.log_result("auth_email", False, "Invalid response format for login", data)
+                    print(f"❌ Invalid login response format: {data}")
+                    return False
+            else:
+                self.log_result("auth_email", False, f"Login failed: HTTP {response.status_code}: {response.text}")
+                print(f"❌ Login failed: {response.status_code} - {response.text}")
+                return False
+            
+            # 3. Call GET /api/auth/me using the session token from login
+            print("\n--- Testing /auth/me with Session Token ---")
+            
+            response = self.session.get(f"{BACKEND_URL}/auth/me")
+            
+            if response.status_code == 200:
+                user_data = response.json()
+                if "email" in user_data and user_data["email"] == test_email:
+                    self.log_result("auth_email", True, f"Successfully retrieved user data via /auth/me")
+                    print(f"✅ /auth/me successful - Retrieved user: {user_data.get('displayName', 'N/A')}")
+                else:
+                    self.log_result("auth_email", False, "Invalid user data from /auth/me", user_data)
+                    print(f"❌ Invalid user data from /auth/me: {user_data}")
+                    return False
+            else:
+                self.log_result("auth_email", False, f"/auth/me failed: HTTP {response.status_code}: {response.text}")
+                print(f"❌ /auth/me failed: {response.status_code} - {response.text}")
+                return False
+            
+            # 4. Call POST /api/auth/logout and verify session is invalidated
+            print("\n--- Testing Logout ---")
+            
+            response = self.session.post(f"{BACKEND_URL}/auth/logout")
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("status") == "success":
+                    self.log_result("auth_email", True, "Logout successful")
+                    print(f"✅ Logout successful")
+                    
+                    # 5. Verify GET /api/auth/me should fail after logout
+                    print("\n--- Verifying Session Invalidation ---")
+                    response = self.session.get(f"{BACKEND_URL}/auth/me")
+                    
+                    if response.status_code == 401:
+                        self.log_result("auth_email", True, "Session properly invalidated - /auth/me returns 401")
+                        print(f"✅ Session properly invalidated - /auth/me returns 401")
+                        return True
+                    else:
+                        self.log_result("auth_email", False, f"Session not properly invalidated - /auth/me returned {response.status_code}")
+                        print(f"❌ Session not properly invalidated - /auth/me returned {response.status_code}")
+                        return False
+                else:
+                    self.log_result("auth_email", False, "Invalid response format for logout", data)
+                    print(f"❌ Invalid logout response format: {data}")
+                    return False
+            else:
+                self.log_result("auth_email", False, f"Logout failed: HTTP {response.status_code}: {response.text}")
+                print(f"❌ Logout failed: {response.status_code} - {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_result("auth_email", False, f"Exception during email authentication: {str(e)}")
+            print(f"❌ Email authentication error: {e}")
+            return False
+
     def test_authentication(self):
         """Test user authentication/registration"""
         print("\n=== Testing Authentication ===")
