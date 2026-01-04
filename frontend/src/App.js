@@ -1114,6 +1114,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
       <div>
          <div className="flex justify-between mb-1">
             <label className="block text-xs font-bold text-slate-500 uppercase">Description</label>
+            <button type="button" onClick={handleGenerateDescription} disabled={isAnalyzing} className="text-[10px] text-purple-600 flex items-center hover:underline"><Wand2 className="w-3 h-3 mr-1"/> Auto-write</button>
          </div>
          <textarea className="w-full p-2 border border-slate-300 rounded-lg h-24 text-sm" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}></textarea>
       </div>
