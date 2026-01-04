@@ -979,6 +979,56 @@ function AddGameModal({ onClose, onAdd, initialData }) {
     setStep('edit-single');
   };
 
+  // --- BGG Fetchers ---
+  
+  const fetchCoverFromBGG = async () => {
+    if (!formData.title || formData.title.length < 3) {
+      setErrorMsg("Enter a title first to search BGG.");
+      return;
+    }
+    setIsAnalyzing(true);
+    try {
+      const res = await api.get(`/bgg/search?q=${encodeURIComponent(formData.title)}`);
+      // Pick first result with image
+      const match = res.data.find(r => r.image);
+      if (match) {
+        const bggImg = match.image;
+        setFormData(prev => {
+          const newImages = [bggImg, ...(prev.images || [])];
+          return { ...prev, images: newImages, image: bggImg, bggId: match.id };
+        });
+        setErrorMsg(""); 
+      } else {
+        setErrorMsg("No cover found on BGG.");
+      }
+    } catch (e) {
+      console.error(e);
+      setErrorMsg("Failed to fetch BGG cover.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleGenerateDescription = async () => {
+    if (!formData.title) return;
+    setIsAnalyzing(true);
+    try {
+        const res = await api.get(`/bgg/search?q=${encodeURIComponent(formData.title)}`);
+        // Find best match (exact title preferred, otherwise first)
+        const match = res.data.find(r => r.title.toLowerCase() === formData.title.toLowerCase()) || res.data[0];
+        
+        if (match && match.description) {
+             // Simple cleanup of HTML tags if backend didn't strip them all
+             const desc = match.description.replace(/<[^>]*>/g, ' ').slice(0, 1000); 
+             setFormData(prev => ({...prev, description: desc + "..."}));
+        } else {
+             // Fallback to simple default if BGG fails
+             setFormData(prev => ({...prev, description: `Selling ${formData.title}. Great condition.`}));
+        }
+    } catch(err) { console.error(err); } 
+    finally { setIsAnalyzing(false); }
+  }
+
   // --- Render Steps ---
 
   const renderEditForm = () => (
