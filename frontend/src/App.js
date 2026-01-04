@@ -1098,6 +1098,39 @@ function AddGameModal({ onClose, onAdd, initialData }) {
 
   // --- AI Logic (Proxied to Backend) ---
 
+  const enrichWithBGG = async (items) => {
+    const updatedItems = [...items];
+    for (let i = 0; i < updatedItems.length; i++) {
+        const item = updatedItems[i];
+        if (!item.title) continue;
+
+        try {
+            if (i > 0) await new Promise(r => setTimeout(r, 500));
+            const res = await api.get(`/bgg/search?q=${encodeURIComponent(item.title)}`);
+            const results = res.data;
+            if (!results || results.length === 0) continue;
+
+            const exactMatch = results.find(r => r.title.toLowerCase() === item.title.toLowerCase());
+            const match = exactMatch || results[0];
+
+            if (match) {
+                 updatedItems[i] = { ...item };
+                 // Overwrite or fill image
+                 if (match.image) {
+                     updatedItems[i].image = match.image;
+                     updatedItems[i].images = [match.image];
+                     updatedItems[i].bggId = match.id;
+                 }
+                 // Fill description if missing or short? BGG desc is usually good
+                 if (match.description) {
+                     updatedItems[i].description = match.description.replace(/<[^>]*>/g, ' ').slice(0, 1000) + "...";
+                 }
+            }
+        } catch (e) { console.error(e); }
+    }
+    return updatedItems;
+  };
+
   const processScanFile = (file) => {
     if (!file) return;
     const reader = new FileReader();
@@ -1118,7 +1151,10 @@ function AddGameModal({ onClose, onAdd, initialData }) {
           openForTrade: false 
         }));
         
-        setDetectedItems(itemsWithImg);
+        // Auto-search BGG covers immediately
+        const enrichedItems = await enrichWithBGG(itemsWithImg);
+        
+        setDetectedItems(enrichedItems);
         setStep('review');
       } catch (err) {
         console.error(err);
@@ -1151,7 +1187,10 @@ function AddGameModal({ onClose, onAdd, initialData }) {
       const items = res.data;
       const formatted = (Array.isArray(items) ? items : [items]).map(i => ({...i, type: formData.type || 'WTS', images: [], image: '', openForTrade: false}));
       
-      setDetectedItems(formatted);
+      // Auto-search BGG covers immediately
+      const enrichedItems = await enrichWithBGG(formatted);
+
+      setDetectedItems(enrichedItems);
       setStep('review');
     } catch (err) {
       console.error(err);
@@ -1161,8 +1200,9 @@ function AddGameModal({ onClose, onAdd, initialData }) {
     }
   };
 
-  const handleQuickList = () => {
+  const handleQuickList = async () => {
      if (!inputText) return;
+     setIsAnalyzing(true);
      const titles = inputText.split('\n').filter(t => t.trim().length > 0);
      const items = titles.map(t => ({
         type: 'WTB',
@@ -1174,8 +1214,13 @@ function AddGameModal({ onClose, onAdd, initialData }) {
         description: '',
         openForTrade: false
      }));
-     setDetectedItems(items);
+     
+     // Auto-search BGG covers for quick list too
+     const enrichedItems = await enrichWithBGG(items);
+     
+     setDetectedItems(enrichedItems);
      setStep('review');
+     setIsAnalyzing(false);
   }
 
   // --- BGG Logic (Proxied to Backend) ---
