@@ -1313,7 +1313,6 @@ function AddGameModal({ onClose, onAdd, initialData }) {
     </form>
   );
 
-  const renderSelectMethod = () => (
   const renderSelectType = () => (
     <div className="space-y-6 text-center">
       <h4 className="text-lg font-medium text-slate-700">What is your goal?</h4>
