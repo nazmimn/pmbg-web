@@ -385,7 +385,7 @@ export default function App() {
                     </span>
                   </button>
                   <button 
-                    onClick={handleLogout}
+                    onClick={handleLogoutClick}
                     className="p-2 text-slate-400 hover:text-red-500 transition-colors"
                     title="Logout"
                   >
