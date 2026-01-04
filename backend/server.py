@@ -310,7 +310,9 @@ async def bgg_search(q: str):
     
     try:
         url = f"https://boardgamegeek.com/xmlapi2/search?query={q}&type=boardgame"
-        res = requests.get(url, timeout=10)
+        # Add User-Agent to avoid blocks
+        headers = {'User-Agent': 'PasarMalamApp/1.0'}
+        res = requests.get(url, headers=headers, timeout=10)
         
         # BGG often returns 202 if processing, need to handle or just retry/fail
         if res.status_code == 202:
