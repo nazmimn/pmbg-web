@@ -159,54 +159,7 @@ export default function App() {
     showNotification("Logged out successfully");
   };
 
-  const handleSeedData = async () => {
-    if (!user) {
-      showNotification("Please log in to seed data", "error");
-      return;
-    }
-    setLoading(true);
-    try {
-      const demoData = [
-        {
-          title: 'Wingspan',
-          price: 220,
-          condition: 9.0,
-          type: 'WTS',
-          status: 'active',
-          openForTrade: true,
-          description: 'Played twice. Cards are sleeved. Beautiful artwork.',
-          image: 'https://cf.geekdo-images.com/yLZJCVLlIx4c7eJEWUNJ7w__imagepage/img/yFqG5c5j-76i87yXb8w5q8x-95E=/fit-in/900x600/filters:no_upscale():strip_icc()/pic4458123.jpg', 
-          sellerId: user.id,
-          images: []
-        },
-        {
-          title: 'Dune: Imperium',
-          price: 180,
-          condition: 8.5,
-          type: 'WTL',
-          status: 'active',
-          openForTrade: false,
-          currentBid: 180,
-          bidCount: 0,
-          description: 'Starting auction for Dune Imperium. Base game only.',
-          image: 'https://cf.geekdo-images.com/Phjhyysl1rfM44HN8D9aZg__imagepage/img/k3vV5gD7gqgQ0i-g3q5gX_X1-5E=/fit-in/900x600/filters:no_upscale():strip_icc()/pic5666597.jpg',
-          sellerId: user.id,
-          images: []
-        }
-      ];
-
-      await api.post('/listings', demoData);
-      showNotification("Database seeded!");
-      // Trigger refresh
-      const res = await api.get('/listings');
-      setListings(res.data);
-    } catch (err) {
-      console.error(err);
-      showNotification("Failed to seed data", "error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Seed data function removed
 
   const handleSaveListing = async (dataOrArray) => {
     if (!user) return;
