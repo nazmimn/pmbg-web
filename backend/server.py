@@ -303,6 +303,10 @@ async def parse_text(req: ParseTextRequest):
         logging.error(f"AI Parse Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+import html
+
+# ...
+
 @api_router.get("/bgg/search")
 async def bgg_search(q: str):
     if not q or len(q) < 3:
@@ -353,7 +357,18 @@ async def bgg_search(q: str):
                 if match:
                     r['image'] = match.get('image', '')
                     r['thumbnail'] = match.get('thumbnail', '')
-                    r['description'] = match.get('description', '')
+                    # Clean description
+                    raw_desc = match.get('description', '')
+                    if raw_desc:
+                        # Decode HTML entities twice just in case (BGG sometimes double encodes or mix)
+                        clean_desc = html.unescape(raw_desc) 
+                        # Remove basic HTML tags if needed, or keep them if frontend renders HTML
+                        # For safety/simplicity, let's strip tags or just leave as is? 
+                        # The user prompt implied just "get description". 
+                        # Let's simple unescape.
+                        r['description'] = clean_desc
+                    else:
+                        r['description'] = ''
                     
         return results
     except Exception as e:
