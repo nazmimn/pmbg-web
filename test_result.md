@@ -120,6 +120,21 @@ backend:
         agent: "testing"
         comment: "✅ Authentication fully functional. Successfully tested user registration/login with POST /api/auth/login. New user 'testuser_ac383b81' created and authenticated. Returns proper user object and token. API endpoint working correctly."
 
+  - task: "Email Authentication (NEW)"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW email-based auth endpoints implemented"
+      - working: true
+        agent: "testing"
+        comment: "✅ NEW Email Authentication fully functional. Successfully tested complete flow: 1) POST /api/auth/register-email (test@example.com, password123) - user registered with session_token cookie set. 2) POST /api/auth/login-email - login successful with session_token cookie. 3) GET /api/auth/me - returns correct user data using session token. 4) POST /api/auth/logout - session properly invalidated, subsequent /auth/me returns 401. All endpoints working correctly with proper session management."
+
   - task: "Listings CRUD (WTS/WTB)"
     implemented: true
     working: true
