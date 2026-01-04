@@ -28,3 +28,4 @@ emergentintegrations
 xmltodict
 beautifulsoup4
 httpx
+fastapi-sso>=0.10.0
