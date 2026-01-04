@@ -309,8 +309,10 @@ async def bgg_search(q: str):
         return []
     
     try:
-        url = f"https://boardgamegeek.com/xmlapi2/search?query={q}&type=boardgame"
-        # Add User-Agent to avoid blocks
+        # Use allorigins proxy to bypass potential blocks/CORS (though CORS isn't issue for backend, IP block might be)
+        target_url = f"https://boardgamegeek.com/xmlapi2/search?query={q}&type=boardgame"
+        url = f"https://api.allorigins.win/raw?url={requests.utils.quote(target_url)}"
+        
         headers = {'User-Agent': 'PasarMalamApp/1.0'}
         res = requests.get(url, headers=headers, timeout=10)
         
