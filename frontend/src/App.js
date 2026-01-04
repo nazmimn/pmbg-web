@@ -330,6 +330,7 @@ export default function App() {
                   onEdit={handleEditClick}
                   onMarkSold={handleMarkSold}
                   onOpenTrade={handleOpenTrade}
+                  onProfileUpdate={handleProfileUpdate}
                 />;
       case 'auth': return <AuthView onLogin={handleLoginSuccess} onCancel={() => setView('home')} />;
       default: return <HomeView listings={listings} setView={setView} />;
