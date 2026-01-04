@@ -430,7 +430,7 @@ export default function App() {
         />
       )}
     </div>
-  );
+  )
 }
 
 // --- Components ---
@@ -447,7 +447,7 @@ function NavItem({ active, onClick, children }) {
     >
       {children}
     </button>
-  );
+  )
 }
 
 function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, isProcessing }) {
@@ -568,7 +568,7 @@ function AuthView({ onLogin, onCancel }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 function HomeView({ listings, setView }) {
@@ -645,7 +645,7 @@ function HomeView({ listings, setView }) {
         </section>
       )}
     </div>
-  );
+  )
 }
 
 function ExploreView({ listings }) {
@@ -677,7 +677,7 @@ function ExploreView({ listings }) {
         )}
       </div>
     </div>
-  );
+  )
 }
 
 function AuctionsView({ listings, onBid }) {
@@ -696,7 +696,7 @@ function AuctionsView({ listings, onBid }) {
          <p className="text-slate-500">The Lelong feature is currently under construction. Check back later!</p>
       </div>
     </div>
-  );
+  )
 }
 
 function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, onOpenTrade, onProfileUpdate }) {
@@ -978,7 +978,7 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
         )}
       </div>
     </div>
-  );
+  )
 }
 
 // --- Multi-Item Modal ---
@@ -1605,7 +1605,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
             {errorMsg && <div className="mt-2 text-center text-red-500 text-xs">{errorMsg}</div>}
         </div>
     </div>
-  );
+  )
 
   const renderInputParser = () => (
     <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 h-full flex flex-col">
@@ -1629,7 +1629,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
             {errorMsg && <div className="mt-2 text-center text-red-500 text-xs">{errorMsg}</div>}
         </div>
     </div>
-  );
+  )
 
   const renderReview = () => (
     <div className="h-full flex flex-col">
@@ -1726,7 +1726,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 function EditProfileModal({ user, onClose, onUpdate }) {
@@ -1823,7 +1823,7 @@ function EditProfileModal({ user, onClose, onUpdate }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 function ListingCard({ game }) {
