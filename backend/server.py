@@ -502,9 +502,6 @@ async def get_listings(type: Optional[str] = None, sellerId: Optional[str] = Non
         query['type'] = type
     if sellerId:
         query['sellerId'] = sellerId
-    else:
-        # Public marketplace: Hide hidden items
-        query['isVisible'] = True
     
     cursor = db.listings.find(query, {"_id": 0}).sort("createdAt", -1).limit(100)
     listings = await cursor.to_list(length=100)
