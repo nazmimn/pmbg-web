@@ -1819,13 +1819,7 @@ function EditProfileModal({ user, onClose, onUpdate }) {
 }
         
         <div className="p-6 overflow-y-auto flex-1">
-           {step === 'select-type' && renderSelectType()}
-           {step === 'select-method' && renderSelectMethod()}
-           {step === 'edit-single' && renderEditForm()}
-           {step === 'input-bgg' && renderInputBGG()}
-           {step === 'input-scan' && renderInputScan()}
-           {step === 'input-parser' && renderInputParser()}
-           {step === 'review' && renderReview()}
+           {renderContent()}
         </div>
       </div>
     </div>
