@@ -340,24 +340,30 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
       <nav className="sticky top-0 z-40 bg-white border-b border-orange-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-20">
-            <div className="flex items-center cursor-pointer gap-2" onClick={() => setView('home')}>
+          <div className="flex items-center justify-between h-20">
+            {/* Left: Navigation */}
+            <div className="flex-1 flex justify-start">
+                <div className="hidden md:flex items-center space-x-6">
+                  <NavItem active={view === 'home'} onClick={() => setView('home')}>Home</NavItem>
+                  <NavItem active={view === 'explore'} onClick={() => setView('explore')}>Buy, Sell & Trade</NavItem>
+                  <NavItem active={view === 'auctions'} onClick={() => setView('auctions')}>
+                    <span className="flex items-center text-orange-600 font-bold"><Gavel className="w-4 h-4 mr-1"/> Lelong</span>
+                  </NavItem>
+                </div>
+            </div>
+
+            {/* Center: Logo & Title */}
+            <div className="flex flex-col items-center justify-center cursor-pointer" onClick={() => setView('home')}>
               <img 
                 src="https://customer-assets.emergentagent.com/job_boardgame-bazaar-1/artifacts/bzq9jenz_pmbg-logo.png" 
                 alt="Pasar Malam Boardgame" 
-                className="h-16 w-auto object-contain py-2"
+                className="h-10 w-auto object-contain mb-1"
               />
-            </div>
-            
-            <div className="hidden md:flex items-center space-x-8">
-              <NavItem active={view === 'home'} onClick={() => setView('home')}>Home</NavItem>
-              <NavItem active={view === 'explore'} onClick={() => setView('explore')}>Buy, Sell & Trade</NavItem>
-              <NavItem active={view === 'auctions'} onClick={() => setView('auctions')}>
-                <span className="flex items-center text-orange-600 font-bold"><Gavel className="w-4 h-4 mr-1"/> Lelong</span>
-              </NavItem>
+              <span className="font-bold text-slate-800 text-xs sm:text-sm tracking-tight uppercase">Pasar Malam Boardgame</span>
             </div>
 
-            <div className="flex items-center space-x-4">
+            {/* Right: User Actions */}
+            <div className="flex-1 flex justify-end items-center space-x-4">
               {user ? (
                 <>
                   <button 
