@@ -676,7 +676,7 @@ class BackendTester:
                     if not detail["success"]:
                         print(f"   - {detail['message']}")
         
-        overall_success = all([auth_success, auth_email_success, listings_success, bgg_success, ai_success])
+        overall_success = all([auth_success, auth_email_success, profile_success, listings_success, bgg_success, ai_success])
         print(f"\n🎯 Overall Result: {'PASSED' if overall_success else 'FAILED'}")
         
         return self.test_results
