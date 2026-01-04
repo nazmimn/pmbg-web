@@ -1307,7 +1307,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
          <button type="button" onClick={() => initialData ? onClose() : (detectedItems.length > 0 ? setStep('review') : setStep('select-method'))} className="text-slate-500">Cancel</button>
          <button type="submit" disabled={isSubmitting} className="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-800 flex items-center">
             {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-            {initialData ? 'Update' : (detectedItems.length > 0 ? 'Save to List' : 'Post Now')}
+            {initialData ? 'Update' : (detectedItems.length > 0 ? 'Save to List' : 'Review & Post')}
          </button>
       </div>
     </form>
