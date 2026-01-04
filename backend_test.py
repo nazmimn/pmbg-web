@@ -433,6 +433,7 @@ class BackendTester:
         
         # Run tests in sequence
         auth_success = self.test_authentication()
+        auth_email_success = self.test_email_authentication()
         listings_success = self.test_listings_crud()
         bgg_success = self.test_bgg_search()
         ai_success = self.test_ai_parse()
@@ -452,7 +453,7 @@ class BackendTester:
                     if not detail["success"]:
                         print(f"   - {detail['message']}")
         
-        overall_success = all([auth_success, listings_success, bgg_success, ai_success])
+        overall_success = all([auth_success, auth_email_success, listings_success, bgg_success, ai_success])
         print(f"\n🎯 Overall Result: {'PASSED' if overall_success else 'FAILED'}")
         
         return self.test_results
