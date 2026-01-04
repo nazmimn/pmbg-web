@@ -909,6 +909,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   const [detectedItems, setDetectedItems] = useState([]);
   const [currentItemIndex, setCurrentItemIndex] = useState(null); 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState(null);
   
   const [formData, setFormData] = useState({
     type: 'WTS',
