@@ -508,7 +508,7 @@ function HomeView({ listings, setView, onSeed }) {
             <p className="text-orange-50 text-lg md:text-xl max-w-lg">The easiest way for Malaysian boardgamers to Buy, Sell, Trade and Lelong.</p>
             <div className="flex flex-wrap gap-4 pt-4">
               <button onClick={() => setView('explore')} className="px-6 py-3 bg-white text-orange-600 font-bold rounded-xl shadow-lg">Browse Market</button>
-              <button onClick={() => setView('auctions')} className="px-6 py-3 bg-orange-700 bg-opacity-30 border-2 border-orange-200 border-opacity-30 text-white font-bold rounded-xl flex items-center"><Gavel className="w-5 h-5 mr-2" /> Join Lelong</button>
+              <button onClick={() => setView('auctions')} className="px-6 py-3 bg-orange-700 bg-opacity-30 border-2 border-orange-200 border-opacity-30 text-white font-bold rounded-xl flex items-center"><Gavel className="w-5 h-5 mr-2" /> Lelong (Coming Soon)</button>
             </div>
           </div>
           <div className="hidden md:block md:w-1/2 relative h-full min-h-[300px]">
