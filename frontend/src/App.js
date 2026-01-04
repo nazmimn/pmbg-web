@@ -830,7 +830,9 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
              )}
            </div>
            <h3 className="font-bold text-lg">{user.displayName}</h3>
-           <p className="text-sm text-slate-500 mb-4">{user.email}</p>
+           <p className="text-sm text-slate-500 mb-1">{user.email}</p>
+           {user.phone && <p className="text-xs text-slate-400 mb-1 flex items-center justify-center"><MessageCircle className="w-3 h-3 mr-1"/> {user.phone}</p>}
+           {user.facebookLink && <p className="text-xs text-slate-400 mb-4 flex items-center justify-center"><Facebook className="w-3 h-3 mr-1"/> {user.facebookLink.replace(/^https?:\/\/(www\.)?facebook\.com\//, '')}</p>}
            <button onClick={() => setShowProfileModal(true)} className="text-xs border border-slate-300 px-3 py-1 rounded hover:bg-slate-50">Edit Profile</button>
         </div>
         <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
