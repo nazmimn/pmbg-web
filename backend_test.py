@@ -219,10 +219,47 @@ class BackendTester:
         """Test Listings CRUD operations"""
         print("\n=== Testing Listings CRUD ===")
         
+        # Use email auth to get a user ID for listings test
         if not self.user_id:
-            self.log_result("listings_crud", False, "No authenticated user for listings test")
-            print("❌ Cannot test listings without authenticated user")
-            return False
+            print("--- Setting up user for listings test ---")
+            try:
+                # Register/login with email auth to get user ID
+                test_email = "listings_test@example.com"
+                test_password = "password123"
+                test_display_name = "Listings Test User"
+                
+                register_data = {
+                    "email": test_email,
+                    "password": test_password,
+                    "displayName": test_display_name
+                }
+                
+                # Try to register (might already exist)
+                response = self.session.post(f"{BACKEND_URL}/auth/register-email", json=register_data)
+                
+                if response.status_code == 400 and "already registered" in response.text:
+                    # User exists, login instead
+                    login_data = {"email": test_email, "password": test_password}
+                    response = self.session.post(f"{BACKEND_URL}/auth/login-email", json=login_data)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if "user" in data:
+                        self.user_id = data["user"]["id"]
+                        print(f"✅ User setup successful for listings test: {self.user_id[:8]}...")
+                    else:
+                        self.log_result("listings_crud", False, "Failed to get user ID for listings test")
+                        print("❌ Failed to get user ID for listings test")
+                        return False
+                else:
+                    self.log_result("listings_crud", False, f"Failed to setup user for listings test: {response.status_code}")
+                    print(f"❌ Failed to setup user for listings test: {response.status_code}")
+                    return False
+                    
+            except Exception as e:
+                self.log_result("listings_crud", False, f"Exception setting up user for listings test: {str(e)}")
+                print(f"❌ Exception setting up user for listings test: {e}")
+                return False
 
         try:
             # 1. Create WTS listing
