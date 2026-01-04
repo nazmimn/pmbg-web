@@ -572,7 +572,7 @@ function AuctionsView({ listings, onBid }) {
   );
 }
 
-function DashboardView({ user, myListings, onAdd, onSeed, onDelete, onEdit, onMarkSold, onOpenTrade }) {
+function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, onOpenTrade }) {
   const [filter, setFilter] = useState('ALL');
   const [viewMode, setViewMode] = useState('list'); // list | grid
   const [searchTerm, setSearchTerm] = useState('');
