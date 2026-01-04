@@ -222,6 +222,65 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+frontend:
+  - task: "Add Boardgame Modal - Goal Selection"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing Add Boardgame flow - goal selection step with WTS, WTB, and disabled WTL options"
+
+  - task: "Add Boardgame Modal - Method Selection"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing Add Boardgame flow - method selection step (BGG/Scan/Manual)"
+
+  - task: "Add Boardgame Modal - Complete WTS Flow"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing complete WTS flow - manual entry, title/price input, and save functionality"
+
+  - task: "User Authentication Flow"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing user registration/login flow for Add Boardgame access"
+
+test_plan:
+  current_focus:
+    - "Add Boardgame Modal - Goal Selection"
+    - "Add Boardgame Modal - Method Selection"
+    - "Add Boardgame Modal - Complete WTS Flow"
+    - "User Authentication Flow"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
 agent_communication:
   - agent: "main"
     message: "Starting verification of current backend functionality. Please test all endpoints except WTL (Auction)."
@@ -231,3 +290,5 @@ agent_communication:
     message: "✅ NEW EMAIL AUTH ENDPOINTS VERIFIED - Successfully tested all 4 new email authentication endpoints: register-email, login-email, /auth/me, and logout. Complete session management flow working correctly with proper cookie handling and session invalidation. Updated backend_test.py with comprehensive email auth tests. All backend functionality confirmed working."
   - agent: "testing"
     message: "✅ PROFILE UPDATE & LISTINGS ENRICHMENT VERIFIED - Successfully tested new Profile Update API (PUT /api/auth/profile) with phone and facebookLink updates. Verified data persistence via GET /api/auth/me. Confirmed Listings Enrichment working correctly - GET /api/listings returns 'sellerPhone' and 'sellerFb' fields for user's listings. All new functionality working perfectly. Minor: Legacy auth endpoint has validation error but doesn't affect main functionality."
+  - agent: "testing"
+    message: "🔍 FRONTEND TESTING INITIATED - Testing Add Boardgame flow as requested: 1) Goal selection modal (WTS/WTB/disabled WTL), 2) Method selection step, 3) Complete WTS flow with manual entry. Will verify UI interactions, modal navigation, and form submissions."
