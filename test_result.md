@@ -285,11 +285,10 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Add Boardgame Modal - Goal Selection"
     - "Add Boardgame Modal - Method Selection"
     - "Add Boardgame Modal - Complete WTS Flow"
-    - "User Authentication Flow"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Add Boardgame Modal - Method Selection"
   test_all: false
   test_priority: "high_first"
 
@@ -304,3 +303,5 @@ agent_communication:
     message: "✅ PROFILE UPDATE & LISTINGS ENRICHMENT VERIFIED - Successfully tested new Profile Update API (PUT /api/auth/profile) with phone and facebookLink updates. Verified data persistence via GET /api/auth/me. Confirmed Listings Enrichment working correctly - GET /api/listings returns 'sellerPhone' and 'sellerFb' fields for user's listings. All new functionality working perfectly. Minor: Legacy auth endpoint has validation error but doesn't affect main functionality."
   - agent: "testing"
     message: "🔍 FRONTEND TESTING INITIATED - Testing Add Boardgame flow as requested: 1) Goal selection modal (WTS/WTB/disabled WTL), 2) Method selection step, 3) Complete WTS flow with manual entry. Will verify UI interactions, modal navigation, and form submissions."
+  - agent: "testing"
+    message: "🔍 ADD BOARDGAME FLOW TESTING COMPLETED - Found critical issue: WTS button click does not proceed to method selection step, breaking the core Add Boardgame flow. Goal selection modal works correctly (WTS/WTB/disabled WTL present, WTT correctly absent). Authentication and dashboard navigation functional. Main agent needs to fix WTS onClick navigation logic."
