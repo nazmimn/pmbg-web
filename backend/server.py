@@ -311,6 +311,11 @@ async def bgg_search(q: str):
     try:
         url = f"https://boardgamegeek.com/xmlapi2/search?query={q}&type=boardgame"
         res = requests.get(url, timeout=10)
+        
+        # BGG often returns 202 if processing, need to handle or just retry/fail
+        if res.status_code == 202:
+             return []
+             
         data = xmltodict.parse(res.content)
         
         items = data.get('items', {}).get('item', [])
