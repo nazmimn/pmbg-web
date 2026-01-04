@@ -495,6 +495,7 @@ function AuthView({ onLogin, onCancel }) {
 function HomeView({ listings, setView, onSeed }) {
   const auctions = listings.filter(l => l.type === 'WTL');
   const forSale = listings.filter(l => l.type === 'WTS');
+  const latestWTS = forSale.length > 0 ? forSale[0] : null;
 
   return (
     <div className="space-y-12">
@@ -511,17 +512,25 @@ function HomeView({ listings, setView, onSeed }) {
             </div>
           </div>
           <div className="hidden md:block md:w-1/2 relative h-full min-h-[300px]">
-             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-80 bg-white rotate-6 rounded-lg shadow-2xl flex flex-col p-4">
-                <div className="h-40 bg-slate-200 rounded mb-4 overflow-hidden">
-                  <img src="https://cf.geekdo-images.com/yLZJCVLlIx4c7eJEWUNJ7w__imagepage/img/yFqG5c5j-76i87yXb8w5q8x-95E=/fit-in/900x600/filters:no_upscale():strip_icc()/pic4458123.jpg" className="w-full h-full object-cover" alt="Boardgame" />
-                </div>
-                <div className="h-4 w-3/4 bg-slate-100 rounded mb-2"></div>
-                <div className="h-4 w-1/2 bg-slate-100 rounded"></div>
-                <div className="mt-auto flex justify-between items-center">
-                   <span className="text-orange-500 font-bold text-xl">RM 220</span>
-                   <div className="w-8 h-8 rounded-full bg-orange-100"></div>
-                </div>
-             </div>
+             {latestWTS ? (
+                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-80 bg-white rotate-6 rounded-lg shadow-2xl flex flex-col p-4 transition-transform hover:rotate-3 cursor-pointer" onClick={() => setView('explore')}>
+                    <div className="h-48 bg-slate-200 rounded mb-4 overflow-hidden relative">
+                      {latestWTS.image ? <img src={latestWTS.image} className="w-full h-full object-cover" alt={latestWTS.title} /> : <div className="w-full h-full flex items-center justify-center bg-slate-100"><ImageIcon className="text-slate-300 w-12 h-12"/></div>}
+                      <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded shadow">NEW</div>
+                    </div>
+                    <h3 className="font-bold text-slate-800 text-lg line-clamp-2 mb-1">{latestWTS.title}</h3>
+                    <p className="text-xs text-slate-500 mb-4 line-clamp-2">{latestWTS.description || "No description"}</p>
+                    <div className="mt-auto flex justify-between items-center border-t border-slate-100 pt-3">
+                       <span className="text-orange-600 font-extrabold text-2xl">RM {latestWTS.price}</span>
+                       <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><ArrowRightLeft className="w-4 h-4"/></div>
+                    </div>
+                 </div>
+             ) : (
+                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-80 bg-white rotate-6 rounded-lg shadow-2xl flex flex-col p-4 flex items-center justify-center text-center text-slate-400">
+                    <ShoppingBag className="w-16 h-16 mb-4 opacity-50" />
+                    <p>No games listed yet.</p>
+                 </div>
+             )}
           </div>
         </div>
       </div>
