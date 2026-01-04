@@ -332,7 +332,7 @@ export default function App() {
                   onOpenTrade={handleOpenTrade}
                 />;
       case 'auth': return <AuthView onLogin={handleLogin} onCancel={() => setView('home')} />;
-      default: return <HomeView listings={listings} setView={setView} onSeed={handleSeedData} />;
+      default: return <HomeView listings={listings} setView={setView} />;
     }
   };
 
