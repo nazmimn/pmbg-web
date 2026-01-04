@@ -1094,6 +1094,10 @@ function AddGameModal({ onClose, onAdd, initialData }) {
                </div>
             ))}
          </div>
+         <button type="button" onClick={fetchCoverFromBGG} disabled={isAnalyzing} className="text-xs text-blue-600 hover:text-blue-800 flex items-center mt-1">
+            {isAnalyzing ? <Loader2 className="w-3 h-3 animate-spin mr-1"/> : <Globe className="w-3 h-3 mr-1"/>}
+            Search BGG for Cover Art
+         </button>
       </div>
 
       <div>
