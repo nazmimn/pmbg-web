@@ -11,7 +11,7 @@ from datetime import datetime
 import sys
 
 # Get backend URL from frontend .env
-BACKEND_URL = "https://code-from-repo.preview.emergentagent.com/api"
+BACKEND_URL = "https://gameswap-6.preview.emergentagent.com/api"
 
 class BackendTester:
     def __init__(self):
