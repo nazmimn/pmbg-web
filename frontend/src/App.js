@@ -456,7 +456,7 @@ function HomeView({ listings, setView, onSeed }) {
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-black opacity-5 rounded-full transform -translate-x-1/4 translate-y-1/4"></div>
         <div className="relative px-8 py-16 md:py-20 md:px-12 flex flex-col md:flex-row items-center justify-between">
           <div className="md:w-1/2 space-y-6">
-            <h2 className="text-4xl md:text-5xl font-extrabold leading-tight">Sell your games,<br/><span className="text-orange-100">Pasar Malam style.</span></h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold leading-tight">Sell your boardgames,<br/><span className="text-orange-100">Pasar Malam style.</span></h2>
             <p className="text-orange-50 text-lg md:text-xl max-w-lg">The easiest way for Malaysian boardgamers to Buy, Sell, Trade and Lelong.</p>
             <div className="flex flex-wrap gap-4 pt-4">
               <button onClick={() => setView('explore')} className="px-6 py-3 bg-white text-orange-600 font-bold rounded-xl shadow-lg">Browse Market</button>
