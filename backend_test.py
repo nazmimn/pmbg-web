@@ -183,15 +183,15 @@ class BackendTester:
             return False
 
     def test_authentication(self):
-        """Test user authentication/registration"""
-        print("\n=== Testing Authentication ===")
+        """Test legacy user authentication/registration"""
+        print("\n=== Testing Legacy Authentication ===")
         
         try:
             # Test login/register with new user
             test_user = f"testuser_{uuid.uuid4().hex[:8]}"
             auth_data = {"displayName": test_user}
             
-            response = self.session.post(f"{BACKEND_URL}/auth/login", json=auth_data)
+            response = self.session.post(f"{BACKEND_URL}/auth/login-legacy", json=auth_data)
             
             if response.status_code == 200:
                 data = response.json()
@@ -199,7 +199,7 @@ class BackendTester:
                     self.user_token = data["token"]
                     self.user_id = data["user"]["id"]
                     self.log_result("auth", True, f"Successfully authenticated user: {test_user}")
-                    print(f"✅ Authentication successful - User: {test_user}, Token: {self.user_token[:8]}...")
+                    print(f"✅ Legacy authentication successful - User: {test_user}, Token: {self.user_token[:8]}...")
                     return True
                 else:
                     self.log_result("auth", False, "Invalid response format", data)
@@ -207,12 +207,12 @@ class BackendTester:
                     return False
             else:
                 self.log_result("auth", False, f"HTTP {response.status_code}: {response.text}")
-                print(f"❌ Authentication failed: {response.status_code} - {response.text}")
+                print(f"❌ Legacy authentication failed: {response.status_code} - {response.text}")
                 return False
                 
         except Exception as e:
             self.log_result("auth", False, f"Exception during authentication: {str(e)}")
-            print(f"❌ Authentication error: {e}")
+            print(f"❌ Legacy authentication error: {e}")
             return False
 
     def test_listings_crud(self):
