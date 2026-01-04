@@ -363,6 +363,84 @@ async def login(req: AuthRequest):
         doc['createdAt'] = doc['createdAt'].isoformat()
         await db.users.insert_one(doc)
         user_data = user_obj
+from fastapi_sso.sso.facebook import FacebookSSO
+from fastapi.responses import RedirectResponse
+
+# Facebook Configuration
+FB_CLIENT_ID = os.environ.get("FACEBOOK_APP_ID", "YOUR_FB_APP_ID_PLACEHOLDER")
+FB_CLIENT_SECRET = os.environ.get("FACEBOOK_APP_SECRET", "YOUR_FB_APP_SECRET_PLACEHOLDER")
+# Important: This URL must match exactly what you register in Facebook
+# In production, this must be HTTPS
+FB_REDIRECT_URI = os.environ.get("FACEBOOK_REDIRECT_URI", "http://localhost:8001/api/auth/facebook/callback")
+
+facebook_sso = FacebookSSO(
+    client_id=FB_CLIENT_ID,
+    client_secret=FB_CLIENT_SECRET,
+    redirect_uri=FB_REDIRECT_URI,
+    allow_insecure_http=True # Allow localhost
+)
+
+@api_router.get("/auth/facebook/login")
+async def facebook_login():
+    """Redirect user to Facebook Login"""
+    return await facebook_sso.get_login_redirect()
+
+@api_router.get("/auth/facebook/callback")
+async def facebook_callback(request: Request):
+    """Handle Facebook Callback"""
+    try:
+        user_sso = await facebook_sso.verify_and_process(request)
+        
+        # Check if user exists
+        user = await db.users.find_one({"email": user_sso.email})
+        if not user:
+            # Create user
+            user_id = str(uuid.uuid4())
+            user_doc = {
+                "id": user_id,
+                "displayName": user_sso.display_name or "Facebook User",
+                "email": user_sso.email,
+                "picture": user_sso.picture,
+                "auth_provider": "facebook",
+                "provider_id": user_sso.id,
+                "createdAt": datetime.now(timezone.utc).isoformat()
+            }
+            await db.users.insert_one(user_doc)
+            user = user_doc
+        
+        # Redirect to Frontend
+        frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+        redirect = RedirectResponse(url=f"{frontend_url}", status_code=302)
+        
+        # Create Session & Set Cookie directly on the redirect response
+        session_token = str(uuid.uuid4())
+        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        
+        session_doc = {
+            "session_token": session_token,
+            "user_id": user['id'],
+            "expires_at": expires_at,
+            "created_at": datetime.now(timezone.utc)
+        }
+        await db.user_sessions.insert_one(session_doc)
+        
+        redirect.set_cookie(
+            key="session_token",
+            value=session_token,
+            httponly=True,
+            secure=True,
+            samesite="none",
+            expires=7 * 24 * 60 * 60
+        )
+        
+        return redirect
+        
+    except Exception as e:
+        logger.error(f"Facebook Auth Error: {e}")
+        # Redirect to login with error
+        frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
+        return RedirectResponse(url=f"{frontend_url}/login?error=FacebookAuthFailed", status_code=302)
+
     else:
         user_data = User(**user)
         
