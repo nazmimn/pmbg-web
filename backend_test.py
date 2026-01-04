@@ -430,7 +430,188 @@ class BackendTester:
             print(f"❌ BGG search error: {e}")
             return False
 
-    def test_ai_parse(self):
+    def test_profile_update_and_listings_enrichment(self):
+        """Test Profile Update API and Listings Enrichment functionality"""
+        print("\n=== Testing Profile Update & Listings Enrichment ===")
+        
+        try:
+            # Setup: Create a test user and login
+            test_email = "profile_test@example.com"
+            test_password = "password123"
+            test_display_name = "Profile Test User"
+            
+            print("\n--- Setting up test user ---")
+            register_data = {
+                "email": test_email,
+                "password": test_password,
+                "displayName": test_display_name
+            }
+            
+            # Clear any existing session
+            self.session.cookies.clear()
+            
+            # Try to register (might already exist)
+            response = self.session.post(f"{BACKEND_URL}/auth/register-email", json=register_data)
+            
+            if response.status_code == 400 and "already registered" in response.text:
+                # User exists, login instead
+                login_data = {"email": test_email, "password": test_password}
+                response = self.session.post(f"{BACKEND_URL}/auth/login-email", json=login_data)
+            
+            if response.status_code != 200:
+                self.log_result("profile_update", False, f"Failed to setup user: {response.status_code} - {response.text}")
+                print(f"❌ Failed to setup user: {response.status_code} - {response.text}")
+                return False
+                
+            user_data = response.json().get("user", {})
+            user_id = user_data.get("id")
+            
+            if not user_id:
+                self.log_result("profile_update", False, "Failed to get user ID from login response")
+                print("❌ Failed to get user ID from login response")
+                return False
+                
+            print(f"✅ Test user setup successful: {user_id[:8]}...")
+            
+            # Step 1: Update user profile via PUT /api/auth/profile with phone and facebookLink
+            print("\n--- Testing Profile Update ---")
+            
+            test_phone = "+60123456789"
+            test_facebook_link = "https://facebook.com/testuser123"
+            
+            profile_update = {
+                "phone": test_phone,
+                "facebookLink": test_facebook_link
+            }
+            
+            response = self.session.put(f"{BACKEND_URL}/auth/profile", json=profile_update)
+            
+            if response.status_code == 200:
+                updated_user = response.json()
+                if updated_user.get("phone") == test_phone and updated_user.get("facebookLink") == test_facebook_link:
+                    self.log_result("profile_update", True, "Profile updated successfully with phone and facebookLink")
+                    print(f"✅ Profile updated successfully")
+                    print(f"   Phone: {updated_user.get('phone')}")
+                    print(f"   Facebook: {updated_user.get('facebookLink')}")
+                else:
+                    self.log_result("profile_update", False, "Profile update response missing expected fields", updated_user)
+                    print(f"❌ Profile update response missing expected fields: {updated_user}")
+                    return False
+            else:
+                self.log_result("profile_update", False, f"Profile update failed: {response.status_code} - {response.text}")
+                print(f"❌ Profile update failed: {response.status_code} - {response.text}")
+                return False
+            
+            # Step 2: Verify user data is updated via GET /api/auth/me
+            print("\n--- Verifying Profile Update via /auth/me ---")
+            
+            response = self.session.get(f"{BACKEND_URL}/auth/me")
+            
+            if response.status_code == 200:
+                current_user = response.json()
+                if (current_user.get("phone") == test_phone and 
+                    current_user.get("facebookLink") == test_facebook_link and
+                    current_user.get("id") == user_id):
+                    self.log_result("profile_update", True, "Profile data verified via /auth/me")
+                    print(f"✅ Profile data verified via /auth/me")
+                    print(f"   User ID: {current_user.get('id', 'N/A')[:8]}...")
+                    print(f"   Phone: {current_user.get('phone', 'N/A')}")
+                    print(f"   Facebook: {current_user.get('facebookLink', 'N/A')}")
+                else:
+                    self.log_result("profile_update", False, "Profile data not properly updated in /auth/me", current_user)
+                    print(f"❌ Profile data not properly updated in /auth/me")
+                    print(f"   Expected phone: {test_phone}, got: {current_user.get('phone')}")
+                    print(f"   Expected facebook: {test_facebook_link}, got: {current_user.get('facebookLink')}")
+                    return False
+            else:
+                self.log_result("profile_update", False, f"/auth/me failed after profile update: {response.status_code} - {response.text}")
+                print(f"❌ /auth/me failed after profile update: {response.status_code} - {response.text}")
+                return False
+            
+            # Step 3: Create a listing owned by this user
+            print("\n--- Creating listing for enrichment test ---")
+            
+            test_listing = {
+                "type": "WTS",
+                "title": "Monopoly Board Game",
+                "price": 75.0,
+                "condition": 8.5,
+                "description": "Classic Monopoly game in great condition",
+                "sellerId": user_id,
+                "status": "active"
+            }
+            
+            response = self.session.post(f"{BACKEND_URL}/listings", json=[test_listing])
+            
+            if response.status_code == 200:
+                created_listings = response.json()
+                if created_listings and len(created_listings) > 0:
+                    listing_id = created_listings[0]["id"]
+                    self.log_result("listings_enrichment", True, "Test listing created successfully")
+                    print(f"✅ Test listing created: {listing_id}")
+                else:
+                    self.log_result("listings_enrichment", False, "Failed to create test listing - empty response")
+                    print("❌ Failed to create test listing - empty response")
+                    return False
+            else:
+                self.log_result("listings_enrichment", False, f"Failed to create test listing: {response.status_code} - {response.text}")
+                print(f"❌ Failed to create test listing: {response.status_code} - {response.text}")
+                return False
+            
+            # Step 4: Get listings and verify 'sellerPhone' and 'sellerFb' are present
+            print("\n--- Testing Listings Enrichment ---")
+            
+            response = self.session.get(f"{BACKEND_URL}/listings")
+            
+            if response.status_code == 200:
+                all_listings = response.json()
+                
+                # Find our user's listing
+                user_listings = [l for l in all_listings if l.get("sellerId") == user_id]
+                
+                if user_listings:
+                    user_listing = user_listings[0]  # Get the first listing by our user
+                    
+                    # Check if sellerPhone and sellerFb are present and correct
+                    seller_phone = user_listing.get("sellerPhone")
+                    seller_fb = user_listing.get("sellerFb")
+                    
+                    if seller_phone == test_phone and seller_fb == test_facebook_link:
+                        self.log_result("listings_enrichment", True, "Listings enrichment working correctly - sellerPhone and sellerFb present")
+                        print(f"✅ Listings enrichment working correctly")
+                        print(f"   Listing ID: {user_listing.get('id', 'N/A')}")
+                        print(f"   Seller Phone: {seller_phone}")
+                        print(f"   Seller Facebook: {seller_fb}")
+                        print(f"   Seller Name: {user_listing.get('sellerName', 'N/A')}")
+                        
+                        # Also check if other seller fields are present
+                        if user_listing.get("sellerName"):
+                            self.log_result("listings_enrichment", True, "Seller name also enriched in listings")
+                            print(f"✅ Seller name also enriched: {user_listing.get('sellerName')}")
+                        
+                        return True
+                    else:
+                        self.log_result("listings_enrichment", False, f"Listings enrichment failed - expected phone: {test_phone}, got: {seller_phone}; expected fb: {test_facebook_link}, got: {seller_fb}")
+                        print(f"❌ Listings enrichment failed")
+                        print(f"   Expected phone: {test_phone}, got: {seller_phone}")
+                        print(f"   Expected facebook: {test_facebook_link}, got: {seller_fb}")
+                        print(f"   Full listing data: {user_listing}")
+                        return False
+                else:
+                    self.log_result("listings_enrichment", False, f"No listings found for user {user_id}")
+                    print(f"❌ No listings found for user {user_id}")
+                    print(f"   Total listings retrieved: {len(all_listings)}")
+                    return False
+            else:
+                self.log_result("listings_enrichment", False, f"Failed to get listings for enrichment test: {response.status_code} - {response.text}")
+                print(f"❌ Failed to get listings for enrichment test: {response.status_code} - {response.text}")
+                return False
+                
+        except Exception as e:
+            self.log_result("profile_update", False, f"Exception during profile update and listings enrichment test: {str(e)}")
+            self.log_result("listings_enrichment", False, f"Exception during profile update and listings enrichment test: {str(e)}")
+            print(f"❌ Profile update and listings enrichment test error: {e}")
+            return False
         """Test AI Text Parsing functionality"""
         print("\n=== Testing AI Text Parsing ===")
         
