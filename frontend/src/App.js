@@ -467,7 +467,7 @@ function NavItem({ active, onClick, children }) {
   )
 }
 
-function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, isProcessing }) {
+function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, isProcessing, confirmText = "Delete", cancelText = "Cancel" }) {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
@@ -480,10 +480,10 @@ function ConfirmModal({ isOpen, title, message, onConfirm, onCancel, isProcessin
                     <p className="text-slate-500 mb-6">{message}</p>
                     <div className="flex space-x-3">
                         <button onClick={onCancel} className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">
-                            Cancel
+                            {cancelText}
                         </button>
                         <button onClick={onConfirm} disabled={isProcessing} className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-colors flex justify-center items-center">
-                            {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Delete'}
+                            {isProcessing ? <Loader2 className="w-5 h-5 animate-spin" /> : confirmText}
                         </button>
                     </div>
                 </div>
