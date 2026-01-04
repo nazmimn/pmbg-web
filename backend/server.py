@@ -219,10 +219,16 @@ async def create_listings(items: List[Listing]):
     
     docs = []
     created_items = []
+    
+    # Optimization: Batch fetch users
+    seller_ids = list(set(item.sellerId for item in items if item.sellerId))
+    users_cursor = db.users.find({"id": {"$in": seller_ids}})
+    users_list = await users_cursor.to_list(length=None)
+    users_map = {u['id']: u['displayName'] for u in users_list}
+
     for item in items:
-        user = await db.users.find_one({"id": item.sellerId})
-        if user:
-            item.sellerName = user['displayName']
+        if item.sellerId in users_map:
+            item.sellerName = users_map[item.sellerId]
             
         doc = item.model_dump()
         doc['createdAt'] = doc['createdAt'].isoformat()
