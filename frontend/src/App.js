@@ -669,7 +669,18 @@ function HomeView({ listings, setView }) {
 
 function ExploreView({ listings }) {
   const [filter, setFilter] = useState('ALL'); 
-  const filtered = listings.filter(l => filter === 'ALL' ? l.type !== 'WTL' : l.type === filter);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filtered = listings.filter(l => {
+      // WTT logic: Show items that are explicitly WTT OR (WTS and openForTrade)
+      if (filter === 'WTT') {
+          return (l.type === 'WTT' || (l.type === 'WTS' && l.openForTrade)) && l.type !== 'WTL';
+      }
+      
+      const typeMatch = filter === 'ALL' ? l.type !== 'WTL' : l.type === filter;
+      const searchMatch = l.title.toLowerCase().includes(searchTerm.toLowerCase());
+      return typeMatch && searchMatch;
+  });
 
   return (
     <div className="space-y-6">
@@ -678,12 +689,24 @@ function ExploreView({ listings }) {
           <h2 className="text-3xl font-bold text-slate-800">Marketplace</h2>
           <p className="text-slate-500">Find your next favorite game or convert your shelf of shame to cash.</p>
         </div>
-        <div className="flex bg-white p-1 rounded-lg border border-slate-200 shadow-sm overflow-x-auto">
-          {['ALL', 'WTS', 'WTB', 'WTT'].map(f => (
-             <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${filter === f ? 'bg-orange-500 text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
-                {f === 'ALL' ? 'All' : f}
-             </button>
-          ))}
+        <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative">
+                <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                <input 
+                    type="text" 
+                    placeholder="Search market..." 
+                    className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-orange-500 w-full sm:w-64"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                />
+            </div>
+            <div className="flex bg-white p-1 rounded-lg border border-slate-200 shadow-sm overflow-x-auto">
+            {['ALL', 'WTS', 'WTB', 'WTT'].map(f => (
+                <button key={f} onClick={() => setFilter(f)} className={`px-4 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap ${filter === f ? 'bg-orange-500 text-white' : 'text-slate-600 hover:bg-slate-50'}`}>
+                    {f === 'ALL' ? 'All' : f}
+                </button>
+            ))}
+            </div>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
