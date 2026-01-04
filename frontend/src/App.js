@@ -510,6 +510,10 @@ function AuthView({ onLogin, onCancel }) {
              <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5 mr-3" alt="G" />
              Sign in with Google
            </button>
+           <button onClick={() => window.location.href = `${API_URL}/auth/facebook/login`} className="w-full flex items-center justify-center py-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium text-slate-700 bg-white mt-3">
+             <Facebook className="w-5 h-5 mr-3 text-blue-600" />
+             Sign in with Facebook
+           </button>
            
            <div className="relative">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
