@@ -1314,6 +1314,36 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   );
 
   const renderSelectMethod = () => (
+  const renderSelectType = () => (
+    <div className="space-y-6 text-center">
+      <h4 className="text-lg font-medium text-slate-700">What is your goal?</h4>
+      <div className="grid grid-cols-3 gap-4">
+        {['WTS', 'WTB', 'WTL'].map(t => (
+          <button 
+            key={t}
+            onClick={() => { 
+                if (t === 'WTL') return; 
+                setFormData(prev => ({...prev, type: t})); 
+                setStep('select-method'); 
+            }}
+            disabled={t === 'WTL'}
+            className={`p-6 rounded-2xl border-2 transition-all shadow-sm ${
+                t === 'WTL' 
+                ? 'opacity-50 cursor-not-allowed border-slate-100 bg-slate-50'
+                : t==='WTS'?'border-orange-200 bg-orange-50 hover:border-orange-500 hover:shadow-md hover:-translate-y-1'
+                : 'border-blue-200 bg-blue-50 hover:border-blue-500 hover:shadow-md hover:-translate-y-1'
+            }`}
+          >
+            <div className={`text-2xl font-black mb-2 ${t==='WTS'?'text-orange-600':t==='WTB'?'text-blue-600':'text-slate-400'}`}>{t}</div>
+            <div className="text-xs text-slate-500 font-medium">
+              {t==='WTS'?'Sell Game':t==='WTB'?'Buy Game':'Auction (Soon)'}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
     <div className="space-y-6">
       <div className="flex items-center mb-4">
          <button onClick={() => setStep('select-type')} className="text-slate-400 hover:text-slate-600 mr-4"><ArrowLeft className="w-5 h-5"/></button>
