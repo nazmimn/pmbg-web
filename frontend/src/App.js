@@ -1850,49 +1850,51 @@ function EditProfileModal({ user, onClose, onUpdate }) {
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95">
-                <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 flex flex-col max-h-[90vh]">
+                <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                     <h3 className="font-bold text-lg text-slate-800">Edit Profile</h3>
-                    <button onClick={onClose}><X className="w-5 h-5 text-slate-400" /></button>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors"><X className="w-5 h-5 text-slate-500" /></button>
                 </div>
-                <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
                     {/* Avatar */}
-                    <div className="flex justify-center mb-4">
-                        <div className="relative w-24 h-24">
-                            <div className="w-24 h-24 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200">
-                                {preview ? <img src={preview} className="w-full h-full object-cover" /> : <User className="w-12 h-12 text-slate-300 m-auto mt-6" />}
+                    <div className="flex justify-center mb-6">
+                        <div className="relative w-28 h-28 group">
+                            <div className="w-28 h-28 rounded-full overflow-hidden bg-slate-100 border-4 border-white shadow-md">
+                                {preview ? <img src={preview} className="w-full h-full object-cover" /> : <User className="w-12 h-12 text-slate-300 m-auto mt-8" />}
                             </div>
-                            <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full cursor-pointer hover:bg-blue-700 shadow-md">
-                                <Camera className="w-4 h-4" />
+                            <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 shadow-lg hover:scale-110 transition-all">
+                                <Camera className="w-5 h-5" />
                                 <input type="file" hidden accept="image/*" onChange={handleImageChange} />
                             </label>
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Display Name</label>
-                        <input name="displayName" value={formData.displayName} onChange={handleChange} className="w-full p-2 border rounded-lg" required />
+                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Display Name</label>
+                        <input name="displayName" value={formData.displayName} onChange={handleChange} className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all" required />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Email</label>
-                        <input name="email" value={formData.email} onChange={handleChange} className="w-full p-2 border rounded-lg" required type="email" />
+                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Email</label>
+                        <input name="email" value={formData.email} onChange={handleChange} className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all" required type="email" />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Phone (Whatsapp)</label>
-                        <input name="phone" value={formData.phone} onChange={handleChange} className="w-full p-2 border rounded-lg" placeholder="e.g. 60123456789" />
+                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Phone (Whatsapp)</label>
+                        <input name="phone" value={formData.phone} onChange={handleChange} className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all" placeholder="e.g. 60123456789" />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Facebook Profile Link</label>
-                        <input name="facebookLink" value={formData.facebookLink} onChange={handleChange} className="w-full p-2 border rounded-lg" placeholder="https://facebook.com/username" />
+                        <label className="block text-sm font-bold text-slate-700 mb-1.5">Facebook Profile Link</label>
+                        <input name="facebookLink" value={formData.facebookLink} onChange={handleChange} className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all" placeholder="https://facebook.com/username" />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 uppercase mb-1">New Password (Optional)</label>
-                        <input name="password" value={formData.password} onChange={handleChange} className="w-full p-2 border rounded-lg" type="password" placeholder="Leave blank to keep current" />
+                        <label className="block text-sm font-bold text-slate-700 mb-1.5">New Password (Optional)</label>
+                        <input name="password" value={formData.password} onChange={handleChange} className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all" type="password" placeholder="Leave blank to keep current" />
                     </div>
 
-                    <button type="submit" disabled={loading} className="w-full py-3 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 flex justify-center items-center">
-                        {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Save Changes'}
-                    </button>
+                    <div className="pt-4">
+                        <button type="submit" disabled={loading} className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-lg transition-all flex justify-center items-center">
+                            {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Save Changes'}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
