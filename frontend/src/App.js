@@ -1779,7 +1779,10 @@ function AddGameModal({ onClose, onAdd, initialData }) {
                             ) : (
                                 <div className="text-xs text-slate-500">RM {item.price || "?"}</div>
                             )}
-                            <span className="text-xs text-slate-400">• {getConditionText(item.condition).split(',')[0]}</span>
+                            <span className="text-xs text-slate-400 flex items-center gap-1">
+                                {item.type !== 'WTB' && <span>• Cond: {item.condition} {item.isBNIS && "(BNIS)"}</span>}
+                                {item.openForTrade && <span className="text-teal-600 font-bold ml-1">• Trade</span>}
+                            </span>
                         </div>
                         
                         <div className="text-[10px] text-slate-400 truncate mt-1 cursor-pointer hover:text-slate-600" onClick={() => { setCurrentItemIndex(idx); setFormData(item); setStep('edit-single'); }}>
