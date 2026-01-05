@@ -1110,7 +1110,7 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
                                            {item.openForTrade && item.type === 'WTS' && <span className="text-[10px] bg-teal-50 text-teal-600 px-1.5 py-0.5 rounded border border-teal-100 whitespace-nowrap">Trade Open</span>}
                                         </div>
                                         <div className="flex items-center text-xs text-slate-500 mt-0.5 space-x-2">
-                                           <span>{item.type === 'WTL' ? `Bid: RM ${item.currentBid}` : `RM ${item.price}`}</span>
+                                           <span>{item.type === 'WTL' ? `Bid: RM ${item.currentBid}` : (!item.price && item.type === 'WTB') ? <span className="italic">Make Offer</span> : `RM ${item.price}`}</span>
                                            {item.type !== 'WTB' && <span className="hidden sm:inline">• Cond: {item.condition}</span>}
                                            
                                            {/* Mobile Status Badge */}
