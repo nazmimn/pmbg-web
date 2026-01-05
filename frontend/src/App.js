@@ -1674,7 +1674,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
          <textarea className="w-full p-3 border border-slate-300 rounded-xl h-32 text-sm focus:ring-2 focus:ring-orange-100 outline-none resize-none" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Describe condition, missing pieces, etc..."></textarea>
       </div>
 
-      <div className="pt-2 flex justify-between items-center border-t border-slate-100 mt-4">
+      <div className="pt-2 flex justify-between items-center border-t border-slate-100 mt-4 pb-16 md:pb-0">
          <button type="button" onClick={() => initialData ? onClose() : (detectedItems.length > 0 ? setStep('review') : setStep('select-method'))} className="text-slate-500 font-bold hover:text-slate-800 px-4 py-2">Back</button>
          <button type="submit" disabled={isSubmitting} className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 flex items-center shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
             {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
