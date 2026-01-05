@@ -863,27 +863,31 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
       />
 
       {/* Sidebar */}
-      <div className="lg:col-span-1 space-y-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 text-center">
-           <div className="w-20 h-20 bg-slate-200 rounded-full mx-auto mb-4 overflow-hidden relative">
+      <div className="lg:col-span-1 space-y-4 lg:space-y-6 flex flex-col sm:flex-row lg:flex-col gap-4">
+        <div className="flex-1 bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-100 text-center flex flex-row sm:flex-col items-center sm:items-center gap-4 sm:gap-0">
+           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-200 rounded-full flex-shrink-0 overflow-hidden relative">
              {user.picture || user.image ? (
                  <img src={user.picture || user.image} alt="Avatar" className="w-full h-full object-cover" />
              ) : (
                  <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.displayName}`} alt="Avatar" className="w-full h-full" />
              )}
            </div>
-           <h3 className="font-bold text-lg">{user.displayName}</h3>
-           <p className="text-sm text-slate-500 mb-1">{user.email}</p>
-           {user.phone && <p className="text-xs text-slate-400 mb-1 flex items-center justify-center"><MessageCircle className="w-3 h-3 mr-1"/> {user.phone}</p>}
-           {user.facebookLink && <p className="text-xs text-slate-400 mb-4 flex items-center justify-center"><Facebook className="w-3 h-3 mr-1"/> {user.facebookLink.replace(/^https?:\/\/(www\.)?facebook\.com\//, '')}</p>}
-           <button onClick={() => setShowProfileModal(true)} className="text-xs border border-slate-300 px-3 py-1 rounded hover:bg-slate-50">Edit Profile</button>
+           <div className="text-left sm:text-center flex-1">
+               <h3 className="font-bold text-lg leading-tight">{user.displayName}</h3>
+               <p className="text-xs sm:text-sm text-slate-500 mb-1 truncate max-w-[150px] sm:max-w-none">{user.email}</p>
+               <div className="flex flex-wrap gap-2 justify-start sm:justify-center mt-2">
+                   {user.phone && <span className="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-500 flex items-center"><MessageCircle className="w-3 h-3 mr-1"/> {user.phone}</span>}
+                   {user.facebookLink && <span className="text-[10px] bg-blue-50 px-2 py-1 rounded text-blue-600 flex items-center"><Facebook className="w-3 h-3 mr-1"/> FB</span>}
+               </div>
+               <button onClick={() => setShowProfileModal(true)} className="mt-3 text-xs border border-slate-300 px-3 py-1.5 rounded hover:bg-slate-50 w-full sm:w-auto">Edit Profile</button>
+           </div>
         </div>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="p-4 bg-slate-50 border-b border-slate-100 font-semibold text-slate-700">Quick Stats</div>
-          <div className="p-4 space-y-3">
-             <div className="flex justify-between"><span className="text-slate-500">Active</span><span className="font-bold">{myListings.filter(l=>l.type==='WTS' && l.status!=='sold').length}</span></div>
-             <div className="flex justify-between"><span className="text-slate-500">Wishlist</span><span className="font-bold">{myListings.filter(l=>l.type==='WTB').length}</span></div>
-             <div className="flex justify-between"><span className="text-slate-500">Sold</span><span className="font-bold text-green-600">{myListings.filter(l=>l.status==='sold').length}</span></div>
+        <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="p-3 sm:p-4 bg-slate-50 border-b border-slate-100 font-semibold text-slate-700 text-sm">Quick Stats</div>
+          <div className="p-3 sm:p-4 space-y-3">
+             <div className="flex justify-between"><span className="text-slate-500 text-sm">Active</span><span className="font-bold">{myListings.filter(l=>l.type==='WTS' && l.status!=='sold').length}</span></div>
+             <div className="flex justify-between"><span className="text-slate-500 text-sm">Wishlist</span><span className="font-bold">{myListings.filter(l=>l.type==='WTB').length}</span></div>
+             <div className="flex justify-between"><span className="text-slate-500 text-sm">Sold</span><span className="font-bold text-green-600">{myListings.filter(l=>l.status==='sold').length}</span></div>
           </div>
         </div>
       </div>
