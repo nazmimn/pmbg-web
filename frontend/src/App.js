@@ -1536,14 +1536,21 @@ function AddGameModal({ onClose, onAdd, initialData }) {
       </div>
 
       {formData.type !== 'WTB' && (
-      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-         <div className="flex justify-between mb-2">
-           <label className="block text-sm font-bold text-slate-700">Condition</label>
-           <span className={`text-sm font-black px-2 py-0.5 rounded ${formData.condition >= 9 ? 'bg-green-100 text-green-700' : formData.condition >= 7 ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>{Number(formData.condition).toFixed(1)}</span>
+      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-4">
+         <div>
+             <div className="flex justify-between mb-2">
+               <label className="block text-sm font-bold text-slate-700">Condition</label>
+               <span className={`text-sm font-black px-2 py-0.5 rounded ${formData.condition >= 9 ? 'bg-green-100 text-green-700' : formData.condition >= 7 ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>{Number(formData.condition).toFixed(1)}</span>
+             </div>
+             <input type="range" min="1" max="10" step="0.5" disabled={formData.isBNIS} className={`w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900 ${formData.isBNIS ? 'opacity-50 cursor-not-allowed' : ''}`} value={formData.condition} onChange={e => setFormData({...formData, condition: e.target.value})} />
+             <div className="text-xs text-slate-500 mt-2 font-medium text-center">
+                {getConditionText(Number(formData.condition))}
+             </div>
          </div>
-         <input type="range" min="1" max="10" step="0.5" className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900" value={formData.condition} onChange={e => setFormData({...formData, condition: e.target.value})} />
-         <div className="text-xs text-slate-500 mt-2 font-medium text-center">
-            {getConditionText(Number(formData.condition))}
+         
+         <div className="flex items-center space-x-3 bg-white p-3 rounded-lg border border-slate-200">
+            <input type="checkbox" id="isBNIS" checked={formData.isBNIS} onChange={e => setFormData(prev => ({...prev, isBNIS: e.target.checked, condition: e.target.checked ? 10.0 : prev.condition}))} className="w-5 h-5 rounded text-orange-600 focus:ring-orange-500 border-gray-300" />
+            <label htmlFor="isBNIS" className="text-sm font-bold text-slate-700">Brand New In Shrink (BNIS)</label>
          </div>
       </div>
       )}
