@@ -36,6 +36,8 @@ import {
   XCircle,
   Upload,
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
   ListPlus,
   LayoutGrid,
   List as ListIcon,
