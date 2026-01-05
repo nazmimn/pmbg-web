@@ -45,6 +45,17 @@ class User(BaseModel):
     displayName: str
     createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class Comment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    userId: str
+    userName: str
+    userAvatar: Optional[str] = None
+    text: str
+    createdAt: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class CommentRequest(BaseModel):
+    text: str
+
 class Listing(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
