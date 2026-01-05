@@ -1025,16 +1025,16 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
                         {filteredListings.map(item => (
                             <div key={item.id} className="relative group">
                                 <ListingCard game={item} />
-                                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                     <button onClick={() => onEdit(item)} className="p-1.5 bg-white text-blue-600 rounded shadow-sm hover:bg-blue-50" title="Edit">
+                                <div className="absolute top-2 right-2 flex gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity z-10">
+                                     <button onClick={() => onEdit(item)} className="p-1.5 bg-white text-blue-600 rounded shadow-sm hover:bg-blue-50 border border-blue-100" title="Edit">
                                        <Pencil className="w-4 h-4" />
                                      </button>
-                                     <button onClick={() => initiateDelete(item)} className="p-1.5 bg-white text-red-600 rounded shadow-sm hover:bg-red-50" title="Delete">
+                                     <button onClick={() => initiateDelete(item)} className="p-1.5 bg-white text-red-600 rounded shadow-sm hover:bg-red-50 border border-red-100" title="Delete">
                                        <Trash2 className="w-4 h-4" />
                                      </button>
                                 </div>
-                                <div className="absolute top-2 left-2">
-                                    <button onClick={() => toggleSelect(item.id)} className="bg-white rounded shadow-sm p-0.5">
+                                <div className="absolute top-2 left-2 z-10">
+                                    <button onClick={() => toggleSelect(item.id)} className="bg-white rounded shadow-sm p-0.5 border border-slate-200">
                                         {selectedIds.has(item.id) ? <CheckSquare className="w-5 h-5 text-orange-500" /> : <Square className="w-5 h-5 text-slate-300" />}
                                     </button>
                                 </div>
