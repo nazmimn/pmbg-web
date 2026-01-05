@@ -2153,24 +2153,26 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment }
              </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex-1 overflow-y-auto">
              <div className="grid grid-cols-1 md:grid-cols-12 min-h-full">
                 
                 <div className="md:col-span-5 bg-slate-100 flex flex-col relative group">
-                   <div className="flex-1 relative min-h-[300px] md:min-h-0 bg-slate-200">
+                   <div className="flex-1 relative min-h-[300px] md:min-h-0 bg-slate-200 flex items-center justify-center">
                       {images.length > 0 ? (
-                          <img src={images[activeImage]} className="absolute inset-0 w-full h-full object-cover" />
+                          <div className="relative w-full h-full p-4">
+                              <img src={images[activeImage]} className="w-full h-full object-contain drop-shadow-xl" />
+                          </div>
                       ) : (
                           <div className="absolute inset-0 flex items-center justify-center"><ImageIcon className="w-20 h-20 text-slate-300"/></div>
                       )}
                       
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 md:opacity-0 md:group-hover:opacity-40 transition-opacity"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-200/50 to-transparent pointer-events-none"></div>
                    </div>
 
                    {images.length > 1 && (
-                       <div className="absolute bottom-4 left-4 right-4 flex gap-2 overflow-x-auto pb-1 px-1 no-scrollbar justify-center">
+                       <div className="absolute bottom-4 left-4 right-4 flex gap-2 overflow-x-auto pb-1 px-1 no-scrollbar justify-center z-10">
                            {images.map((img, idx) => (
-                               <button key={idx} onClick={() => setActiveImage(idx)} className={`w-14 h-14 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all shadow-lg ${activeImage === idx ? 'border-orange-500 scale-110 ring-2 ring-orange-500/50' : 'border-white/80 opacity-80 hover:opacity-100 hover:scale-105'}`}>
+                               <button key={idx} onClick={() => setActiveImage(idx)} className={`w-14 h-14 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all shadow-lg bg-white ${activeImage === idx ? 'border-orange-500 scale-110 ring-2 ring-orange-500/50' : 'border-white/80 opacity-80 hover:opacity-100 hover:scale-105'}`}>
                                    <img src={img} className="w-full h-full object-cover" />
                                </button>
                            ))}
@@ -2202,7 +2204,7 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment }
                                 {game.sellerAvatar ? <img src={game.sellerAvatar} className="w-full h-full object-cover"/> : <User className="w-6 h-6 m-auto mt-2 text-slate-400"/>}
                             </div>
                             <div className="flex-1">
-                                <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5">Seller</div>
+                                <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5">{game.type === 'WTB' ? 'Buyer' : 'Seller'}</div>
                                 <div className="font-bold text-slate-800">{game.sellerName || "Unknown"}</div>
                             </div>
                             <div className="flex gap-2">
@@ -2218,9 +2220,9 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment }
                     </div>
 
                     <div className="bg-slate-50 border-t border-slate-100 p-6 md:p-8">
-                        <h3 className="font-bold text-slate-800 mb-6 flex items-center"><MessageCircle className="w-5 h-5 mr-2 text-orange-500"/> Community Q&A ({game.comments?.length || 0})</h3>
+                        <h3 className="font-bold text-slate-800 mb-6 flex items-center"><MessageCircle className="w-5 h-5 mr-2 text-orange-500"/> Comments ({game.comments?.length || 0})</h3>
                         
-                        <div className="space-y-4 mb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-4 mb-6 max-h-64 overflow-y-auto pr-2">
                             {game.comments?.map((c) => (
                                 <div key={c.id} className={`flex gap-3 ${user && user.id === c.userId ? 'flex-row-reverse' : ''}`}>
                                     <div className="w-8 h-8 bg-white rounded-full border border-slate-200 overflow-hidden flex-shrink-0 shadow-sm mt-1">
@@ -2229,7 +2231,7 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment }
                                     <div className={`flex-1 max-w-[85%] p-3 rounded-2xl shadow-sm text-sm relative group ${user && user.id === c.userId ? 'bg-orange-100 text-slate-800 rounded-tr-none' : 'bg-white text-slate-600 rounded-tl-none border border-slate-100'}`}>
                                         <div className="flex justify-between items-center mb-1 gap-4">
                                             <span className="font-bold text-xs opacity-70">{c.userName}</span>
-                                            <span className="text-[10px] opacity-50">{new Date(c.createdAt).toLocaleDateString()}</span>
+                                            <span className="text-[10px] opacity-50">{new Date(c.createdAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span>
                                         </div>
                                         <p>{c.text}</p>
                                         {user && user.id === c.userId && (
