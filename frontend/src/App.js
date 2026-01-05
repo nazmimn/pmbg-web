@@ -983,21 +983,27 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
                                         {selectedIds.has(item.id) ? <CheckSquare className="w-4 h-4 text-orange-500" /> : <Square className="w-4 h-4 text-slate-300" />}
                                      </button>
                                   </div>
-                                  <div className="flex-1 ml-4 flex items-center space-x-4">
+                                  <div className="flex-1 ml-3 sm:ml-4 flex items-center space-x-3 sm:space-x-4 overflow-hidden">
                                      <div className="w-12 h-12 bg-slate-200 rounded-md overflow-hidden flex-shrink-0 relative">
                                        {item.image ? <img src={item.image} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 text-xs">No Img</div>}
                                      </div>
-                                     <div>
-                                        <div className="flex items-center space-x-2">
-                                           <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${item.type === 'WTL' ? 'bg-purple-100 text-purple-700' : item.type === 'WTS' ? 'bg-orange-100 text-orange-700' : item.type === 'WTT' ? 'bg-teal-100 text-teal-700' : 'bg-blue-100 text-blue-700'}`}>
+                                     <div className="min-w-0 flex-1">
+                                        <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                                           <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase whitespace-nowrap ${item.type === 'WTL' ? 'bg-purple-100 text-purple-700' : item.type === 'WTS' ? 'bg-orange-100 text-orange-700' : item.type === 'WTT' ? 'bg-teal-100 text-teal-700' : 'bg-blue-100 text-blue-700'}`}>
                                              {item.type}
                                            </span>
-                                           {item.openForTrade && item.type === 'WTS' && <span className="text-[10px] bg-teal-50 text-teal-600 px-1.5 py-0.5 rounded border border-teal-100">Trade Open</span>}
-                                           <h4 className={`font-bold text-sm ${item.status === 'sold' ? 'text-slate-500 line-through' : 'text-slate-800'}`}>{item.title}</h4>
+                                           <h4 className={`font-bold text-sm truncate max-w-full ${item.status === 'sold' ? 'text-slate-500 line-through' : 'text-slate-800'}`}>{item.title}</h4>
+                                           {item.openForTrade && item.type === 'WTS' && <span className="text-[10px] bg-teal-50 text-teal-600 px-1.5 py-0.5 rounded border border-teal-100 whitespace-nowrap">Trade Open</span>}
                                         </div>
-                                        <p className="text-xs text-slate-500 mt-0.5">
-                                           {item.type === 'WTL' ? `Bid: RM ${item.currentBid}` : `RM ${item.price}`} {item.type !== 'WTB' && `• Cond: ${item.condition}`}
-                                        </p>
+                                        <div className="flex items-center text-xs text-slate-500 mt-0.5 space-x-2">
+                                           <span>{item.type === 'WTL' ? `Bid: RM ${item.currentBid}` : `RM ${item.price}`}</span>
+                                           {item.type !== 'WTB' && <span className="hidden sm:inline">• Cond: {item.condition}</span>}
+                                           
+                                           {/* Mobile Status Badge */}
+                                           <span className={`sm:hidden text-[10px] font-bold px-1.5 py-0.5 rounded ${item.status === 'sold' ? 'bg-slate-200 text-slate-600' : 'bg-green-100 text-green-700'}`}>
+                                             {item.status === 'sold' ? 'SOLD' : 'ACTIVE'}
+                                           </span>
+                                        </div>
                                      </div>
                                   </div>
                                   <div className="hidden sm:block w-32 text-right mr-4">
@@ -1005,7 +1011,7 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
                                        {item.status === 'sold' ? 'SOLD' : 'ACTIVE'}
                                      </span>
                                   </div>
-                                  <div className="w-24 flex justify-center space-x-1">
+                                  <div className="w-24 flex justify-end sm:justify-center space-x-1">
                                      <button onClick={() => onMarkSold(item)} className="p-1.5 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded" title="Toggle Sold">
                                        {item.status === 'sold' ? <Repeat className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                                      </button>
