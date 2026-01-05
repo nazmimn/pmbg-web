@@ -1973,7 +1973,7 @@ function EditProfileModal({ user, onClose, onUpdate }) {
     );
 }
 
-function ListingCard({ game }) {
+function ListingCard({ game, onClick }) {
     const handleContact = (type, value) => {
         if (!value) return;
         if (type === 'whatsapp') {
