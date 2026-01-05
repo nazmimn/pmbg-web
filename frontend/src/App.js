@@ -864,30 +864,32 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
 
       {/* Sidebar */}
       <div className="lg:col-span-1 space-y-4 lg:space-y-6 flex flex-col sm:flex-row lg:flex-col gap-4">
-        <div className="flex-1 bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-slate-100 text-center flex flex-row sm:flex-col items-center sm:items-center gap-4 sm:gap-0">
-           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-slate-200 rounded-full flex-shrink-0 overflow-hidden relative">
+        <div className="flex-1 bg-white p-5 rounded-2xl shadow-sm border border-slate-100 text-center flex flex-row sm:flex-col items-center gap-5 sm:gap-2">
+           <div className="w-16 h-16 sm:w-24 sm:h-24 bg-slate-100 rounded-full flex-shrink-0 overflow-hidden relative border-4 border-white shadow-sm ring-1 ring-slate-100">
              {user.picture || user.image ? (
                  <img src={user.picture || user.image} alt="Avatar" className="w-full h-full object-cover" />
              ) : (
                  <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.displayName}`} alt="Avatar" className="w-full h-full" />
              )}
            </div>
-           <div className="text-left sm:text-center flex-1">
-               <h3 className="font-bold text-lg leading-tight">{user.displayName}</h3>
-               <p className="text-xs sm:text-sm text-slate-500 mb-1 truncate max-w-[150px] sm:max-w-none">{user.email}</p>
-               <div className="flex flex-wrap gap-2 justify-start sm:justify-center mt-2">
-                   {user.phone && <span className="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-500 flex items-center"><MessageCircle className="w-3 h-3 mr-1"/> {user.phone}</span>}
-                   {user.facebookLink && <span className="text-[10px] bg-blue-50 px-2 py-1 rounded text-blue-600 flex items-center"><Facebook className="w-3 h-3 mr-1"/> FB</span>}
+           <div className="text-left sm:text-center flex-1 min-w-0">
+               <h3 className="font-bold text-xl text-slate-800 truncate">{user.displayName}</h3>
+               <p className="text-sm text-slate-500 mb-3 truncate">{user.email}</p>
+               <div className="flex flex-wrap gap-2 justify-start sm:justify-center mb-3">
+                   {user.phone && <span className="text-[10px] bg-green-50 px-2 py-1 rounded-full text-green-700 font-bold border border-green-100 flex items-center"><MessageCircle className="w-3 h-3 mr-1"/> {user.phone}</span>}
+                   {user.facebookLink && <span className="text-[10px] bg-blue-50 px-2 py-1 rounded-full text-blue-700 font-bold border border-blue-100 flex items-center"><Facebook className="w-3 h-3 mr-1"/> Facebook</span>}
                </div>
-               <button onClick={() => setShowProfileModal(true)} className="mt-3 text-xs border border-slate-300 px-3 py-1.5 rounded hover:bg-slate-50 w-full sm:w-auto">Edit Profile</button>
+               <button onClick={() => setShowProfileModal(true)} className="w-full sm:w-auto px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold rounded-lg text-xs transition-colors border border-slate-200">
+                   Edit Profile
+               </button>
            </div>
         </div>
-        <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="p-3 sm:p-4 bg-slate-50 border-b border-slate-100 font-semibold text-slate-700 text-sm">Quick Stats</div>
-          <div className="p-3 sm:p-4 space-y-3">
-             <div className="flex justify-between"><span className="text-slate-500 text-sm">Active</span><span className="font-bold">{myListings.filter(l=>l.type==='WTS' && l.status!=='sold').length}</span></div>
-             <div className="flex justify-between"><span className="text-slate-500 text-sm">Wishlist</span><span className="font-bold">{myListings.filter(l=>l.type==='WTB').length}</span></div>
-             <div className="flex justify-between"><span className="text-slate-500 text-sm">Sold</span><span className="font-bold text-green-600">{myListings.filter(l=>l.status==='sold').length}</span></div>
+        <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+          <div className="p-4 bg-slate-50/50 border-b border-slate-100 font-bold text-slate-800 text-sm tracking-wide">Collection Stats</div>
+          <div className="p-4 space-y-3 flex-1 flex flex-col justify-center">
+             <div className="flex justify-between items-center"><span className="text-slate-500 text-sm font-medium">Active Listings</span><span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded text-xs">{myListings.filter(l=>l.type==='WTS' && l.status!=='sold').length}</span></div>
+             <div className="flex justify-between items-center"><span className="text-slate-500 text-sm font-medium">Wishlist</span><span className="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">{myListings.filter(l=>l.type==='WTB').length}</span></div>
+             <div className="flex justify-between items-center"><span className="text-slate-500 text-sm font-medium">Sold Items</span><span className="font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded text-xs">{myListings.filter(l=>l.status==='sold').length}</span></div>
           </div>
         </div>
       </div>
