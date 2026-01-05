@@ -984,9 +984,14 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
                    {user.phone && <span className="text-[10px] bg-green-50 px-2 py-1 rounded-full text-green-700 font-bold border border-green-100 flex items-center"><MessageCircle className="w-3 h-3 mr-1"/> {user.phone}</span>}
                    {user.facebookLink && <span className="text-[10px] bg-blue-50 px-2 py-1 rounded-full text-blue-700 font-bold border border-blue-100 flex items-center"><Facebook className="w-3 h-3 mr-1"/> Facebook</span>}
                </div>
-               <button onClick={() => setShowProfileModal(true)} className="w-full sm:w-auto px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold rounded-lg text-xs transition-colors border border-slate-200">
-                   Edit Profile
-               </button>
+               <div className="flex gap-2 w-full sm:w-auto mt-3 sm:mt-0 justify-center">
+                   <button onClick={() => setShowProfileModal(true)} className="flex-1 sm:flex-none px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold rounded-lg text-xs transition-colors border border-slate-200">
+                       Edit Profile
+                   </button>
+                   <button onClick={onLogout} className="sm:hidden px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-lg text-xs transition-colors border border-red-100" title="Logout">
+                       <LogOut className="w-4 h-4" />
+                   </button>
+               </div>
            </div>
         </div>
         <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col sm:h-full">
