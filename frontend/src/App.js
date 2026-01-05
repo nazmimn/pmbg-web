@@ -650,7 +650,7 @@ function AuthView({ onLogin, onCancel }) {
   )
 }
 
-function HomeView({ listings, setView }) {
+function HomeView({ listings, setView, onSelectGame }) {
   const auctions = listings.filter(l => l.type === 'WTL');
   const forSale = listings.filter(l => l.type === 'WTS' && l.status !== 'sold');
   const latestWTS = forSale.length > 0 ? forSale[0] : null;
