@@ -1796,6 +1796,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
                     image: '',
                     description: '',
                     openForTrade: false,
+                    isBNIS: false,
                     bggId: null
                 });
                 setCurrentItemIndex(null); 
