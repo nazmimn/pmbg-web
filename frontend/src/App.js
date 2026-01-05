@@ -1953,7 +1953,7 @@ function ListingCard({ game }) {
                     </span>
                     {game.condition && game.type === 'WTS' && (
                         <span className={`text-xs font-bold px-2 py-1 rounded shadow-sm bg-white text-slate-700 border border-slate-100 text-center`}>
-                            Cond: {game.condition.toFixed(1)}
+                            {game.isBNIS ? "BNIS" : `Cond: ${game.condition.toFixed(1)}`}
                         </span>
                     )}
                 </div>
