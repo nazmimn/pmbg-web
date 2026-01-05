@@ -487,6 +487,16 @@ export default function App() {
         />
       )}
 
+      {selectedGame && (
+        <GameDetailsModal 
+            game={selectedGame} 
+            user={user} 
+            onClose={() => setSelectedGame(null)} 
+            onAddComment={handleAddComment}
+            onDeleteComment={handleDeleteComment}
+        />
+      )}
+
       <ConfirmModal 
         isOpen={logoutConfirmOpen}
         title="Confirm Logout"
