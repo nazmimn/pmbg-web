@@ -81,6 +81,7 @@ class Listing(BaseModel):
     bggId: Optional[str] = None
     openForTrade: bool = False
     isBNIS: bool = False
+    comments: List[Comment] = []
 
 class AuthRequest(BaseModel):
     displayName: str
