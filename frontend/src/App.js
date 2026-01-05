@@ -1989,7 +1989,7 @@ function ListingCard({ game, onClick }) {
     const isWTB = game.type === 'WTB';
 
     return (
-        <div className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border flex flex-col h-full ${isWTB ? 'border-blue-200 bg-blue-50/30' : 'border-slate-100'}`}>
+        <div onClick={onClick} className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border flex flex-col h-full cursor-pointer ${isWTB ? 'border-blue-200 bg-blue-50/30' : 'border-slate-100'}`}>
             <div className="relative h-48 overflow-hidden bg-slate-200">
                 {game.image ? (
                     <img src={game.image} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
