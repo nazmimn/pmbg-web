@@ -1594,45 +1594,51 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   )
 
   const renderSelectMethod = () => (
-    <div className="space-y-6">
-      <div className="flex items-center mb-4">
-         <button onClick={() => setStep('select-type')} className="text-slate-400 hover:text-slate-600 mr-4"><ArrowLeft className="w-5 h-5"/></button>
-         <h4 className="text-lg font-medium text-slate-700">How to add?</h4>
+    <div className="space-y-8 py-4">
+      <div className="flex items-center mb-6">
+         <button onClick={() => setStep('select-type')} className="text-slate-400 hover:text-slate-600 mr-4 p-2 -ml-2 rounded-full hover:bg-slate-100 transition-colors"><ArrowLeft className="w-6 h-6"/></button>
+         <h4 className="text-2xl font-bold text-slate-800">How would you like to add?</h4>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <button 
             onClick={() => { setSelectedMethod('bgg'); setStep('input-bgg'); }} 
-            className="p-4 border-2 rounded-xl text-left transition-all relative group border-slate-100 hover:border-green-500"
+            className="group p-6 border-2 rounded-3xl text-left transition-all relative border-slate-100 hover:border-green-500 hover:shadow-xl hover:-translate-y-1 bg-white"
         >
-          <Globe className="w-8 h-8 mb-3 text-green-500 group-hover:scale-110 transition-transform" />
-          <div className="font-bold text-slate-800">BGG Database</div>
-          <div className="text-xs text-slate-500 mt-1">Search & Auto-fill</div>
+          <div className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-green-500 transition-colors">
+             <Globe className="w-8 h-8 text-green-500 group-hover:text-white transition-colors" />
+          </div>
+          <div className="font-bold text-xl text-slate-800 mb-1">BGG Database</div>
+          <div className="text-sm text-slate-500">Search & Auto-fill</div>
         </button>
 
         <button 
             onClick={() => { setSelectedMethod('scan'); setStep('input-scan'); }} 
-            className="p-4 border-2 rounded-xl text-left transition-all relative overflow-hidden group border-slate-100 hover:border-purple-500"
+            className="group p-6 border-2 rounded-3xl text-left transition-all relative border-slate-100 hover:border-purple-500 hover:shadow-xl hover:-translate-y-1 bg-white overflow-hidden"
         >
-          <div className="absolute top-2 right-2 bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded-full">MULTI</div>
-          <Camera className="w-8 h-8 mb-3 text-purple-500 group-hover:scale-110 transition-transform" />
-          <div className="font-bold text-slate-800">AI Photo Scan</div>
-          <div className="text-xs text-slate-500 mt-1">Upload Game Stack</div>
+          <div className="absolute top-3 right-3 bg-purple-100 text-purple-700 text-[10px] font-bold px-3 py-1 rounded-full">MULTI</div>
+          <div className="w-14 h-14 bg-purple-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-purple-500 transition-colors">
+             <Camera className="w-8 h-8 text-purple-500 group-hover:text-white transition-colors" />
+          </div>
+          <div className="font-bold text-xl text-slate-800 mb-1">AI Photo Scan</div>
+          <div className="text-sm text-slate-500">Upload Game Stack</div>
         </button>
 
         <button 
             onClick={() => { setSelectedMethod('parser'); setStep('input-parser'); }} 
-            className="p-4 border-2 rounded-xl text-left transition-all relative group border-slate-100 hover:border-blue-500"
+            className="group p-6 border-2 rounded-3xl text-left transition-all relative border-slate-100 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1 bg-white"
         >
-             <div className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">MULTI</div>
-             {formData.type === 'WTB' ? <ListPlus className="w-8 h-8 mb-3 text-blue-500 group-hover:scale-110 transition-transform" /> : <Facebook className="w-8 h-8 mb-3 text-blue-500 group-hover:scale-110 transition-transform" />}
-             <div className="font-bold text-slate-800">{formData.type === 'WTB' ? 'Quick List' : 'Smart Parser'}</div>
-             <div className="text-xs text-slate-500 mt-1">{formData.type === 'WTB' ? 'Type multiple titles' : 'Paste bulk sell list'}</div>
+             <div className="absolute top-3 right-3 bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-full">MULTI</div>
+             <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-500 transition-colors">
+                {formData.type === 'WTB' ? <ListPlus className="w-8 h-8 text-blue-500 group-hover:text-white transition-colors" /> : <Facebook className="w-8 h-8 text-blue-500 group-hover:text-white transition-colors" />}
+             </div>
+             <div className="font-bold text-xl text-slate-800 mb-1">{formData.type === 'WTB' ? 'Quick List' : 'Smart Parser'}</div>
+             <div className="text-sm text-slate-500">{formData.type === 'WTB' ? 'Type multiple titles' : 'Paste bulk sell list'}</div>
         </button>
       </div>
 
-      <div className="text-center mt-6">
-          <button onClick={() => { setFormData({...formData, title: ''}); setStep('edit-single'); }} className="text-slate-400 hover:text-slate-600 text-sm border-b border-slate-300 pb-0.5">
+      <div className="text-center mt-8">
+          <button onClick={() => { setFormData({...formData, title: ''}); setStep('edit-single'); }} className="text-slate-400 hover:text-slate-600 text-sm border-b border-slate-300 pb-0.5 hover:border-slate-500 transition-colors">
               Or enter manually
           </button>
       </div>
