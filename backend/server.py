@@ -613,6 +613,59 @@ async def place_bid(id: str, bid: BidRequest):
     }
     
     await db.listings.update_one({"id": id}, {"$set": update_data})
+@api_router.post("/listings/{id}/comments")
+async def add_comment(id: str, comment: CommentRequest, request: Request):
+    token = request.cookies.get("session_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    session = await db.user_sessions.find_one({"session_token": token})
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid session")
+        
+    user = await db.users.find_one({"id": session['user_id']})
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    new_comment = Comment(
+        userId=user['id'],
+        userName=user['displayName'],
+        userAvatar=user.get('picture') or user.get('image'),
+        text=comment.text
+    )
+    
+    comment_doc = new_comment.model_dump()
+    comment_doc['createdAt'] = comment_doc['createdAt'].isoformat()
+    
+    result = await db.listings.update_one(
+        {"id": id},
+        {"$push": {"comments": comment_doc}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Listing not found")
+        
+    return comment_doc
+
+@api_router.delete("/listings/{id}/comments/{commentId}")
+async def delete_comment(id: str, commentId: str, request: Request):
+    token = request.cookies.get("session_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    session = await db.user_sessions.find_one({"session_token": token})
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid session")
+        
+    # Remove comment only if user matches
+    result = await db.listings.update_one(
+        {"id": id},
+        {"$pull": {"comments": {"id": commentId, "userId": session['user_id']}}}
+    )
+    
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Comment not found or unauthorized")
+        
+    return {"status": "success"}
+
     return {"status": "success", "newBid": bid.bidAmount}
 
 # Seed endpoint removed
