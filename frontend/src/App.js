@@ -392,8 +392,8 @@ export default function App() {
 
   const renderView = () => {
     switch(view) {
-      case 'home': return <HomeView listings={listings} setView={setView} onSelectGame={setSelectedGame} />;
-      case 'explore': return <ExploreView listings={listings} onSelectGame={setSelectedGame} />;
+      case 'home': return <HomeView listings={listings} setView={setView} onSelectGame={handleSelectGame} />;
+      case 'explore': return <ExploreView listings={listings} onSelectGame={handleSelectGame} />;
       case 'auctions': return <AuctionsView listings={listings} onBid={placeBid} />;
       case 'dashboard': 
         if (!user) {
