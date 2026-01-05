@@ -1480,8 +1480,9 @@ function AddGameModal({ onClose, onAdd, initialData }) {
                 if (match) {
                      updatedItems[i] = { ...item };
                      if (!updatedItems[i].image && match.image) {
+                         const existing = updatedItems[i].images || [];
                          updatedItems[i].image = match.image;
-                         updatedItems[i].images = [match.image];
+                         updatedItems[i].images = [match.image, ...existing];
                          updatedItems[i].bggId = match.id;
                      }
                      if (!updatedItems[i].description && match.description) {
