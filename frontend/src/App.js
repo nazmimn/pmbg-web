@@ -805,29 +805,29 @@ function ExploreView({ listings, onSelectGame }) {
         </div>
       </div>
 
-      <div className="sticky top-20 z-30 bg-slate-50/95 backdrop-blur-sm py-4 -mx-4 px-4 border-b border-slate-200">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-4">
+      <div className="sticky top-16 md:top-20 z-30 bg-slate-50/95 backdrop-blur-sm py-2 md:py-4 -mx-4 px-4 border-b border-slate-200 transition-all">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row gap-2 sm:gap-4">
             <div className="relative flex-1">
-                <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+                <Search className="absolute left-3 top-2.5 sm:left-4 sm:top-3.5 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
                 <input 
                     type="text" 
-                    placeholder="Search boardgames by title..." 
-                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl text-base focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 shadow-sm"
+                    placeholder="Search boardgames..." 
+                    className="w-full pl-9 sm:pl-12 pr-4 py-2 sm:py-3 border border-slate-200 rounded-lg sm:rounded-xl text-sm sm:text-base focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 shadow-sm"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                 />
             </div>
             <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
                 {['ALL', 'WTS', 'WTB', 'WTT'].map(f => (
-                    <button key={f} onClick={() => setFilter(f)} className={`px-5 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap shadow-sm ${filter === f ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}`}>
+                    <button key={f} onClick={() => setFilter(f)} className={`px-3 py-1.5 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap shadow-sm ${filter === f ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}`}>
                         {f === 'ALL' ? 'All' : f}
                     </button>
                 ))}
                 <button 
                     onClick={() => setShowSold(!showSold)} 
-                    className={`flex items-center px-5 py-3 rounded-xl text-sm font-bold transition-all shadow-sm ${showSold ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}`}
+                    className={`flex items-center px-3 py-1.5 sm:px-5 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm ${showSold ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}`}
                 >
-                    {showSold ? <CheckCircle className="w-4 h-4 mr-2"/> : <XCircle className="w-4 h-4 mr-2"/>}
+                    {showSold ? <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2"/> : <XCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2"/>}
                     Sold
                 </button>
             </div>
