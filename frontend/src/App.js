@@ -809,7 +809,7 @@ function ExploreView({ listings, onSelectGame }) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filtered.map(game => <ListingCard key={game.id} game={game} onClick={() => onSelectGame(game)} />)}
+        {filtered.map(game => <ListingCard key={game.id} game={game} onClick={() => onSelectGame(game, filtered)} />)}
         {filtered.length === 0 && (
           <div className="col-span-full py-12 text-center text-slate-400 bg-white rounded-xl border border-dashed border-slate-200">
             <ShoppingBag className="w-12 h-12 mx-auto mb-3 opacity-20" />
