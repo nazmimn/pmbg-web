@@ -518,6 +518,8 @@ export default function App() {
             onClose={() => setSelectedGame(null)} 
             onAddComment={handleAddComment}
             onDeleteComment={handleDeleteComment}
+            onNext={handleNextGame}
+            onPrev={handlePrevGame}
         />
       )}
 
