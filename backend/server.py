@@ -395,8 +395,8 @@ async def update_profile(update: UserUpdate, request: Request):
             raise HTTPException(status_code=400, detail="Email already in use")
         update_data['email'] = update.email
         
-    if update.phone: update_data['phone'] = update.phone
-    if update.facebookLink: update_data['facebookLink'] = update.facebookLink
+    if update.phone is not None: update_data['phone'] = update.phone
+    if update.facebookLink is not None: update_data['facebookLink'] = update.facebookLink
     
     if update.password:
         update_data['password_hash'] = get_password_hash(update.password)
