@@ -408,6 +408,7 @@ export default function App() {
                   onMarkSold={handleMarkSold}
                   onOpenTrade={handleOpenTrade}
                   onProfileUpdate={handleProfileUpdate}
+                  onLogout={handleLogoutClick}
                 />;
       case 'auth': return <AuthView onLogin={handleLoginSuccess} onCancel={() => setView('home')} />;
       default: return <HomeView listings={listings} setView={setView} />;
