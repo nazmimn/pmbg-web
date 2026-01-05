@@ -69,6 +69,7 @@ class Listing(BaseModel):
     # Metadata
     bggId: Optional[str] = None
     openForTrade: bool = False
+    isBNIS: bool = False
 
 class AuthRequest(BaseModel):
     displayName: str
