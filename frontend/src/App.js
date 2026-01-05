@@ -1931,8 +1931,8 @@ function ListingCard({ game }) {
                         <ImageIcon className="w-12 h-12 opacity-50" />
                     </div>
                 )}
-                <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
-                    <span className={`text-xs font-bold px-2 py-1 rounded shadow-sm uppercase ${
+                <div className="absolute top-2 right-2 flex flex-col gap-1">
+                    <span className={`text-xs font-bold px-2 py-1 rounded shadow-sm uppercase text-center ${
                         game.type === 'WTS' ? 'bg-orange-500 text-white' : 
                         game.type === 'WTB' ? 'bg-blue-500 text-white' : 
                         game.type === 'WTL' ? 'bg-purple-600 text-white' : 'bg-teal-500 text-white'
@@ -1940,8 +1940,8 @@ function ListingCard({ game }) {
                         {game.type}
                     </span>
                     {game.condition && game.type === 'WTS' && (
-                        <span className={`text-xs font-bold px-2 py-1 rounded shadow-sm bg-white text-slate-700 border border-slate-100`}>
-                            {game.condition.toFixed(1)}
+                        <span className={`text-xs font-bold px-2 py-1 rounded shadow-sm bg-white text-slate-700 border border-slate-100 text-center`}>
+                            Cond: {game.condition.toFixed(1)}
                         </span>
                     )}
                 </div>
