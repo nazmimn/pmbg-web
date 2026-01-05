@@ -907,7 +907,7 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
         {/* Controls */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
            <div className="w-full sm:w-auto overflow-hidden">
-             <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar snap-x px-1 py-1">
+             <div className="flex space-x-2 overflow-x-auto overflow-y-hidden pb-2 sm:pb-0 snap-x px-1 py-1 scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
               {['ALL', 'WTS', 'WTB', 'WTT'].map(type => (
                 <button key={type} onClick={() => setFilter(type)} className={`snap-start flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${filter === type ? 'bg-slate-800 text-white shadow-md scale-105' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}>
                   {type === 'ALL' ? 'All' : type} <span className="opacity-70 ml-1">({counts[type]})</span>
