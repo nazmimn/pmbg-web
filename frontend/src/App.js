@@ -1215,8 +1215,9 @@ function AddGameModal({ onClose, onAdd, initialData }) {
                  updatedItems[i] = { ...item };
                  // Overwrite or fill image
                  if (match.image) {
+                     const existing = updatedItems[i].images || [];
                      updatedItems[i].image = match.image;
-                     updatedItems[i].images = [match.image];
+                     updatedItems[i].images = [match.image, ...existing];
                      updatedItems[i].bggId = match.id;
                  }
                  // Fill description if missing or short? BGG desc is usually good
