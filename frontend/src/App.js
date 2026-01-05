@@ -1461,24 +1461,24 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   };
 
   const renderEditForm = () => (
-    <form onSubmit={handleSingleSave} className="space-y-4">
+    <form onSubmit={handleSingleSave} className="space-y-6 py-2">
       {/* Type & Price Row */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-6">
          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Type</label>
-            <select className="w-full p-2 border border-slate-300 rounded-lg bg-slate-50" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+            <label className="block text-sm font-bold text-slate-700 mb-1.5">Type</label>
+            <select className="w-full p-3 border border-slate-300 rounded-xl bg-slate-50 focus:ring-2 focus:ring-orange-100 outline-none" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
                <option value="WTS">Sell (WTS)</option>
                <option value="WTB">Buy (WTB)</option>
                <option value="WTL" disabled>Lelong (WTL) - Coming Soon</option>
             </select>
          </div>
          <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">{formData.type === 'WTB' ? 'Willing to Pay (RM)' : 'Price (RM)'} {formData.type !== 'WTB' && <span className="text-red-500">*</span>}</label>
+            <label className="block text-sm font-bold text-slate-700 mb-1.5">{formData.type === 'WTB' ? 'Willing to Pay (RM)' : 'Price (RM)'} {formData.type !== 'WTB' && <span className="text-red-500">*</span>}</label>
             <input 
               type="text" 
               inputMode="numeric" 
               required={formData.type !== 'WTB'}
-              className="w-full p-2 border border-slate-300 rounded-lg" 
+              className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-100 outline-none font-bold text-slate-800" 
               value={formData.price} 
               onChange={e => {
                   const val = e.target.value;
@@ -1492,73 +1492,73 @@ function AddGameModal({ onClose, onAdd, initialData }) {
       </div>
 
       {formData.type === 'WTS' && (
-        <div className="flex items-center space-x-2 bg-teal-50 p-2 rounded border border-teal-100">
-           <input type="checkbox" id="openForTrade" checked={formData.openForTrade} onChange={e => setFormData({...formData, openForTrade: e.target.checked})} className="rounded text-teal-600 focus:ring-teal-500" />
-           <label htmlFor="openForTrade" className="text-sm font-medium text-teal-700">Open for Trade?</label>
+        <div className="flex items-center space-x-3 bg-teal-50 p-3 rounded-xl border border-teal-100">
+           <input type="checkbox" id="openForTrade" checked={formData.openForTrade} onChange={e => setFormData({...formData, openForTrade: e.target.checked})} className="w-5 h-5 rounded text-teal-600 focus:ring-teal-500 border-gray-300" />
+           <label htmlFor="openForTrade" className="text-sm font-bold text-teal-800">Open for Trade?</label>
         </div>
       )}
 
       <div>
-         <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Boardgame Title <span className="text-red-500">*</span></label>
-         <input type="text" required className="w-full p-2 border border-slate-300 rounded-lg" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
+         <label className="block text-sm font-bold text-slate-700 mb-1.5">Boardgame Title <span className="text-red-500">*</span></label>
+         <input type="text" required className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-orange-100 outline-none" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="e.g. Catan" />
       </div>
 
       <div>
-         <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Photos {formData.type === 'WTB' ? "(Optional)" : ""}</label>
+         <label className="block text-sm font-bold text-slate-700 mb-2">Photos {formData.type === 'WTB' ? "(Optional)" : ""}</label>
          <div 
-            className="flex gap-2 overflow-x-auto pb-2 border-2 border-dashed border-transparent hover:border-blue-300 rounded-xl transition-all p-1"
+            className="flex gap-3 overflow-x-auto pb-2"
             onDrop={onDrop}
             onDragOver={(e) => e.preventDefault()}
          >
-            <button type="button" onClick={() => multiImgRef.current?.click()} className="w-20 h-20 flex-shrink-0 border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center text-slate-400 hover:border-orange-500 hover:text-orange-500 transition-colors">
-               <Plus className="w-6 h-6" />
-               <span className="text-[10px] mt-1">Add / Drop</span>
+            <button type="button" onClick={() => multiImgRef.current?.click()} className="w-24 h-24 flex-shrink-0 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center text-slate-400 hover:border-orange-500 hover:text-orange-500 transition-colors bg-slate-50">
+               <Plus className="w-8 h-8" />
+               <span className="text-[10px] font-bold mt-1 uppercase">Add Photo</span>
             </button>
             <input type="file" multiple ref={multiImgRef} hidden accept="image/*" onChange={handleMultiImageUpload} />
             
             {formData.images?.map((img, idx) => (
-               <div key={idx} className="relative w-20 h-20 flex-shrink-0 group">
-                  <img src={img} className={`w-full h-full object-cover rounded-lg border-2 ${idx === 0 ? 'border-orange-500' : 'border-transparent'}`} />
-                  {idx === 0 && <span className="absolute bottom-0 left-0 right-0 bg-orange-500 text-white text-[8px] text-center font-bold">COVER</span>}
-                  <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1">
-                     {idx !== 0 && <button type="button" onClick={() => setCoverImage(idx)} className="text-white hover:text-orange-300" title="Make Cover"><CheckCircle className="w-4 h-4" /></button>}
-                     <button type="button" onClick={() => removeImage(idx)} className="text-white hover:text-red-300"><XCircle className="w-4 h-4" /></button>
+               <div key={idx} className="relative w-24 h-24 flex-shrink-0 group">
+                  <img src={img} className={`w-full h-full object-cover rounded-xl border-2 ${idx === 0 ? 'border-orange-500' : 'border-transparent'}`} />
+                  {idx === 0 && <span className="absolute bottom-0 left-0 right-0 bg-orange-500 text-white text-[9px] text-center font-bold py-0.5 rounded-b-lg">COVER</span>}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2 backdrop-blur-sm">
+                     {idx !== 0 && <button type="button" onClick={() => setCoverImage(idx)} className="text-white hover:text-orange-300 p-1 bg-white/20 rounded-full" title="Make Cover"><CheckCircle className="w-5 h-5" /></button>}
+                     <button type="button" onClick={() => removeImage(idx)} className="text-white hover:text-red-300 p-1 bg-white/20 rounded-full"><XCircle className="w-5 h-5" /></button>
                   </div>
                </div>
             ))}
          </div>
-         <button type="button" onClick={fetchCoverFromBGG} disabled={isAnalyzing} className="text-xs text-blue-600 hover:text-blue-800 flex items-center mt-1">
-            {isAnalyzing ? <Loader2 className="w-3 h-3 animate-spin mr-1"/> : <Globe className="w-3 h-3 mr-1"/>}
+         <button type="button" onClick={fetchCoverFromBGG} disabled={isAnalyzing} className="text-xs text-blue-600 hover:text-blue-800 flex items-center mt-2 font-bold bg-blue-50 px-3 py-1.5 rounded-full w-fit">
+            {isAnalyzing ? <Loader2 className="w-3 h-3 animate-spin mr-1.5"/> : <Globe className="w-3 h-3 mr-1.5"/>}
             Search BGG for Cover Art
          </button>
       </div>
 
       {formData.type !== 'WTB' && (
-      <div>
-         <div className="flex justify-between mb-1">
-           <label className="block text-xs font-bold text-slate-500 uppercase">Condition (1.0 - 10.0)</label>
-           <span className={`text-xs font-bold ${formData.condition >= 9 ? 'text-green-600' : formData.condition >= 7 ? 'text-blue-600' : 'text-orange-600'}`}>{Number(formData.condition).toFixed(1)}</span>
+      <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+         <div className="flex justify-between mb-2">
+           <label className="block text-sm font-bold text-slate-700">Condition</label>
+           <span className={`text-sm font-black px-2 py-0.5 rounded ${formData.condition >= 9 ? 'bg-green-100 text-green-700' : formData.condition >= 7 ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>{Number(formData.condition).toFixed(1)}</span>
          </div>
-         <input type="range" min="1" max="10" step="0.5" className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500" value={formData.condition} onChange={e => setFormData({...formData, condition: e.target.value})} />
-         <div className="text-[10px] text-slate-500 mt-1 font-medium text-center bg-slate-50 p-1 rounded">
+         <input type="range" min="1" max="10" step="0.5" className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900" value={formData.condition} onChange={e => setFormData({...formData, condition: e.target.value})} />
+         <div className="text-xs text-slate-500 mt-2 font-medium text-center">
             {getConditionText(Number(formData.condition))}
          </div>
       </div>
       )}
 
       <div>
-         <div className="flex justify-between mb-1">
-            <label className="block text-xs font-bold text-slate-500 uppercase">Description</label>
-            <button type="button" onClick={handleGenerateDescription} disabled={isAnalyzing} className="text-[10px] text-purple-600 flex items-center hover:underline"><Wand2 className="w-3 h-3 mr-1"/> Auto-write</button>
+         <div className="flex justify-between mb-1.5">
+            <label className="block text-sm font-bold text-slate-700">Description</label>
+            <button type="button" onClick={handleGenerateDescription} disabled={isAnalyzing} className="text-xs text-purple-600 flex items-center hover:bg-purple-50 px-2 py-1 rounded transition-colors font-bold"><Wand2 className="w-3 h-3 mr-1"/> AI Auto-write</button>
          </div>
-         <textarea className="w-full p-2 border border-slate-300 rounded-lg h-24 text-sm" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})}></textarea>
+         <textarea className="w-full p-3 border border-slate-300 rounded-xl h-32 text-sm focus:ring-2 focus:ring-orange-100 outline-none resize-none" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Describe condition, missing pieces, etc..."></textarea>
       </div>
 
-      <div className="pt-4 flex justify-between">
-         <button type="button" onClick={() => initialData ? onClose() : (detectedItems.length > 0 ? setStep('review') : setStep('select-method'))} className="text-slate-500">Cancel</button>
-         <button type="submit" disabled={isSubmitting} className="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-800 flex items-center">
+      <div className="pt-2 flex justify-between items-center border-t border-slate-100 mt-4">
+         <button type="button" onClick={() => initialData ? onClose() : (detectedItems.length > 0 ? setStep('review') : setStep('select-method'))} className="text-slate-500 font-bold hover:text-slate-800 px-4 py-2">Back</button>
+         <button type="submit" disabled={isSubmitting} className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 flex items-center shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5">
             {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-            {initialData ? 'Update' : (detectedItems.length > 0 ? 'Save to List' : 'Review & Post')}
+            {initialData ? 'Update Listing' : (detectedItems.length > 0 ? 'Save to List' : 'Review & Post')}
          </button>
       </div>
     </form>
