@@ -1792,14 +1792,14 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl w-full sm:max-w-2xl max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50">
-          <h2 className="text-lg font-bold text-slate-800">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-3xl sm:rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col">
+        <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50">
+          <h2 className="text-xl font-bold text-slate-800 tracking-tight">
             {step === 'edit-single' && initialData ? 'Edit Listing' : 'Add Boardgames'}
           </h2>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
-            <X className="w-5 h-5 text-slate-500" />
+            <X className="w-6 h-6 text-slate-500" />
           </button>
         </div>
         <div className="p-6 overflow-y-auto flex-1">
