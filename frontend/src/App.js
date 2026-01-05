@@ -2153,10 +2153,16 @@ function NavIcon({ icon, label, active, onClick }) {
   )
 }
 
-function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment }) {
+function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment, onNext, onPrev }) {
   const [commentText, setCommentText] = useState('');
   const [isPosting, setIsPosting] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
+
+  // Reset state when game changes
+  useEffect(() => {
+      setActiveImage(0);
+      setCommentText('');
+  }, [game.id]);
 
   const handlePost = async (e) => {
       e.preventDefault();
@@ -2171,7 +2177,7 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment }
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-md">
-       <div className="bg-white w-full h-full sm:h-[90vh] sm:max-w-5xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-300">
+       <div className="bg-white w-full h-full sm:h-[90vh] sm:max-w-5xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-300 relative group/modal">
           
           <div className="absolute top-4 right-4 z-20">
              <button onClick={onClose} className="p-2 bg-white/80 hover:bg-white rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 group">
@@ -2179,26 +2185,37 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment }
              </button>
           </div>
 
+          {/* Navigation Buttons */}
+          <button onClick={onPrev} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/80 hover:bg-white rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 hidden md:flex items-center justify-center group/nav">
+              <ChevronLeft className="w-6 h-6 text-slate-800 group-hover/nav:-translate-x-0.5 transition-transform"/>
+          </button>
+          <button onClick={onNext} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/80 hover:bg-white rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 hidden md:flex items-center justify-center group/nav">
+              <ChevronRight className="w-6 h-6 text-slate-800 group-hover/nav:translate-x-0.5 transition-transform"/>
+          </button>
+
           <div className="flex-1 overflow-y-auto">
              <div className="grid grid-cols-1 md:grid-cols-12 min-h-full">
                 
                 <div className="md:col-span-5 bg-slate-100 flex flex-col relative group">
-                   <div className="flex-1 relative min-h-[300px] md:min-h-0 bg-slate-200 flex items-center justify-center">
+                   <div className="flex-1 relative min-h-[300px] md:min-h-0 bg-slate-900 flex items-center justify-center overflow-hidden">
                       {images.length > 0 ? (
-                          <div className="relative w-full h-full p-4">
-                              <img src={images[activeImage]} className="w-full h-full object-contain drop-shadow-xl" />
+                          <div className="relative w-full h-full flex items-center justify-center">
+                              {/* Blurred Background */}
+                              <div className="absolute inset-0 overflow-hidden">
+                                  <img src={images[activeImage]} className="w-full h-full object-cover opacity-50 blur-xl scale-110" />
+                              </div>
+                              {/* Main Image */}
+                              <img src={images[activeImage]} className="relative w-full h-full object-contain z-10 shadow-2xl" />
                           </div>
                       ) : (
                           <div className="absolute inset-0 flex items-center justify-center"><ImageIcon className="w-20 h-20 text-slate-300"/></div>
                       )}
-                      
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-200/50 to-transparent pointer-events-none"></div>
                    </div>
 
                    {images.length > 1 && (
-                       <div className="absolute bottom-4 left-4 right-4 flex gap-2 overflow-x-auto pb-1 px-1 no-scrollbar justify-center z-10">
+                       <div className="absolute bottom-4 left-16 right-16 flex gap-2 overflow-x-auto pb-1 px-1 no-scrollbar justify-center z-10">
                            {images.map((img, idx) => (
-                               <button key={idx} onClick={() => setActiveImage(idx)} className={`w-14 h-14 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all shadow-lg bg-white ${activeImage === idx ? 'border-orange-500 scale-110 ring-2 ring-orange-500/50' : 'border-white/80 opacity-80 hover:opacity-100 hover:scale-105'}`}>
+                               <button key={idx} onClick={() => setActiveImage(idx)} className={`w-12 h-12 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all shadow-lg bg-white ${activeImage === idx ? 'border-orange-500 scale-110 ring-2 ring-orange-500/50' : 'border-white/80 opacity-80 hover:opacity-100 hover:scale-105'}`}>
                                    <img src={img} className="w-full h-full object-cover" />
                                </button>
                            ))}
