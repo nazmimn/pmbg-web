@@ -99,6 +99,28 @@ export default function App() {
   const [editingItem, setEditingItem] = useState(null);
   const [authProcessing, setAuthProcessing] = useState(false);
   const [selectedGame, setSelectedGame] = useState(null);
+  const [selectedList, setSelectedList] = useState([]);
+
+  const handleSelectGame = (game, list) => {
+      setSelectedGame(game);
+      setSelectedList(list || listings);
+  };
+
+  const handleNextGame = () => {
+      if (!selectedGame || selectedList.length === 0) return;
+      const idx = selectedList.findIndex(g => g.id === selectedGame.id);
+      if (idx === -1) return;
+      const nextIdx = (idx + 1) % selectedList.length;
+      setSelectedGame(selectedList[nextIdx]);
+  };
+
+  const handlePrevGame = () => {
+      if (!selectedGame || selectedList.length === 0) return;
+      const idx = selectedList.findIndex(g => g.id === selectedGame.id);
+      if (idx === -1) return;
+      const prevIdx = (idx - 1 + selectedList.length) % selectedList.length;
+      setSelectedGame(selectedList[prevIdx]);
+  };
 
   // --- Comment Handlers ---
   const handleAddComment = async (gameId, text) => {
