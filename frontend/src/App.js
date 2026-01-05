@@ -680,7 +680,16 @@ function AuthView({ onLogin, onCancel }) {
 function HomeView({ listings, setView, onSelectGame }) {
   const auctions = listings.filter(l => l.type === 'WTL');
   const forSale = listings.filter(l => l.type === 'WTS' && l.status !== 'sold');
-  const latestWTS = forSale.length > 0 ? forSale[0] : null;
+  const wantToBuy = listings.filter(l => l.type === 'WTB' && l.status !== 'sold');
+  
+  const [featuredGame, setFeaturedGame] = useState(null);
+  
+  useEffect(() => {
+      if (forSale.length > 0) {
+          const random = forSale[Math.floor(Math.random() * forSale.length)];
+          setFeaturedGame(random);
+      }
+  }, [forSale.length]);
 
   return (
     <div className="space-y-12">
@@ -697,16 +706,15 @@ function HomeView({ listings, setView, onSelectGame }) {
             </div>
           </div>
           <div className="hidden md:block md:w-1/2 relative h-full min-h-[300px]">
-             {latestWTS ? (
-                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-80 bg-white rotate-6 rounded-lg shadow-2xl flex flex-col p-4 transition-transform hover:rotate-3 cursor-pointer" onClick={() => setView('explore')}>
-                    <div className="h-48 bg-slate-200 rounded mb-4 overflow-hidden relative">
-                      {latestWTS.image ? <img src={latestWTS.image} className="w-full h-full object-cover" alt={latestWTS.title} /> : <div className="w-full h-full flex items-center justify-center bg-slate-100"><ImageIcon className="text-slate-300 w-12 h-12"/></div>}
-                      <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded shadow">NEW</div>
+             {featuredGame ? (
+                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-80 bg-white rotate-6 rounded-lg shadow-2xl flex flex-col p-4 transition-transform hover:rotate-3 cursor-pointer" onClick={() => onSelectGame(featuredGame, forSale)}>
+                    <div className="h-56 bg-slate-200 rounded mb-4 overflow-hidden relative">
+                      {featuredGame.image ? <img src={featuredGame.image} className="w-full h-full object-cover" alt={featuredGame.title} /> : <div className="w-full h-full flex items-center justify-center bg-slate-100"><ImageIcon className="text-slate-300 w-12 h-12"/></div>}
+                      <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded shadow">FEATURED</div>
                     </div>
-                    <h3 className="font-bold text-slate-800 text-lg line-clamp-2 mb-1">{latestWTS.title}</h3>
-                    <p className="text-xs text-slate-500 mb-4 line-clamp-2">{latestWTS.description || "No description"}</p>
+                    <h3 className="font-bold text-slate-800 text-lg line-clamp-2 mb-1">{featuredGame.title}</h3>
                     <div className="mt-auto flex justify-between items-center border-t border-slate-100 pt-3">
-                       <span className="text-orange-600 font-extrabold text-2xl">RM {latestWTS.price}</span>
+                       <span className="text-orange-600 font-extrabold text-2xl">RM {featuredGame.price}</span>
                        <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600"><ArrowRightLeft className="w-4 h-4"/></div>
                     </div>
                  </div>
@@ -727,18 +735,7 @@ function HomeView({ listings, setView, onSelectGame }) {
          </div>
       )}
 
-      {auctions.length > 0 && (
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-2xl font-bold text-slate-800 flex items-center"><Gavel className="w-6 h-6 mr-2 text-orange-500" /> Live Lelong</h3>
-            <button onClick={() => setView('auctions')} className="text-orange-600 font-medium hover:underline">View all</button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {auctions.slice(0, 4).map(game => <AuctionCard key={game.id} game={game} />)}
-          </div>
-        </section>
-      )}
-
+      {/* Fresh from Market (WTS) */}
       {forSale.length > 0 && (
         <section>
            <div className="flex items-center justify-between mb-6">
@@ -748,6 +745,31 @@ function HomeView({ listings, setView, onSelectGame }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {forSale.slice(0, 8).map(game => <ListingCard key={game.id} game={game} onClick={() => onSelectGame(game, forSale)} />)}
             </div>
+        </section>
+      )}
+
+      {/* Community Wishlist (WTB) */}
+      {wantToBuy.length > 0 && (
+        <section>
+           <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-slate-800 flex items-center text-blue-600"><Heart className="w-6 h-6 mr-2 fill-current" /> Community Wishlist</h3>
+              <button onClick={() => setView('explore')} className="text-blue-600 font-medium hover:underline">View all</button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {wantToBuy.slice(0, 8).map(game => <ListingCard key={game.id} game={game} onClick={() => onSelectGame(game, wantToBuy)} />)}
+            </div>
+        </section>
+      )}
+
+      {auctions.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold text-slate-800 flex items-center"><Gavel className="w-6 h-6 mr-2 text-orange-500" /> Live Lelong</h3>
+            <button onClick={() => setView('auctions')} className="text-orange-600 font-medium hover:underline">View all</button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {auctions.slice(0, 4).map(game => <AuctionCard key={game.id} game={game} />)}
+          </div>
         </section>
       )}
     </div>
