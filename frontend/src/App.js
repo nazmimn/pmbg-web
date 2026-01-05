@@ -1005,11 +1005,11 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
       </div>
 
       <div className="lg:col-span-3 space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-2xl font-bold text-slate-800">My Listings</h2>
+        <div className="flex flex-row justify-between items-center gap-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">My Listings</h2>
           <div className="flex gap-2">
-            <button onClick={onAdd} className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium flex items-center shadow-lg transition-all">
-              <Plus className="w-5 h-5 mr-2" /> Add Boardgame
+            <button onClick={onAdd} className="bg-orange-500 hover:bg-orange-600 text-white px-3 sm:px-4 py-2 rounded-lg font-medium flex items-center shadow-lg transition-all text-xs sm:text-sm">
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" /> <span className="hidden sm:inline">Add Boardgame</span><span className="sm:hidden">Add</span>
             </button>
           </div>
         </div>
