@@ -866,7 +866,7 @@ function AuctionsView({ listings, onBid }) {
   )
 }
 
-function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, onOpenTrade, onProfileUpdate }) {
+function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, onOpenTrade, onProfileUpdate, onLogout }) {
   const [filter, setFilter] = useState('ALL');
   const [viewMode, setViewMode] = useState('list'); // list | grid
   const [searchTerm, setSearchTerm] = useState('');
