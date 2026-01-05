@@ -2154,7 +2154,7 @@ function NavIcon({ icon, label, active, onClick }) {
   )
 }
 
-function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment, onNext, onPrev }) {
+function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment, onNext, onPrev, onLoginRequest }) {
   const [commentText, setCommentText] = useState('');
   const [isPosting, setIsPosting] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
@@ -2186,31 +2186,28 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment, 
              </button>
           </div>
 
-          {/* Navigation Buttons */}
-          <button onClick={onPrev} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/80 hover:bg-white rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 hidden md:flex items-center justify-center group/nav">
-              <ChevronLeft className="w-6 h-6 text-slate-800 group-hover/nav:-translate-x-0.5 transition-transform"/>
+          {/* Navigation Buttons - Visible on Mobile too */}
+          <button onClick={onPrev} className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 bg-white/80 hover:bg-white rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 flex items-center justify-center group/nav">
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-slate-800 group-hover/nav:-translate-x-0.5 transition-transform"/>
           </button>
-          <button onClick={onNext} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/80 hover:bg-white rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 hidden md:flex items-center justify-center group/nav">
-              <ChevronRight className="w-6 h-6 text-slate-800 group-hover/nav:translate-x-0.5 transition-transform"/>
+          <button onClick={onNext} className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 p-2 sm:p-3 bg-white/80 hover:bg-white rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 flex items-center justify-center group/nav">
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-slate-800 group-hover/nav:translate-x-0.5 transition-transform"/>
           </button>
 
           <div className="flex-1 overflow-y-auto">
              <div className="grid grid-cols-1 md:grid-cols-12 min-h-full">
                 
                 <div className="md:col-span-5 bg-slate-100 flex flex-col relative group">
-                   <div className="flex-1 relative min-h-[300px] md:min-h-0 bg-slate-900 flex items-center justify-center overflow-hidden">
+                   <div className="flex-1 relative min-h-[300px] md:min-h-0 bg-slate-200 flex items-center justify-center">
                       {images.length > 0 ? (
-                          <div className="relative w-full h-full flex items-center justify-center">
-                              {/* Blurred Background */}
-                              <div className="absolute inset-0 overflow-hidden">
-                                  <img src={images[activeImage]} className="w-full h-full object-cover opacity-50 blur-xl scale-110" />
-                              </div>
-                              {/* Main Image */}
-                              <img src={images[activeImage]} className="relative w-full h-full object-contain z-10 shadow-2xl" />
+                          <div className="relative w-full h-full p-4">
+                              <img src={images[activeImage]} className="w-full h-full object-contain drop-shadow-xl" />
                           </div>
                       ) : (
                           <div className="absolute inset-0 flex items-center justify-center"><ImageIcon className="w-20 h-20 text-slate-300"/></div>
                       )}
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-200/50 to-transparent pointer-events-none"></div>
                    </div>
 
                    {images.length > 1 && (
@@ -2235,6 +2232,7 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment, 
                                 }`}>{game.type}</span>
                                 {game.isBNIS && <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">BNIS</span>}
                                 {game.status === 'sold' && <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">SOLD</span>}
+                                {game.openForTrade && <span className="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-teal-200">OPEN TRADE</span>}
                                 {game.condition && game.type !== 'WTB' && !game.isBNIS && <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold border border-slate-200">Cond: {game.condition}</span>}
                             </div>
                             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2 leading-tight">{game.title}</h1>
@@ -2258,7 +2256,7 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment, 
                         </div>
 
                         <div className="prose prose-sm prose-slate max-w-none text-slate-600">
-                            <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider mb-2">About this Item</h3>
+                            <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider mb-2">ABOUT THIS BOARDGAME</h3>
                             <p className="whitespace-pre-wrap leading-relaxed opacity-90">{game.description || "No description provided."}</p>
                         </div>
                     </div>
@@ -2284,7 +2282,7 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment, 
                                     </div>
                                 </div>
                             ))}
-                            {(!game.comments || game.comments.length === 0) && <div className="text-center py-8 text-slate-400 text-sm italic">No questions yet. Be the first to ask!</div>}
+                            {(!game.comments || game.comments.length === 0) && <div className="text-center py-8 text-slate-400 text-sm italic">It's quiet here... Start the conversation!</div>}
                         </div>
 
                         {user ? (
@@ -2302,7 +2300,7 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment, 
                             </form>
                         ) : (
                             <div className="text-center p-4 bg-orange-50/50 rounded-xl text-orange-800 text-sm font-medium border border-orange-100">
-                                <button onClick={() => onClose()} className="underline hover:text-orange-900">Login</button> to join the conversation.
+                                <button onClick={onLoginRequest} className="underline hover:text-orange-900">Login</button> to join the conversation.
                             </div>
                         )}
                     </div>
