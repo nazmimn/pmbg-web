@@ -369,7 +369,7 @@ export default function App() {
   const renderView = () => {
     switch(view) {
       case 'home': return <HomeView listings={listings} setView={setView} />;
-      case 'explore': return <ExploreView listings={listings} />;
+      case 'explore': return <ExploreView listings={listings} onSelectGame={setSelectedGame} />;
       case 'auctions': return <AuctionsView listings={listings} onBid={placeBid} />;
       case 'dashboard': 
         if (!user) {
