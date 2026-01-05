@@ -289,6 +289,21 @@ frontend:
         agent: "testing"
         comment: "✅ User authentication working correctly. Email login successful, dashboard navigation functional, Add Boardgame button accessible after authentication."
 
+  - task: "Dashboard Responsiveness"
+    implemented: true
+    working: false
+    file: "/app/frontend/src/App.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "testing"
+        comment: "Testing dashboard responsiveness on mobile (375x667) - Profile section layout, Quick Stats visibility, listing status badges, Edit/Delete buttons, and grid/list view toggle"
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUES FOUND: 1) Dashboard navigation blocked by 'Made with Emergent' badge overlay preventing Profile tab clicks, 2) Profile tab not properly routing to dashboard view, 3) Cannot test listing features (no listings for debug@test.com user). PARTIAL SUCCESS: ✅ Profile section has horizontal layout on mobile, ✅ Quick Stats visible, ✅ View toggle buttons functional. Dashboard access needs immediate fixing."
+
 test_plan:
   current_focus: []
   stuck_tasks: []
