@@ -996,7 +996,7 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
         </div>
         <div className="flex-1 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-auto sm:h-full">
           <div className="p-4 bg-slate-50/50 border-b border-slate-100 font-bold text-slate-800 text-sm tracking-wide">Collection Stats</div>
-          <div className="p-4 sm:p-5 pb-6 sm:pb-5 space-y-3 sm:space-y-4 flex-1 flex flex-col justify-center">
+          <div className="p-4 sm:p-5 pb-12 sm:pb-5 space-y-3 sm:space-y-4 flex-1 flex flex-col justify-center">
              <div className="flex justify-between items-center"><span className="text-slate-500 text-sm font-medium">Active Listings</span><span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded text-xs">{myListings.filter(l=>l.type==='WTS' && l.status!=='sold').length}</span></div>
              <div className="flex justify-between items-center"><span className="text-slate-500 text-sm font-medium">Wishlist</span><span className="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">{myListings.filter(l=>l.type==='WTB').length}</span></div>
              <div className="flex justify-between items-center"><span className="text-slate-500 text-sm font-medium">Sold Items</span><span className="font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded text-xs">{myListings.filter(l=>l.status==='sold').length}</span></div>
