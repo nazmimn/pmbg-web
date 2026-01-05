@@ -2198,16 +2198,19 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment, 
              <div className="grid grid-cols-1 md:grid-cols-12 min-h-full">
                 
                 <div className="md:col-span-5 bg-slate-100 flex flex-col relative group">
-                   <div className="flex-1 relative min-h-[300px] md:min-h-0 bg-slate-200 flex items-center justify-center">
+                   <div className="flex-1 relative min-h-[300px] md:min-h-0 bg-slate-900 flex items-center justify-center overflow-hidden">
                       {images.length > 0 ? (
-                          <div className="relative w-full h-full p-4">
-                              <img src={images[activeImage]} className="w-full h-full object-contain drop-shadow-xl" />
+                          <div className="relative w-full h-full flex items-center justify-center">
+                              {/* Blurred Background */}
+                              <div className="absolute inset-0 overflow-hidden">
+                                  <img src={images[activeImage]} alt={game.title} className="w-full h-full object-cover opacity-50 blur-xl scale-110" />
+                              </div>
+                              {/* Main Image */}
+                              <img src={images[activeImage]} alt={game.title} className="relative w-full h-full object-contain z-10 shadow-2xl" />
                           </div>
                       ) : (
                           <div className="absolute inset-0 flex items-center justify-center"><ImageIcon className="w-20 h-20 text-slate-300"/></div>
                       )}
-                      
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-200/50 to-transparent pointer-events-none"></div>
                    </div>
 
                    {images.length > 1 && (
