@@ -96,6 +96,49 @@ export default function App() {
   const [notification, setNotification] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
   const [authProcessing, setAuthProcessing] = useState(false);
+  const [selectedGame, setSelectedGame] = useState(null);
+
+  // --- Comment Handlers ---
+  const handleAddComment = async (gameId, text) => {
+      try {
+          const res = await api.post(`/listings/${gameId}/comments`, { text });
+          const newComment = res.data;
+          
+          setListings(prev => prev.map(l => {
+              if (l.id === gameId) {
+                  return { ...l, comments: [...(l.comments || []), newComment] };
+              }
+              return l;
+          }));
+          
+          if (selectedGame && selectedGame.id === gameId) {
+              setSelectedGame(prev => ({ ...prev, comments: [...(prev.comments || []), newComment] }));
+          }
+      } catch (e) {
+          console.error(e);
+          showNotification("Failed to post comment", "error");
+      }
+  };
+
+  const handleDeleteComment = async (gameId, commentId) => {
+      try {
+          await api.delete(`/listings/${gameId}/comments/${commentId}`);
+          
+          setListings(prev => prev.map(l => {
+              if (l.id === gameId) {
+                  return { ...l, comments: (l.comments || []).filter(c => c.id !== commentId) };
+              }
+              return l;
+          }));
+          
+          if (selectedGame && selectedGame.id === gameId) {
+              setSelectedGame(prev => ({ ...prev, comments: prev.comments.filter(c => c.id !== commentId) }));
+          }
+      } catch (e) {
+          console.error(e);
+          showNotification("Failed to delete comment", "error");
+      }
+  };
 
   // Auth Initialization
   useEffect(() => {
