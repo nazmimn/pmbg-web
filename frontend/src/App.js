@@ -719,7 +719,7 @@ function HomeView({ listings, setView }) {
               <button onClick={() => setView('explore')} className="text-orange-600 font-medium hover:underline">View all</button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {forSale.slice(0, 8).map(game => <ListingCard key={game.id} game={game} />)}
+              {forSale.slice(0, 8).map(game => <ListingCard key={game.id} game={game} onClick={() => onSelectGame(game)} />)}
             </div>
         </section>
       )}
