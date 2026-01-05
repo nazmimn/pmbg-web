@@ -1904,7 +1904,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
                 </div>
             ))}
         </div>
-        <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+        <div className="flex justify-between items-center pt-4 border-t border-slate-100 pb-20 md:pb-0">
             <button onClick={handleBulkAutoFill} disabled={isSubmitting} className="text-sm text-blue-600 hover:underline flex items-center">
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1"/> : <Wand2 className="w-4 h-4 mr-1"/>}
                 Auto-fill from BGG
