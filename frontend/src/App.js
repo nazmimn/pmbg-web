@@ -906,15 +906,17 @@ function DashboardView({ user, myListings, onAdd, onDelete, onEdit, onMarkSold, 
 
         {/* Controls */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-           <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
-            {['ALL', 'WTS', 'WTB', 'WTT'].map(type => (
-              <button key={type} onClick={() => setFilter(type)} className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${filter === type ? 'bg-slate-800 text-white shadow-md' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'}`}>
-                {type === 'ALL' ? 'All' : type} <span className="opacity-70 ml-1">({counts[type]})</span>
+           <div className="w-full sm:w-auto overflow-hidden">
+             <div className="flex space-x-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar snap-x px-1 py-1">
+              {['ALL', 'WTS', 'WTB', 'WTT'].map(type => (
+                <button key={type} onClick={() => setFilter(type)} className={`snap-start flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold transition-all shadow-sm ${filter === type ? 'bg-slate-800 text-white shadow-md scale-105' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}>
+                  {type === 'ALL' ? 'All' : type} <span className="opacity-70 ml-1">({counts[type]})</span>
+                </button>
+              ))}
+              <button disabled className="snap-start flex-shrink-0 px-5 py-2.5 rounded-full text-xs font-bold bg-slate-50 text-slate-300 border border-slate-100 cursor-not-allowed">
+                  WTL
               </button>
-            ))}
-            <button disabled className="px-4 py-2 rounded-full text-xs font-bold bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 opacity-50">
-                WTL (Disabled)
-            </button>
+            </div>
           </div>
           <div className="flex items-center space-x-2 w-full sm:w-auto">
               <div className="relative flex-1 sm:w-64">
