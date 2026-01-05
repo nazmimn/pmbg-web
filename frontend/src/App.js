@@ -2144,27 +2144,33 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment }
   const images = game.images && game.images.length > 0 ? game.images : (game.image ? [game.image] : []);
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-sm">
-       <div className="bg-white w-full h-full sm:h-[90vh] sm:max-w-4xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95">
-          <div className="flex justify-between items-center p-4 border-b border-slate-100 bg-white z-10">
-             <h2 className="text-lg font-bold text-slate-800 truncate pr-4">{game.title}</h2>
-             <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full"><X className="w-6 h-6 text-slate-500"/></button>
-          </div>
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-md">
+       <div className="bg-white w-full h-full sm:h-[90vh] sm:max-w-5xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-300">
           
-          <div className="flex-1 overflow-y-auto">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-6">
-                <div className="bg-slate-100 p-4 flex flex-col">
-                   <div className="aspect-square bg-white rounded-xl overflow-hidden mb-2 relative shadow-sm">
+          <div className="absolute top-4 right-4 z-20">
+             <button onClick={onClose} className="p-2 bg-white/80 hover:bg-white rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 group">
+                <X className="w-6 h-6 text-slate-800 group-hover:rotate-90 transition-transform"/>
+             </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+             <div className="grid grid-cols-1 md:grid-cols-12 min-h-full">
+                
+                <div className="md:col-span-5 bg-slate-100 flex flex-col relative group">
+                   <div className="flex-1 relative min-h-[300px] md:min-h-0 bg-slate-200">
                       {images.length > 0 ? (
-                          <img src={images[activeImage]} className="w-full h-full object-contain" />
+                          <img src={images[activeImage]} className="absolute inset-0 w-full h-full object-cover" />
                       ) : (
-                          <div className="w-full h-full flex items-center justify-center"><ImageIcon className="w-12 h-12 text-slate-300"/></div>
+                          <div className="absolute inset-0 flex items-center justify-center"><ImageIcon className="w-20 h-20 text-slate-300"/></div>
                       )}
+                      
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 md:opacity-0 md:group-hover:opacity-40 transition-opacity"></div>
                    </div>
+
                    {images.length > 1 && (
-                       <div className="flex gap-2 overflow-x-auto pb-2 px-1">
+                       <div className="absolute bottom-4 left-4 right-4 flex gap-2 overflow-x-auto pb-1 px-1 no-scrollbar justify-center">
                            {images.map((img, idx) => (
-                               <button key={idx} onClick={() => setActiveImage(idx)} className={`w-16 h-16 rounded-lg overflow-hidden border-2 flex-shrink-0 ${activeImage === idx ? 'border-orange-500' : 'border-transparent'}`}>
+                               <button key={idx} onClick={() => setActiveImage(idx)} className={`w-14 h-14 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all shadow-lg ${activeImage === idx ? 'border-orange-500 scale-110 ring-2 ring-orange-500/50' : 'border-white/80 opacity-80 hover:opacity-100 hover:scale-105'}`}>
                                    <img src={img} className="w-full h-full object-cover" />
                                </button>
                            ))}
@@ -2172,95 +2178,89 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment }
                    )}
                 </div>
 
-                <div className="p-6 space-y-6">
-                    <div>
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                                game.type === 'WTS' ? 'bg-orange-100 text-orange-700' : 
-                                game.type === 'WTB' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                            }`}>{game.type}</span>
-                            {game.isBNIS && <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-xs font-bold">BNIS</span>}
-                            {game.status === 'sold' && <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold">SOLD</span>}
-                            {game.condition && game.type !== 'WTB' && !game.isBNIS && <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold">Cond: {game.condition}</span>}
+                <div className="md:col-span-7 flex flex-col bg-white">
+                    <div className="p-6 md:p-8 space-y-8 flex-1">
+                        
+                        <div>
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
+                                    game.type === 'WTS' ? 'bg-orange-100 text-orange-600' : 
+                                    game.type === 'WTB' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'
+                                }`}>{game.type}</span>
+                                {game.isBNIS && <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">BNIS</span>}
+                                {game.status === 'sold' && <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-sm">SOLD</span>}
+                                {game.condition && game.type !== 'WTB' && !game.isBNIS && <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold border border-slate-200">Cond: {game.condition}</span>}
+                            </div>
+                            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-2 leading-tight">{game.title}</h1>
+                            <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-600">
+                                {game.type === 'WTL' ? `Current Bid: RM ${game.currentBid}` : (game.price ? `RM ${game.price}` : <span className="text-slate-400 italic font-medium">Make Offer</span>)}
+                            </div>
                         </div>
-                        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2 leading-tight">{game.title}</h1>
-                        <div className="text-2xl font-bold text-slate-700">
-                            {game.type === 'WTL' ? `Current Bid: RM ${game.currentBid}` : (game.price ? `RM ${game.price}` : <span className="text-slate-400 italic">Make Offer</span>)}
-                        </div>
-                    </div>
 
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                        <h3 className="font-bold text-slate-700 mb-3 text-xs uppercase tracking-wider">Seller Info</h3>
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-white rounded-full overflow-hidden border border-slate-200">
+                        <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4 group cursor-default">
+                            <div className="w-12 h-12 bg-slate-100 rounded-full overflow-hidden border-2 border-white shadow-sm group-hover:scale-105 transition-transform">
                                 {game.sellerAvatar ? <img src={game.sellerAvatar} className="w-full h-full object-cover"/> : <User className="w-6 h-6 m-auto mt-2 text-slate-400"/>}
                             </div>
-                            <div>
-                                <div className="font-bold text-sm text-slate-800">{game.sellerName || "Unknown"}</div>
-                                <div className="flex gap-2 mt-1">
-                                    {game.sellerPhone && <button onClick={() => window.open(`https://wa.me/${game.sellerPhone}`, '_blank')} className="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded flex items-center hover:bg-green-200 transition-colors font-medium"><MessageCircle className="w-3 h-3 mr-1"/> Whatsapp</button>}
-                                    {game.sellerFb && <button onClick={() => window.open(game.sellerFb, '_blank')} className="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded flex items-center hover:bg-blue-200 transition-colors font-medium"><Facebook className="w-3 h-3 mr-1"/> Facebook</button>}
-                                </div>
+                            <div className="flex-1">
+                                <div className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-0.5">Seller</div>
+                                <div className="font-bold text-slate-800">{game.sellerName || "Unknown"}</div>
                             </div>
+                            <div className="flex gap-2">
+                                {game.sellerPhone && <button onClick={() => window.open(`https://wa.me/${game.sellerPhone}`, '_blank')} className="p-2 bg-green-50 text-green-600 rounded-full hover:bg-green-100 transition-colors" title="Whatsapp"><MessageCircle className="w-5 h-5"/></button>}
+                                {game.sellerFb && <button onClick={() => window.open(game.sellerFb, '_blank')} className="p-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors" title="Facebook"><Facebook className="w-5 h-5"/></button>}
+                            </div>
+                        </div>
+
+                        <div className="prose prose-sm prose-slate max-w-none text-slate-600">
+                            <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wider mb-2">About this Item</h3>
+                            <p className="whitespace-pre-wrap leading-relaxed opacity-90">{game.description || "No description provided."}</p>
                         </div>
                     </div>
 
-                    <div>
-                        <h3 className="font-bold text-slate-700 mb-2 text-xs uppercase tracking-wider">Description</h3>
-                        <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
-                            {game.description || "No description provided."}
-                        </p>
+                    <div className="bg-slate-50 border-t border-slate-100 p-6 md:p-8">
+                        <h3 className="font-bold text-slate-800 mb-6 flex items-center"><MessageCircle className="w-5 h-5 mr-2 text-orange-500"/> Community Q&A ({game.comments?.length || 0})</h3>
+                        
+                        <div className="space-y-4 mb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                            {game.comments?.map((c) => (
+                                <div key={c.id} className={`flex gap-3 ${user && user.id === c.userId ? 'flex-row-reverse' : ''}`}>
+                                    <div className="w-8 h-8 bg-white rounded-full border border-slate-200 overflow-hidden flex-shrink-0 shadow-sm mt-1">
+                                        {c.userAvatar ? <img src={c.userAvatar} className="w-full h-full object-cover"/> : <User className="w-4 h-4 m-auto mt-2 text-slate-300"/>}
+                                    </div>
+                                    <div className={`flex-1 max-w-[85%] p-3 rounded-2xl shadow-sm text-sm relative group ${user && user.id === c.userId ? 'bg-orange-100 text-slate-800 rounded-tr-none' : 'bg-white text-slate-600 rounded-tl-none border border-slate-100'}`}>
+                                        <div className="flex justify-between items-center mb-1 gap-4">
+                                            <span className="font-bold text-xs opacity-70">{c.userName}</span>
+                                            <span className="text-[10px] opacity-50">{new Date(c.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                        <p>{c.text}</p>
+                                        {user && user.id === c.userId && (
+                                            <button onClick={() => onDeleteComment(game.id, c.id)} className="absolute -top-2 -left-2 bg-white text-red-500 p-1 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"><Trash2 className="w-3 h-3"/></button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                            {(!game.comments || game.comments.length === 0) && <div className="text-center py-8 text-slate-400 text-sm italic">No questions yet. Be the first to ask!</div>}
+                        </div>
+
+                        {user ? (
+                            <form onSubmit={handlePost} className="relative">
+                                <input 
+                                   type="text" 
+                                   className="w-full bg-white border border-slate-200 rounded-full pl-5 pr-12 py-3 text-sm focus:outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-50 transition-all shadow-sm"
+                                   placeholder="Ask the seller a question..." 
+                                   value={commentText}
+                                   onChange={e => setCommentText(e.target.value)}
+                                />
+                                <button type="submit" disabled={isPosting || !commentText.trim()} className="absolute right-1.5 top-1.5 bg-slate-900 hover:bg-orange-600 text-white rounded-full p-2 w-9 h-9 flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                    {isPosting ? <Loader2 className="w-4 h-4 animate-spin"/> : <ArrowLeft className="w-4 h-4 rotate-180"/>} 
+                                </button>
+                            </form>
+                        ) : (
+                            <div className="text-center p-4 bg-orange-50/50 rounded-xl text-orange-800 text-sm font-medium border border-orange-100">
+                                <button onClick={() => onClose()} className="underline hover:text-orange-900">Login</button> to join the conversation.
+                            </div>
+                        )}
                     </div>
                 </div>
-             </div>
-
-             <div className="bg-slate-50 border-t border-slate-200 p-6">
-                 <h3 className="font-bold text-slate-800 mb-4 flex items-center"><MessageCircle className="w-5 h-5 mr-2"/> Comments ({game.comments?.length || 0})</h3>
-                 
-                 <div className="space-y-4 mb-6">
-                     {game.comments?.map((c) => (
-                         <div key={c.id} className="flex gap-3 group">
-                             <div className="w-8 h-8 bg-white rounded-full border border-slate-200 overflow-hidden flex-shrink-0">
-                                 {c.userAvatar ? <img src={c.userAvatar} className="w-full h-full object-cover"/> : <User className="w-4 h-4 m-auto mt-2 text-slate-300"/>}
-                             </div>
-                             <div className="flex-1 bg-white p-3 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm border border-slate-100 relative">
-                                 <div className="flex justify-between items-start mb-1">
-                                     <span className="font-bold text-xs text-slate-700">{c.userName}</span>
-                                     <span className="text-[10px] text-slate-400">{new Date(c.createdAt).toLocaleDateString()}</span>
-                                 </div>
-                                 <p className="text-sm text-slate-600">{c.text}</p>
-                                 {user && user.id === c.userId && (
-                                     <button onClick={() => onDeleteComment(game.id, c.id)} className="absolute top-2 right-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-3 h-3"/></button>
-                                 )}
-                             </div>
-                         </div>
-                     ))}
-                     {(!game.comments || game.comments.length === 0) && <div className="text-slate-400 text-sm italic">No comments yet.</div>}
-                 </div>
-
-                 {user ? (
-                     <form onSubmit={handlePost} className="flex gap-3">
-                         <div className="w-8 h-8 bg-slate-200 rounded-full overflow-hidden flex-shrink-0 hidden sm:block">
-                             {user.picture ? <img src={user.picture} className="w-full h-full object-cover"/> : <User className="w-4 h-4 m-auto mt-2 text-slate-400"/>}
-                         </div>
-                         <div className="flex-1 flex gap-2">
-                             <input 
-                                type="text" 
-                                className="flex-1 border border-slate-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-orange-500"
-                                placeholder="Ask a question..." 
-                                value={commentText}
-                                onChange={e => setCommentText(e.target.value)}
-                             />
-                             <button type="submit" disabled={isPosting || !commentText.trim()} className="bg-orange-500 hover:bg-orange-600 text-white rounded-full p-2 w-10 h-10 flex items-center justify-center transition-colors shadow-lg">
-                                 {isPosting ? <Loader2 className="w-4 h-4 animate-spin"/> : <MessageCircle className="w-4 h-4"/>} 
-                             </button>
-                         </div>
-                     </form>
-                 ) : (
-                     <div className="text-center p-4 bg-orange-50 rounded-xl text-orange-800 text-sm">
-                         Please login to post comments.
-                     </div>
-                 )}
              </div>
           </div>
        </div>
