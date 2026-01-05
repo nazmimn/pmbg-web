@@ -1565,31 +1565,30 @@ function AddGameModal({ onClose, onAdd, initialData }) {
   )
 
   const renderSelectType = () => (
-    <div className="space-y-6 text-center">
-      <h4 className="text-lg font-medium text-slate-700">What is your goal?</h4>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {['WTS', 'WTB', 'WTL'].map(t => (
-          <button 
-            key={t}
-            onClick={() => { 
-                if (t === 'WTL') return; 
-                setFormData(prev => ({...prev, type: t})); 
-                setStep('select-method'); 
-            }}
-            disabled={t === 'WTL'}
-            className={`p-6 rounded-2xl border-2 transition-all shadow-sm ${
-                t === 'WTL' 
-                ? 'opacity-50 cursor-not-allowed border-slate-100 bg-slate-50'
-                : t==='WTS'?'border-orange-200 bg-orange-50 hover:border-orange-500 hover:shadow-md hover:-translate-y-1'
-                : 'border-blue-200 bg-blue-50 hover:border-blue-500 hover:shadow-md hover:-translate-y-1'
-            }`}
-          >
-            <div className={`text-2xl font-black mb-2 ${t==='WTS'?'text-orange-600':t==='WTB'?'text-blue-600':'text-slate-400'}`}>{t}</div>
-            <div className="text-xs text-slate-500 font-medium">
-              {t==='WTS'?'Sell Game':t==='WTB'?'Buy Game':t==='WTL'?'Auction (Soon)':''}
+    <div className="space-y-8 text-center py-4">
+      <h4 className="text-2xl font-bold text-slate-800">What would you like to do?</h4>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <button onClick={() => { setFormData(prev => ({...prev, type: 'WTS'})); setStep('select-method'); }} className="group p-6 rounded-3xl border-2 border-orange-100 bg-orange-50 hover:border-orange-500 hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center h-48">
+            <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <DollarSign className="w-8 h-8 text-orange-500" />
             </div>
-          </button>
-        ))}
+            <div className="text-2xl font-black text-orange-600 mb-1">Sell</div>
+            <div className="text-sm text-slate-500 font-medium">WTS</div>
+        </button>
+        <button onClick={() => { setFormData(prev => ({...prev, type: 'WTB'})); setStep('select-method'); }} className="group p-6 rounded-3xl border-2 border-blue-100 bg-blue-50 hover:border-blue-500 hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center h-48">
+            <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <ShoppingBag className="w-8 h-8 text-blue-500" />
+            </div>
+            <div className="text-2xl font-black text-blue-600 mb-1">Buy</div>
+            <div className="text-sm text-slate-500 font-medium">WTB</div>
+        </button>
+        <button disabled className="group p-6 rounded-3xl border-2 border-slate-100 bg-slate-50 opacity-60 cursor-not-allowed flex flex-col items-center justify-center h-48">
+            <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-4 grayscale">
+                <Gavel className="w-8 h-8 text-slate-400" />
+            </div>
+            <div className="text-2xl font-black text-slate-400 mb-1">Lelong</div>
+            <div className="text-sm text-slate-400 font-medium">Coming Soon</div>
+        </button>
       </div>
     </div>
   )
