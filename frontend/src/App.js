@@ -516,6 +516,7 @@ export default function App() {
             game={selectedGame} 
             user={user} 
             onClose={() => setSelectedGame(null)} 
+            onLoginRequest={() => { setSelectedGame(null); setView('auth'); }}
             onAddComment={handleAddComment}
             onDeleteComment={handleDeleteComment}
             onNext={handleNextGame}
