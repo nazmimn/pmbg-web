@@ -2089,7 +2089,7 @@ function ListingCard({ game, onClick }) {
                 {isHovered && images.length > 1 && (
                     <div className="absolute bottom-2 right-2 flex gap-1 z-10 bg-black/20 p-1 rounded-full backdrop-blur-[1px]">
                         {images.map((_, idx) => (
-                            <div key={idx} className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === imgIndex ? 'bg-white' : 'bg-white/40'}`}></div>
+                            <div key={idx} className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentImgIndex ? 'bg-white' : 'bg-white/40'}`}></div>
                         ))}
                     </div>
                 )}
