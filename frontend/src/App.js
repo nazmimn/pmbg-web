@@ -2071,7 +2071,7 @@ function ListingCard({ game, onClick }) {
         >
             <div className="relative h-48 overflow-hidden bg-slate-200">
                 {images.length > 0 ? (
-                    <img src={images[imgIndex]} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={images[currentImgIndex]} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-400">
                         <ImageIcon className="w-12 h-12 opacity-50" />
