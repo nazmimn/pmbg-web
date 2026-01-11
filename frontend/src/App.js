@@ -2255,21 +2255,7 @@ function GameDetailsModal({ game, user, onClose, onAddComment, onDeleteComment, 
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-0 sm:p-4 bg-slate-900/90 backdrop-blur-md">
        <div className="bg-white w-full h-full sm:h-[90vh] sm:max-w-5xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-300 relative group/modal">
           
-          <div className="absolute top-4 right-4 z-20 flex gap-3">
-             <button onClick={() => {
-                 if (navigator.share) {
-                     navigator.share({
-                         title: game.title,
-                         text: `Check out ${game.title} on Pasar Malam Boardgame!`,
-                         url: window.location.href
-                     }).catch(console.error);
-                 } else {
-                     navigator.clipboard.writeText(window.location.href);
-                     alert("Link copied to clipboard!");
-                 }
-             }} className="p-2 bg-white/80 hover:bg-white rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 group">
-                <Share2 className="w-6 h-6 text-slate-800 group-hover:text-blue-600 transition-colors"/>
-             </button>
+          <div className="absolute top-4 right-4 z-20">
              <button onClick={onClose} className="p-2 bg-white/80 hover:bg-white rounded-full shadow-lg backdrop-blur-sm transition-all hover:scale-110 group">
                 <X className="w-6 h-6 text-slate-800 group-hover:rotate-90 transition-transform"/>
              </button>
