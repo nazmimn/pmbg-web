@@ -2031,6 +2031,22 @@ function EditProfileModal({ user, onClose, onUpdate }) {
 }
 
 function ListingCard({ game, onClick }) {
+    const [imgIndex, setImgIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    const images = game.images && game.images.length > 0 ? game.images : (game.image ? [game.image] : []);
+
+    useEffect(() => {
+        let interval;
+        if (isHovered && images.length > 1) {
+            interval = setInterval(() => {
+                setImgIndex((prev) => (prev + 1) % images.length);
+            }, 1000);
+        } else {
+            setImgIndex(0);
+        }
+        return () => clearInterval(interval);
+    }, [isHovered, images.length]);
+
     const handleContact = (type, value) => {
         if (!value) return;
         if (type === 'whatsapp') {
@@ -2046,15 +2062,37 @@ function ListingCard({ game, onClick }) {
     const isWTB = game.type === 'WTB';
 
     return (
-        <div onClick={onClick} className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border flex flex-col h-full cursor-pointer ${isWTB ? 'border-blue-200 bg-blue-50/30' : 'border-slate-100'}`}>
+        <div 
+            onClick={onClick} 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group border flex flex-col h-full cursor-pointer ${isWTB ? 'border-blue-200 bg-blue-50/30' : 'border-slate-100'}`}
+        >
             <div className="relative h-48 overflow-hidden bg-slate-200">
-                {game.image ? (
-                    <img src={game.image} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                {images.length > 0 ? (
+                    <img src={images[imgIndex]} alt={game.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-400">
                         <ImageIcon className="w-12 h-12 opacity-50" />
                     </div>
                 )}
+                
+                {/* Photo Badge */}
+                {images.length > 1 && (
+                     <div className="absolute bottom-2 left-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center shadow-sm z-10 font-bold">
+                        <ImageIcon className="w-3 h-3 mr-1" /> {images.length}
+                     </div>
+                )}
+
+                {/* Hover Dots */}
+                {isHovered && images.length > 1 && (
+                    <div className="absolute bottom-2 right-2 flex gap-1 z-10 bg-black/20 p-1 rounded-full backdrop-blur-[1px]">
+                        {images.map((_, idx) => (
+                            <div key={idx} className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === imgIndex ? 'bg-white' : 'bg-white/40'}`}></div>
+                        ))}
+                    </div>
+                )}
+
                 <div className="absolute top-2 right-2 flex flex-col gap-1">
                     <span className={`text-xs font-bold px-2 py-1 rounded shadow-sm uppercase text-center ${
                         game.type === 'WTS' ? 'bg-orange-500 text-white' : 
