@@ -24,7 +24,6 @@ import {
   Globe,
   Pencil,
   Trash2,
-  Share2,
   Filter,
   CheckCircle,
   AlertCircle,
