@@ -2045,11 +2045,8 @@ function ListingCard({ game, onClick }) {
         return () => clearInterval(interval);
     }, [isHovered, images.length]);
 
-    useEffect(() => {
-        if (!isHovered) {
-            setImgIndex(0);
-        }
-    }, [isHovered]);
+    // Reset image index when not hovering
+    const currentImgIndex = isHovered ? imgIndex : 0;
 
     const handleContact = (type, value) => {
         if (!value) return;
