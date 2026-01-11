@@ -1632,7 +1632,7 @@ function AddGameModal({ onClose, onAdd, initialData }) {
             
             {formData.images?.map((img, idx) => (
                <div key={idx} className="relative w-24 h-24 flex-shrink-0 group">
-                  <img src={img} className={`w-full h-full object-contain bg-slate-50 rounded-xl border-2 ${idx === 0 ? 'border-orange-500' : 'border-transparent'}`} />
+                  <img src={img} className={`w-full h-full object-cover rounded-xl border-2 ${idx === 0 ? 'border-orange-500' : 'border-transparent'}`} />
                   {idx === 0 && <span className="absolute bottom-0 left-0 right-0 bg-orange-500 text-white text-[9px] text-center font-bold py-0.5 rounded-b-lg">COVER</span>}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2 backdrop-blur-sm">
                      {idx !== 0 && <button type="button" onClick={() => setCoverImage(idx)} className="text-white hover:text-orange-300 p-1 bg-white/20 rounded-full" title="Make Cover"><CheckCircle className="w-5 h-5" /></button>}
