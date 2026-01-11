@@ -2041,11 +2041,15 @@ function ListingCard({ game, onClick }) {
             interval = setInterval(() => {
                 setImgIndex((prev) => (prev + 1) % images.length);
             }, 1000);
-        } else {
-            setImgIndex(0);
         }
         return () => clearInterval(interval);
     }, [isHovered, images.length]);
+
+    useEffect(() => {
+        if (!isHovered) {
+            setImgIndex(0);
+        }
+    }, [isHovered]);
 
     const handleContact = (type, value) => {
         if (!value) return;
